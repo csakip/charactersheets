@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import { HashRouter, Route, Routes, Navigate } from "react-router-dom";
 import AuthPage from "./AuthPage";
 import { supabase } from "./supabase";
 import Room from "./Room";
 import { User } from "@supabase/supabase-js";
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User>();
 
@@ -16,9 +15,10 @@ function App() {
         const {
           data: { session },
         } = await supabase.auth.getSession();
-        setIsAuthenticated(!!session);
         if (session) {
           setUser(session.user);
+        } else {
+          setUser(undefined);
         }
       } finally {
         setLoading(false);
@@ -30,7 +30,7 @@ function App() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(!!session);
+      setUser(session ? session.user : undefined);
     });
 
     return () => {
@@ -45,15 +45,12 @@ function App() {
   }
 
   return (
-    <Router>
+    <HashRouter>
       <Routes>
-        <Route path='/auth' element={<AuthPage />} />
-        <Route
-          path='/*'
-          element={isAuthenticated ? <Room user={user} /> : <Navigate to='/auth' replace />}
-        />
+        <Route path='auth' element={<AuthPage />} />
+        <Route path='/*' element={user ? <Room user={user} /> : <Navigate to='auth' replace />} />
       </Routes>
-    </Router>
+    </HashRouter>
   );
 }
 

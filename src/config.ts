@@ -11,7 +11,7 @@ export const skills = [
   "Atlétika",
   "Éberség",
   "Megtévesztés",
-  "Rejtőzködés",
+  "Rejtélyfejtés",
   "Gyógyítás",
   "Parancsnoklás",
   "Mágiaismeret",

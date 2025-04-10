@@ -66,7 +66,7 @@ function AuthPage() {
 
           {message && (
             <Message
-              severity={message.includes("successful") ? "success" : "error"}
+              severity={message.includes("sikeres") ? "success" : "error"}
               text={message}
               className='w-full border-round-xl'
             />
