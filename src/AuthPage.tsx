@@ -20,14 +20,14 @@ function AuthPage() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) setMessage(error.message);
       else {
-        setMessage("Login successful!");
+        setMessage("A bejelentkezés sikeres!");
         navigate("/");
       }
     } else {
       const { error } = await supabase.auth.signUp({ email, password });
       if (error) setMessage(error.message);
       else {
-        setMessage("Registration successful!");
+        setMessage("A regisztráció sikeres!");
         navigate("/");
       }
     }
@@ -36,7 +36,7 @@ function AuthPage() {
   return (
     <div className='flex align-items-center justify-content-center min-h-screen bg-black-alpha-90 p-4'>
       <Card
-        title={isLogin ? "Login" : "Register"}
+        title={isLogin ? "Bejelentkezés" : "Regisztráció"}
         className='w-full md:w-30rem shadow-8 border-round-xl'>
         <div className='flex flex-column gap-4'>
           <div className='p-fluid'>
@@ -60,7 +60,7 @@ function AuthPage() {
                 className='p-inputtext-lg'
                 inputClassName='w-full'
               />
-              <label htmlFor='password'>Password</label>
+              <label htmlFor='password'>Jelszó</label>
             </span>
           </div>
 
@@ -73,7 +73,7 @@ function AuthPage() {
           )}
 
           <Button
-            label={isLogin ? "Login" : "Register"}
+            label={isLogin ? "Bejelentkezés" : "Regisztráció"}
             onClick={handleAuth}
             size='large'
             className='p-button-raised'
@@ -81,12 +81,12 @@ function AuthPage() {
 
           <div className='flex align-items-center gap-2'>
             <Divider className='flex-1' />
-            <span className='text-500 font-light'>OR</span>
+            <span className='text-500 font-light'>VAGY</span>
             <Divider className='flex-1' />
           </div>
 
           <Button
-            label={isLogin ? "Create an Account" : "Back to Login"}
+            label={isLogin ? "Fiók létrehozása" : "Vissza a bejelentkezéshez"}
             onClick={() => setIsLogin(!isLogin)}
             severity='secondary'
             text

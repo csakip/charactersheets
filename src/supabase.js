@@ -62,3 +62,12 @@ export const deleteCharacter = async (id) => {
     return false;
   }
 };
+
+export async function logout() {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    console.error("Error logging out:", error.message);
+  } else {
+    console.log("Successfully logged out");
+  }
+}

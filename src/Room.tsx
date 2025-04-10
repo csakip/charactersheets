@@ -9,8 +9,7 @@ import { Toast } from "primereact/toast";
 import { useEffect, useRef, useState } from "react";
 import CharacterSheetPage from "./CharacterSheetPage";
 import { Participant, emptyCharacter } from "./config";
-import { saveCharacter, supabase } from "./supabase";
-import { Link } from "react-router-dom";
+import { logout, saveCharacter, supabase } from "./supabase";
 
 function Room({ user }: { user: User }) {
   const [participants, setParticipants] = useState<Participant[]>([]);
@@ -42,7 +41,6 @@ function Room({ user }: { user: User }) {
             payload.eventType === "UPDATE" ||
             payload.eventType === "DELETE"
           ) {
-            console.log("payload", payload);
             if ("id" in payload.new) {
               const newParticipant = payload.new as Participant;
 
@@ -62,7 +60,6 @@ function Room({ user }: { user: User }) {
                 setParticipants(newParticipants);
               }
             } else if ("id" in payload.old) {
-              console.log("remove", payload.old);
               //@ts-expect-error there is an id
               setParticipants([...participantsRef.current.filter((p) => p.id !== payload.old.id)]);
             }
@@ -87,7 +84,6 @@ function Room({ user }: { user: User }) {
       return;
     }
 
-    console.log("setting participants", data);
     setParticipants(data || []);
   };
 
@@ -143,6 +139,9 @@ function Room({ user }: { user: User }) {
               </div>
             </ScrollPanel>
           </Card>
+          <Button className='align-self-start' text size='small' onClick={logout}>
+            Kijelentkezés
+          </Button>
         </div>
         <div className='flex-1'>
           <ScrollPanel className='w-full h-screen'>

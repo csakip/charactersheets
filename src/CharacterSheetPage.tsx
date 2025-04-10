@@ -38,7 +38,7 @@ export default function CharacterSheetPage({
     const timeoutId = setTimeout(() => {
       saveCharacter(participantRef.current);
       setIsDirty(false);
-    }, 2000); // Delay the save by 2 seconds after the last change
+    }, 1000); // Delay the save
 
     return () => clearTimeout(timeoutId); // Clear the timer if `isDirty` changes again
   }, [participant, isDirty]);
@@ -113,31 +113,33 @@ export default function CharacterSheetPage({
   return (
     <>
       <Toast ref={toast} />
-      <div className='flex flex-column gap-4 p-4' style={{ maxWidth: "1000px", margin: "auto" }}>
+      <div
+        className='flex flex-column gap-4 p-4 my-3'
+        style={{ maxWidth: "1000px", margin: "auto", backgroundColor: "#1f2937" }}>
         {/* Top Fields */}
         <div className='flex gap-4'>
           <InputText
             placeholder='Név'
-            className='flex-1'
+            className='flex-1 text-yellow-400'
             value={participant.charsheet.name}
             onChange={(e) => updateCharacter((prev) => ({ ...prev, name: e.target.value }))}
           />
           <InputText
             placeholder='Kaszt'
-            className='w-10rem'
+            className='w-10rem text-yellow-400'
             value={participant.charsheet.class}
             onChange={(e) => updateCharacter((prev) => ({ ...prev, class: e.target.value }))}
           />
           <InputText
             placeholder='Játékos'
-            className='w-10rem'
+            className='w-10rem text-yellow-400'
             value={participant.charsheet.playerName}
             onChange={(e) => updateCharacter((prev) => ({ ...prev, playerName: e.target.value }))}
           />
           <div className='flex align-items-center gap-2'>
             <span>Szint</span>
             <InputText
-              className='w-3rem text-center'
+              className='w-3rem text-center text-yellow-400'
               value={participant.charsheet.level?.toString() || ""}
               onChange={(e) =>
                 updateCharacter((prev) => ({
@@ -157,7 +159,7 @@ export default function CharacterSheetPage({
             {attributes.map((attr) => (
               <div key={attr.label} className='flex flex-row align-items-center w-6 mb-3'>
                 <InputText
-                  className='w-4rem text-center p-inputtext-lg p-2 text-4xl'
+                  className='w-4rem text-center p-inputtext-lg p-2 text-4xl text-yellow-400'
                   value={
                     participant.charsheet.attributes[
                       attr.label.toLowerCase() as keyof typeof participant.charsheet.attributes
@@ -165,7 +167,7 @@ export default function CharacterSheetPage({
                   }
                   onChange={(e) => handleAttributeChange(attr.label.slice(0, 3), e.target.value)}
                 />
-                <span className='font-bold ml-3 text-3xl'>{attr.label}</span>
+                <span className='font-bold ml-2 text-3xl'>{attr.label}</span>
               </div>
             ))}
           </div>
@@ -173,7 +175,7 @@ export default function CharacterSheetPage({
           {/* Skills and Abilities */}
           <div className='flex w-3 flex-column'>
             <div className='w-full text-center font-bold mb-3'>Képzettségek</div>
-            <div className='flex-1 border-1 border-round surface-border p-3 justify-content-between flex flex-column'>
+            <div className='flex-1 border-1 border-round border-bluegray-700 p-3 justify-content-between flex flex-column'>
               {skills.map((skill) => (
                 <div key={skill} className='flex justify-content-between align-items-center'>
                   <span>{skill}</span>
@@ -187,7 +189,7 @@ export default function CharacterSheetPage({
           </div>
           <div className='flex w-5 flex-column'>
             <div className='w-full text-center font-bold mb-3'>Különleges képességek</div>
-            <div className='flex-1 border-1 border-round surface-border p-3'>
+            <div className='flex-1 border-1 border-round border-bluegray-700 p-3'>
               <div className='grid'>
                 {abilities.map((ab, idx) => (
                   <Fragment key={ab}>
@@ -199,7 +201,7 @@ export default function CharacterSheetPage({
                       />
                     </div>
                     {(idx + 1) % 4 === 0 && idx !== abilities.length - 1 && (
-                      <hr className='w-full' />
+                      <hr className='w-full text-bluegray-700' />
                     )}
                   </Fragment>
                 ))}
@@ -214,7 +216,7 @@ export default function CharacterSheetPage({
             autoResize
             rows={5}
             placeholder='Fegyverek'
-            className='flex-1'
+            className='flex-1 text-yellow-400'
             value={participant.charsheet.weapons}
             onChange={(e) => updateCharacter((prev) => ({ ...prev, weapons: e.target.value }))}
           />
@@ -222,7 +224,7 @@ export default function CharacterSheetPage({
             autoResize
             rows={5}
             placeholder='Felszerelés'
-            className='flex-1'
+            className='flex-1 text-yellow-400'
             value={participant.charsheet.gear}
             onChange={(e) => updateCharacter((prev) => ({ ...prev, gear: e.target.value }))}
           />
@@ -246,7 +248,7 @@ export default function CharacterSheetPage({
           <div className='flex align-items-center gap-2'>
             <span>Össz páncél</span>
             <InputText
-              className='w-3rem text-center'
+              className='w-3rem text-center text-yellow-400'
               value={participant.charsheet.sumArmor?.toString() || ""}
               onChange={(e) =>
                 updateCharacter((prev) => ({
@@ -259,7 +261,7 @@ export default function CharacterSheetPage({
           <div className='flex align-items-center gap-2'>
             <span>HP kocka</span>
             <InputText
-              className='w-3rem text-center'
+              className='w-3rem text-center text-yellow-400'
               value={participant.charsheet.hpDice?.toString() || ""}
               onChange={(e) =>
                 updateCharacter((prev) => ({
@@ -272,7 +274,7 @@ export default function CharacterSheetPage({
           <div className='flex align-items-center gap-2'>
             <span>HP</span>
             <InputText
-              className='w-3rem text-center'
+              className='w-3rem text-center text-yellow-400'
               value={participant.charsheet.hp?.toString() || ""}
               onChange={(e) =>
                 updateCharacter((prev) => ({
@@ -290,7 +292,7 @@ export default function CharacterSheetPage({
             autoResize
             rows={3}
             placeholder='Jegyzetek'
-            className='w-full'
+            className='w-full text-yellow-400'
             value={participant.charsheet.notesLeft}
             onChange={(e) => updateCharacter((prev) => ({ ...prev, notesLeft: e.target.value }))}
           />
@@ -298,7 +300,7 @@ export default function CharacterSheetPage({
             autoResize
             rows={3}
             placeholder='Jegyzetek'
-            className='w-full'
+            className='w-full text-yellow-400'
             value={participant.charsheet.notesRight}
             onChange={(e) => updateCharacter((prev) => ({ ...prev, notesRight: e.target.value }))}
           />
@@ -309,7 +311,7 @@ export default function CharacterSheetPage({
           <div className='flex align-items-center gap-2 flex-1 justify-content-center'>
             <span>Pénz</span>
             <InputText
-              className='w-10rem text-center'
+              className='w-10rem text-center text-yellow-400'
               value={participant.charsheet.money}
               onChange={(e) => updateCharacter((prev) => ({ ...prev, money: e.target.value }))}
             />
@@ -317,7 +319,7 @@ export default function CharacterSheetPage({
           <div className='flex align-items-center gap-2 flex-1 justify-content-center'>
             <span>Köv. szint</span>
             <InputText
-              className='w-6rem text-center'
+              className='w-6rem text-center text-yellow-400'
               value={participant.charsheet.nextLevel?.toString() || ""}
               onChange={(e) =>
                 updateCharacter((prev) => ({
@@ -330,7 +332,7 @@ export default function CharacterSheetPage({
           <div className='flex align-items-center gap-2 flex-1 justify-content-center'>
             <span>XP</span>
             <InputText
-              className='w-6rem text-center'
+              className='w-6rem text-center text-yellow-400'
               value={participant.charsheet.xp?.toString() || ""}
               onChange={(e) =>
                 updateCharacter((prev) => ({

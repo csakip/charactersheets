@@ -18,7 +18,7 @@ function App() {
         } = await supabase.auth.getSession();
         setIsAuthenticated(!!session);
         if (session) {
-          setUser((await supabase.auth.getUser()).data.user);
+          setUser(session.user);
         }
       } finally {
         setLoading(false);
@@ -50,7 +50,7 @@ function App() {
         <Route path='/auth' element={<AuthPage />} />
         <Route
           path='/*'
-          element={isAuthenticated && user ? <Room user={user} /> : <Navigate to='/auth' replace />}
+          element={isAuthenticated ? <Room user={user} /> : <Navigate to='/auth' replace />}
         />
       </Routes>
     </Router>
