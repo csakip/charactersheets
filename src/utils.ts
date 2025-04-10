@@ -85,7 +85,7 @@ export const emptyCharacter = (newPlayerName): CharacterSheet => ({
   gear: "",
   notesLeft: "",
   notesRight: "",
-  armor: "",
+  armor: "Nincs",
   shield: false,
   sumArmor: 0,
   hpDice: 1,

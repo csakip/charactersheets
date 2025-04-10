@@ -8,7 +8,7 @@ import { ScrollPanel } from "primereact/scrollpanel";
 import { Toast } from "primereact/toast";
 import { useEffect, useRef, useState } from "react";
 import CharacterSheetPage from "./CharacterSheetPage";
-import { Participant, emptyCharacter } from "./config";
+import { Participant, emptyCharacter } from "./utils";
 import { logout, saveCharacter, supabase } from "./supabase";
 
 function Room({ user }: { user: User }) {
@@ -41,8 +41,8 @@ function Room({ user }: { user: User }) {
             payload.eventType === "UPDATE" ||
             payload.eventType === "DELETE"
           ) {
-            if ("id" in payload.new) {
-              const newParticipant = payload.new as Participant;
+            if (payload.eventType === "UPDATE" || payload.eventType === "INSERT") {
+              let newParticipant = payload.new as Participant;
 
               const existingParticipant = participantsRef.current.find(
                 (p) => p.id === newParticipant.id
@@ -53,14 +53,21 @@ function Room({ user }: { user: User }) {
                 !existingParticipant ||
                 new Date(newParticipant.updated_at) > new Date(existingParticipant.updated_at)
               ) {
+                if (newParticipant.user_id === user.id && payload.eventType === "UPDATE") {
+                  console.log("Updating my character");
+                  // It's my character, only update the name and playerName
+                  existingParticipant.charsheet.name = newParticipant.charsheet.name;
+                  existingParticipant.charsheet.playerName = newParticipant.charsheet.playerName;
+                  existingParticipant.updated_at = newParticipant.updated_at;
+                  newParticipant = existingParticipant;
+                }
                 const newParticipants = [
                   ...participantsRef.current.filter((p) => p.id !== newParticipant.id),
                   newParticipant,
                 ];
                 setParticipants(newParticipants);
               }
-            } else if ("id" in payload.old) {
-              //@ts-expect-error there is an id
+            } else if (payload.eventType === "DELETE") {
               setParticipants([...participantsRef.current.filter((p) => p.id !== payload.old.id)]);
             }
           }

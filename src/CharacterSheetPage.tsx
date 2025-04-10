@@ -2,7 +2,7 @@ import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
 import { Checkbox } from "primereact/checkbox";
 import { Fragment } from "react/jsx-runtime";
-import { abilities, attributes, Participant, skills } from "./config";
+import { abilities, attributes, Participant, skills } from "./utils";
 import { useEffect, useState, useRef } from "react";
 import { deleteCharacter, saveCharacter } from "./supabase";
 import { Toast } from "primereact/toast";
@@ -55,7 +55,7 @@ export default function CharacterSheetPage({
   }
 
   const handleAttributeChange = (attr: string, value: string) => {
-    const numValue = value === "" ? 0 : parseInt(value);
+    const numValue = value === "" ? 0 : Math.max(0, Math.min(3, parseInt(value)));
     updateCharacter((prev) => ({
       ...prev,
       attributes: {
@@ -114,13 +114,14 @@ export default function CharacterSheetPage({
     <>
       <Toast ref={toast} />
       <div
-        className='flex flex-column gap-4 p-4 my-3'
+        className='flex flex-column gap-4 p-4 my-3 border-round-md'
         style={{ maxWidth: "1000px", margin: "auto", backgroundColor: "#1f2937" }}>
         {/* Top Fields */}
         <div className='flex gap-4'>
           <InputText
             placeholder='Név'
             className='flex-1 text-yellow-400'
+            maxLength={50}
             value={participant.charsheet.name}
             onChange={(e) => updateCharacter((prev) => ({ ...prev, name: e.target.value }))}
           />
@@ -128,12 +129,14 @@ export default function CharacterSheetPage({
             placeholder='Kaszt'
             className='w-10rem text-yellow-400'
             value={participant.charsheet.class}
+            maxLength={10}
             onChange={(e) => updateCharacter((prev) => ({ ...prev, class: e.target.value }))}
           />
           <InputText
             placeholder='Játékos'
             className='w-10rem text-yellow-400'
             value={participant.charsheet.playerName}
+            maxLength={50}
             onChange={(e) => updateCharacter((prev) => ({ ...prev, playerName: e.target.value }))}
           />
           <div className='flex align-items-center gap-2'>
@@ -144,7 +147,7 @@ export default function CharacterSheetPage({
               onChange={(e) =>
                 updateCharacter((prev) => ({
                   ...prev,
-                  level: e.target.value ? parseInt(e.target.value) : 0,
+                  level: e.target.value ? Math.min(10, Math.max(1, parseInt(e.target.value))) : 1,
                 }))
               }
             />
@@ -177,7 +180,11 @@ export default function CharacterSheetPage({
             <div className='w-full text-center font-bold mb-3'>Képzettségek</div>
             <div className='flex-1 border-1 border-round border-bluegray-700 p-3 justify-content-between flex flex-column'>
               {skills.map((skill) => (
-                <div key={skill} className='flex justify-content-between align-items-center'>
+                <div
+                  key={skill}
+                  className={`flex justify-content-between align-items-center ${
+                    participant.charsheet.skills.includes(skill) ? "text-900" : "text-200"
+                  }`}>
                   <span>{skill}</span>
                   <Checkbox
                     checked={participant.charsheet.skills.includes(skill)}
@@ -193,7 +200,10 @@ export default function CharacterSheetPage({
               <div className='grid'>
                 {abilities.map((ab, idx) => (
                   <Fragment key={ab}>
-                    <div className='col-6 flex justify-content-between align-items-center p-1'>
+                    <div
+                      className={`col-6 flex justify-content-between align-items-center p-1 ${
+                        participant.charsheet.abilities.includes(ab) ? "text-900" : "text-200"
+                      }`}>
                       <span>{ab}</span>
                       <Checkbox
                         checked={participant.charsheet.abilities.includes(ab)}
@@ -217,6 +227,7 @@ export default function CharacterSheetPage({
             rows={5}
             placeholder='Fegyverek'
             className='flex-1 text-yellow-400'
+            maxLength={1000}
             value={participant.charsheet.weapons}
             onChange={(e) => updateCharacter((prev) => ({ ...prev, weapons: e.target.value }))}
           />
@@ -225,6 +236,7 @@ export default function CharacterSheetPage({
             rows={5}
             placeholder='Felszerelés'
             className='flex-1 text-yellow-400'
+            maxLength={1000}
             value={participant.charsheet.gear}
             onChange={(e) => updateCharacter((prev) => ({ ...prev, gear: e.target.value }))}
           />
@@ -248,12 +260,15 @@ export default function CharacterSheetPage({
           <div className='flex align-items-center gap-2'>
             <span>Össz páncél</span>
             <InputText
+              style={{ borderRadius: "0 0 50% 50% / 0 0 100% 100%" }}
               className='w-3rem text-center text-yellow-400'
               value={participant.charsheet.sumArmor?.toString() || ""}
               onChange={(e) =>
                 updateCharacter((prev) => ({
                   ...prev,
-                  sumArmor: e.target.value ? parseInt(e.target.value) : 0,
+                  sumArmor: e.target.value
+                    ? Math.max(0, Math.min(10, parseInt(e.target.value)))
+                    : 0,
                 }))
               }
             />
@@ -266,7 +281,7 @@ export default function CharacterSheetPage({
               onChange={(e) =>
                 updateCharacter((prev) => ({
                   ...prev,
-                  hpDice: e.target.value ? parseInt(e.target.value) : 0,
+                  hpDice: e.target.value ? Math.max(1, Math.min(10, parseInt(e.target.value))) : 0,
                 }))
               }
             />
@@ -279,7 +294,7 @@ export default function CharacterSheetPage({
               onChange={(e) =>
                 updateCharacter((prev) => ({
                   ...prev,
-                  hp: e.target.value ? parseInt(e.target.value) : 0,
+                  hp: e.target.value ? Math.max(0, Math.min(50, parseInt(e.target.value))) : 0,
                 }))
               }
             />
@@ -293,6 +308,7 @@ export default function CharacterSheetPage({
             rows={3}
             placeholder='Jegyzetek'
             className='w-full text-yellow-400'
+            maxLength={1000}
             value={participant.charsheet.notesLeft}
             onChange={(e) => updateCharacter((prev) => ({ ...prev, notesLeft: e.target.value }))}
           />
@@ -301,6 +317,7 @@ export default function CharacterSheetPage({
             rows={3}
             placeholder='Jegyzetek'
             className='w-full text-yellow-400'
+            maxLength={1000}
             value={participant.charsheet.notesRight}
             onChange={(e) => updateCharacter((prev) => ({ ...prev, notesRight: e.target.value }))}
           />
@@ -313,6 +330,7 @@ export default function CharacterSheetPage({
             <InputText
               className='w-10rem text-center text-yellow-400'
               value={participant.charsheet.money}
+              maxLength={50}
               onChange={(e) => updateCharacter((prev) => ({ ...prev, money: e.target.value }))}
             />
           </div>
@@ -320,7 +338,8 @@ export default function CharacterSheetPage({
             <span>Köv. szint</span>
             <InputText
               className='w-6rem text-center text-yellow-400'
-              value={participant.charsheet.nextLevel?.toString() || ""}
+              value={participant.charsheet.nextLevel?.toString() || "0"}
+              maxLength={5}
               onChange={(e) =>
                 updateCharacter((prev) => ({
                   ...prev,
@@ -333,7 +352,8 @@ export default function CharacterSheetPage({
             <span>XP</span>
             <InputText
               className='w-6rem text-center text-yellow-400'
-              value={participant.charsheet.xp?.toString() || ""}
+              value={participant.charsheet.xp?.toString() || "0"}
+              maxLength={5}
               onChange={(e) =>
                 updateCharacter((prev) => ({
                   ...prev,
