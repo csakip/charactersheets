@@ -115,7 +115,7 @@ function Room({ user }: { user: User }) {
                 target='_blank'
                 rel='noopener noreferrer'
                 className='text-300 text-sm'>
-                Ismertető
+                Ismertető <i className='pi pi-external-link text-xs ml-1'></i>
               </a>
             }
             pt={{
