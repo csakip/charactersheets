@@ -76,7 +76,7 @@ export type CharacterSheet = {
 export const emptyCharacter = (newPlayerName): CharacterSheet => ({
   playerName: newPlayerName,
   name: "",
-  class: "",
+  class: "Egyedi",
   level: 1,
   attributes: { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 },
   skills: [],

@@ -13,5 +13,10 @@ input::-webkit-inner-spin-button {
 
 /* Firefox */
 input[type="number"] {
+  appearance: textfield;
   -moz-appearance: textfield;
+}
+
+.p-dropdown-label.p-inputtext {
+  color: var(--p-yellow-400);
 }

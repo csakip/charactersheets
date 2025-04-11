@@ -1,6 +1,7 @@
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
 import { Checkbox } from "primereact/checkbox";
+import { Dropdown } from "primereact/dropdown";
 import { Fragment } from "react/jsx-runtime";
 import { abilities, attributes, Participant, skills } from "./utils";
 import { useEffect, useState, useRef } from "react";
@@ -31,6 +32,7 @@ export default function CharacterSheetPage({
         saveCharacter(participant);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadedParticipant]);
 
   useEffect(() => {
@@ -44,6 +46,7 @@ export default function CharacterSheetPage({
     }, 1000); // Delay the save
 
     return () => clearTimeout(timeoutId); // Clear the timer if `isDirty` changes again
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [participant, isDirty]);
 
   function updateCharacter(value: (prev: any) => any) {
@@ -105,6 +108,24 @@ export default function CharacterSheetPage({
     }
   };
 
+  function handleClassChange(value: string) {
+    const classSkills = {
+      Harcos: ["Atlétika"],
+      Tolvaj: ["Lopakodás"],
+      Pap: ["Rejtélyfejtés", "Gyógyítás"],
+      Varázsló: ["Mágiaismeret"],
+      Kósza: ["Túlélés"],
+    };
+    (classSkills[value] ?? []).forEach((skill) => {
+      if (!participant.charsheet.skills.includes(skill)) participant.charsheet.skills.push(skill);
+    });
+    updateCharacter((prev) => ({
+      ...prev,
+      class: value,
+      skills: [...participant.charsheet.skills],
+    }));
+  }
+
   const handleDeleteCharacter = async () => {
     const success = await deleteCharacter(participant.id);
     if (success) {
@@ -139,12 +160,15 @@ export default function CharacterSheetPage({
             value={participant.charsheet.name}
             onChange={(e) => updateCharacter((prev) => ({ ...prev, name: e.target.value }))}
           />
-          <InputText
+          <Dropdown
             placeholder='Kaszt'
             className='w-10rem text-yellow-400'
             value={participant.charsheet.class}
-            maxLength={10}
-            onChange={(e) => updateCharacter((prev) => ({ ...prev, class: e.target.value }))}
+            options={["Harcos", "Tolvaj", "Pap", "Varázsló", "Kósza", "Egyedi"].map((value) => ({
+              label: value,
+              value,
+            }))}
+            onChange={(e) => handleClassChange(e.value)}
           />
           <InputText
             placeholder='Játékos'
