@@ -40,7 +40,7 @@ function AuthPage() {
         className='w-full md:w-30rem shadow-8 border-round-xl'>
         <div className='flex flex-column gap-4'>
           <div className='p-fluid'>
-            <span className='p-float-label mb-4'>
+            <span className='p-float-label mb-5 mt-2'>
               <InputText
                 id='email'
                 value={email}
@@ -62,6 +62,8 @@ function AuthPage() {
               />
               <label htmlFor='password'>Jelszó</label>
             </span>
+
+            {!isLogin && <p className='my-2 text-300 text-sm'>Kisbetű, nagybetű, szám kell.</p>}
           </div>
 
           {message && (
@@ -76,7 +78,7 @@ function AuthPage() {
             label={isLogin ? "Bejelentkezés" : "Regisztráció"}
             onClick={handleAuth}
             size='large'
-            className='p-button-raised'
+            className='p-button-raised mt-2'
           />
 
           <div className='flex align-items-center gap-2'>
