@@ -89,6 +89,7 @@ export default function CharacterSheetPage({
   };
 
   const handleArmorTypeChange = (type: string, checked: boolean) => {
+    if (!editable) return;
     const prevShield = participant.charsheet.shield ? 1 : 0;
     const shield = type === "Pajzs" && checked ? 1 : type !== "Pajzs" ? prevShield : 0;
 
@@ -109,6 +110,7 @@ export default function CharacterSheetPage({
   };
 
   function handleClassChange(value: string) {
+    if (!editable) return;
     const classSkills = {
       Harcos: ["Atlétika"],
       Tolvaj: ["Lopakodás"],
@@ -127,6 +129,7 @@ export default function CharacterSheetPage({
   }
 
   const handleDeleteCharacter = async () => {
+    if (!editable) return;
     const success = await deleteCharacter(participant.id);
     if (success) {
       toast.current?.show({
