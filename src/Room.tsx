@@ -106,7 +106,7 @@ function Room({ user }: { user: User }) {
     <>
       <Toast ref={toast} />
       <div className='flex'>
-        <div className='flex flex-column align-items-center p-3 gap-3 w-27rem h-screen'>
+        <div className='flex flex-column align-items-center p-3 w-27rem h-screen'>
           <Card
             title='World of Dungeons'
             subTitle={
@@ -118,6 +118,10 @@ function Room({ user }: { user: User }) {
                 Ismertető
               </a>
             }
+            pt={{
+              content: { className: "flex-grow-1 flex flex-column justify-content-between pb-0" },
+              body: { className: "flex flex-column flex-1" },
+            }}
             className='w-full flex-grow-1 flex flex-column'>
             <ScrollPanel>
               <div className='flex flex-column gap-2'>
@@ -140,10 +144,10 @@ function Room({ user }: { user: User }) {
                 )}
               </div>
             </ScrollPanel>
+            <Button text className='p-0' size='small' onClick={logout}>
+              Kijelentkezés
+            </Button>
           </Card>
-          <Button className='align-self-start' text size='small' onClick={logout}>
-            Kijelentkezés
-          </Button>
         </div>
         <div className='flex-1'>
           <ScrollPanel className='w-full h-screen'>
