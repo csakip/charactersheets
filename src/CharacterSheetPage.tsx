@@ -86,10 +86,22 @@ export default function CharacterSheetPage({
   };
 
   const handleArmorTypeChange = (type: string, checked: boolean) => {
+    const prevShield = participant.charsheet.shield ? 1 : 0;
+    const shield = type === "Pajzs" && checked ? 1 : type !== "Pajzs" ? prevShield : 0;
+
+    const armor =
+      type !== "Pajzs" && checked
+        ? ["Nincs", "Könnyű", "Teljes"].indexOf(type)
+        : ["Nincs", "Könnyű", "Teljes"].indexOf(participant.charsheet.armor);
+
     if (type === "Pajzs") {
-      updateCharacter((prev) => ({ ...prev, shield: checked }));
+      updateCharacter((prev) => ({ ...prev, shield: checked, sumArmor: shield + armor }));
     } else {
-      updateCharacter((prev) => ({ ...prev, armor: checked ? type : prev.armor }));
+      updateCharacter((prev) => ({
+        ...prev,
+        armor: checked ? type : prev.armor,
+        sumArmor: shield + armor,
+      }));
     }
   };
 
