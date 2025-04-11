@@ -229,6 +229,7 @@ export default function CharacterSheetPage({
           <InputTextarea
             autoResize
             rows={5}
+            spellCheck={false}
             placeholder='Fegyverek'
             className='flex-1 text-yellow-400'
             maxLength={1000}
@@ -238,6 +239,7 @@ export default function CharacterSheetPage({
           <InputTextarea
             autoResize
             rows={5}
+            spellCheck={false}
             placeholder='Felszerelés'
             className='flex-1 text-yellow-400'
             maxLength={1000}
@@ -325,6 +327,7 @@ export default function CharacterSheetPage({
         <div className='flex gap-4'>
           <InputTextarea
             autoResize
+            spellCheck={false}
             rows={3}
             placeholder='Jegyzetek'
             className='w-full text-yellow-400'
@@ -334,6 +337,7 @@ export default function CharacterSheetPage({
           />
           <InputTextarea
             autoResize
+            spellCheck={false}
             rows={3}
             placeholder='Jegyzetek'
             className='w-full text-yellow-400'
