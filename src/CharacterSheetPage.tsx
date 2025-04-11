@@ -12,22 +12,23 @@ import { ConfirmDialog } from "primereact/confirmdialog";
 export default function CharacterSheetPage({
   loadedParticipant,
   editable,
+  updateCharacterDisplay,
 }: {
   loadedParticipant: Participant;
   editable: boolean;
+  updateCharacterDisplay: (name: string, playerName: string) => void;
 }) {
   const [participant, setParticipant] = useState<Participant>(loadedParticipant);
   const [isDirty, setIsDirty] = useState(false);
   const toast = useRef<Toast>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const participantRef = useRef(participant);
 
   useEffect(() => {
     setParticipant(loadedParticipant);
     return () => {
       if (isDirty) {
         setIsDirty(false);
-        saveCharacter(participantRef.current);
+        saveCharacter(participant);
       }
     };
   }, [loadedParticipant]);
@@ -36,7 +37,9 @@ export default function CharacterSheetPage({
     if (!isDirty) return;
 
     const timeoutId = setTimeout(() => {
-      saveCharacter(participantRef.current);
+      saveCharacter(participant).then(() => {
+        updateCharacterDisplay(participant.charsheet.name, participant.charsheet.playerName);
+      });
       setIsDirty(false);
     }, 1000); // Delay the save
 
@@ -50,7 +53,6 @@ export default function CharacterSheetPage({
       charsheet: value(participant.charsheet),
     };
     setParticipant(newParticipant);
-    participantRef.current = structuredClone(newParticipant);
     setIsDirty(true);
   }
 
@@ -142,6 +144,7 @@ export default function CharacterSheetPage({
           <div className='flex align-items-center gap-2'>
             <span>Szint</span>
             <InputText
+              type='number'
               className='w-3rem text-center text-yellow-400'
               value={participant.charsheet.level?.toString() || ""}
               onChange={(e) =>
@@ -162,6 +165,7 @@ export default function CharacterSheetPage({
             {attributes.map((attr) => (
               <div key={attr.label} className='flex flex-row align-items-center w-6 mb-3'>
                 <InputText
+                  type='number'
                   className='w-4rem text-center p-inputtext-lg p-2 text-4xl text-yellow-400'
                   value={
                     participant.charsheet.attributes[
@@ -243,61 +247,77 @@ export default function CharacterSheetPage({
         </div>
 
         {/* Armor and HP */}
-        <div className='flex flex-wrap gap-4 align-items-center justify-content-between'>
-          {["Nincs", "Könnyű", "Teljes", "Pajzs"].map((label) => (
-            <div key={label} className='flex align-items-center gap-2'>
-              <Checkbox
-                checked={
-                  label === "Pajzs"
-                    ? participant.charsheet.shield
-                    : participant.charsheet.armor === label
-                }
-                onChange={(e) => handleArmorTypeChange(label, e.checked)}
-              />
-              {label}
+        <div className='flex flex-wrap align-items-center justify-content-between gap-4'>
+          <div className='flex-1 flex flex-column'>
+            <div className='w-full text-center font-bold mb-1'>Páncél és sebesség</div>
+            <div className='flex flex-wrap align-items-center justify-content-between'>
+              {["Nincs", "Könnyű", "Teljes", "Pajzs"].map((label) => (
+                <div key={label} className='flex align-items-center gap-2'>
+                  <Checkbox
+                    checked={
+                      label === "Pajzs"
+                        ? participant.charsheet.shield
+                        : participant.charsheet.armor === label
+                    }
+                    onChange={(e) => handleArmorTypeChange(label, e.checked)}
+                  />
+                  {label}
+                </div>
+              ))}
+              <div className='flex align-items-center gap-2'>
+                <span>Össz páncél</span>
+                <InputText
+                  style={{ borderRadius: "0 0 50% 50% / 0 0 100% 100%" }}
+                  className='w-3rem text-center text-yellow-400'
+                  value={participant.charsheet.sumArmor?.toString() || ""}
+                  type='number'
+                  onChange={(e) =>
+                    updateCharacter((prev) => ({
+                      ...prev,
+                      sumArmor: e.target.value
+                        ? Math.max(0, Math.min(10, parseInt(e.target.value)))
+                        : 0,
+                    }))
+                  }
+                />
+              </div>
             </div>
-          ))}
-          <div className='flex align-items-center gap-2'>
-            <span>Össz páncél</span>
-            <InputText
-              style={{ borderRadius: "0 0 50% 50% / 0 0 100% 100%" }}
-              className='w-3rem text-center text-yellow-400'
-              value={participant.charsheet.sumArmor?.toString() || ""}
-              onChange={(e) =>
-                updateCharacter((prev) => ({
-                  ...prev,
-                  sumArmor: e.target.value
-                    ? Math.max(0, Math.min(10, parseInt(e.target.value)))
-                    : 0,
-                }))
-              }
-            />
           </div>
-          <div className='flex align-items-center gap-2'>
-            <span>HP kocka</span>
-            <InputText
-              className='w-3rem text-center text-yellow-400'
-              value={participant.charsheet.hpDice?.toString() || ""}
-              onChange={(e) =>
-                updateCharacter((prev) => ({
-                  ...prev,
-                  hpDice: e.target.value ? Math.max(1, Math.min(10, parseInt(e.target.value))) : 0,
-                }))
-              }
-            />
-          </div>
-          <div className='flex align-items-center gap-2'>
-            <span>HP</span>
-            <InputText
-              className='w-3rem text-center text-yellow-400'
-              value={participant.charsheet.hp?.toString() || ""}
-              onChange={(e) =>
-                updateCharacter((prev) => ({
-                  ...prev,
-                  hp: e.target.value ? Math.max(0, Math.min(50, parseInt(e.target.value))) : 0,
-                }))
-              }
-            />
+          <div className='flex flex-column w-3'>
+            <div className='flex-1 flex text-center font-bold mb-1'>
+              <div className='w-6 text-center font-bold'>HP kocka</div>
+              <div className='w-6 text-center font-bold'>HP</div>
+            </div>
+            <div className='flex flex-1 justify-content-around'>
+              <div className='flex align-items-center justify-content-between'>
+                <InputText
+                  className='w-6rem text-center text-yellow-400'
+                  value={participant.charsheet.hpDice?.toString() || ""}
+                  type='number'
+                  onChange={(e) =>
+                    updateCharacter((prev) => ({
+                      ...prev,
+                      hpDice: e.target.value
+                        ? Math.max(1, Math.min(10, parseInt(e.target.value)))
+                        : 0,
+                    }))
+                  }
+                />
+              </div>
+              <div className='flex align-items-center gap-2'>
+                <InputText
+                  className='w-6rem text-center text-yellow-400'
+                  value={participant.charsheet.hp?.toString() || ""}
+                  type='number'
+                  onChange={(e) =>
+                    updateCharacter((prev) => ({
+                      ...prev,
+                      hp: e.target.value ? Math.max(0, Math.min(50, parseInt(e.target.value))) : 0,
+                    }))
+                  }
+                />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -340,6 +360,7 @@ export default function CharacterSheetPage({
               className='w-6rem text-center text-yellow-400'
               value={participant.charsheet.nextLevel?.toString() || "0"}
               maxLength={5}
+              type='number'
               onChange={(e) =>
                 updateCharacter((prev) => ({
                   ...prev,
@@ -354,6 +375,7 @@ export default function CharacterSheetPage({
               className='w-6rem text-center text-yellow-400'
               value={participant.charsheet.xp?.toString() || "0"}
               maxLength={5}
+              type='number'
               onChange={(e) =>
                 updateCharacter((prev) => ({
                   ...prev,

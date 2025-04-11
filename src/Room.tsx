@@ -13,15 +13,11 @@ import { logout, saveCharacter, supabase } from "./supabase";
 
 function Room({ user }: { user: User }) {
   const [participants, setParticipants] = useState<Participant[]>([]);
-  const participantsRef = useRef<Participant[]>([]); // Create a ref for participants
   const [selectedParticioantId, setSelectedParticipantId] = useState<number>(null);
   const [showNewCharacterDialog, setShowNewCharacterDialog] = useState(false);
   const [newPlayerName, setNewPlayerName] = useState("");
   const toast = useRef<Toast>(null);
-
-  useEffect(() => {
-    participantsRef.current = participants; // Keep the ref updated with the latest participants
-  }, [participants]);
+  const participantsRef = useRef(participants); // Store the participants array in a ref to avoid stale data
 
   useEffect(() => {
     fetchCharacters();
@@ -42,31 +38,16 @@ function Room({ user }: { user: User }) {
             payload.eventType === "DELETE"
           ) {
             if (payload.eventType === "UPDATE" || payload.eventType === "INSERT") {
-              let newParticipant = payload.new as Participant;
+              const newParticipant = payload.new as Participant;
 
-              const existingParticipant = participantsRef.current.find(
-                (p) => p.id === newParticipant.id
-              );
+              // Don't update my own character
+              if (newParticipant.user_id === user.id && payload.eventType === "UPDATE") return;
 
-              // Only update if the new participant's updated_at is later
-              if (
-                !existingParticipant ||
-                new Date(newParticipant.updated_at) > new Date(existingParticipant.updated_at)
-              ) {
-                if (newParticipant.user_id === user.id && payload.eventType === "UPDATE") {
-                  console.log("Updating my character");
-                  // It's my character, only update the name and playerName
-                  existingParticipant.charsheet.name = newParticipant.charsheet.name;
-                  existingParticipant.charsheet.playerName = newParticipant.charsheet.playerName;
-                  existingParticipant.updated_at = newParticipant.updated_at;
-                  newParticipant = existingParticipant;
-                }
-                const newParticipants = [
-                  ...participantsRef.current.filter((p) => p.id !== newParticipant.id),
-                  newParticipant,
-                ];
-                setParticipants(newParticipants);
-              }
+              const newParticipants = [
+                ...participantsRef.current.filter((p) => p.id !== newParticipant.id),
+                newParticipant,
+              ];
+              setParticipants(newParticipants);
             } else if (payload.eventType === "DELETE") {
               setParticipants([...participantsRef.current.filter((p) => p.id !== payload.old.id)]);
             }
@@ -80,6 +61,10 @@ function Room({ user }: { user: User }) {
     };
   }, []);
 
+  useEffect(() => {
+    participantsRef.current = participants;
+  }, [participants]);
+
   const fetchCharacters = async () => {
     const { data, error } = await supabase
       .from("rooms")
@@ -91,6 +76,7 @@ function Room({ user }: { user: User }) {
       return;
     }
 
+    console.log("fetched", data);
     setParticipants(data || []);
   };
 
@@ -103,6 +89,16 @@ function Room({ user }: { user: User }) {
       setNewPlayerName("");
     }
   };
+
+  function updateCharacterDisplay(name: string, playerName: string) {
+    const character = participants.find((c) => c.user_id === user.id);
+    if (!character) return;
+
+    character.charsheet.name = name;
+    character.charsheet.playerName = playerName;
+
+    setParticipants([...participants]);
+  }
 
   const selectedCharacter = participants.find((c) => c.id === selectedParticioantId);
   const userHasCharacter = participants.some((c) => c.user_id === user.id);
@@ -156,6 +152,7 @@ function Room({ user }: { user: User }) {
               <CharacterSheetPage
                 loadedParticipant={participants.find((c) => c.id === selectedParticioantId)}
                 editable={user.id === selectedCharacter.user_id}
+                updateCharacterDisplay={updateCharacterDisplay}
               />
             ) : (
               !userHasCharacter && (
