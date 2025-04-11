@@ -144,7 +144,7 @@ function Room({ user }: { user: User }) {
                 )}
               </div>
             </ScrollPanel>
-            <Button text className='p-0' size='small' onClick={logout}>
+            <Button text className='p-0 align-self-start' size='small' onClick={logout}>
               Kijelentkezés
             </Button>
           </Card>
