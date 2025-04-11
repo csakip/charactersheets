@@ -76,7 +76,6 @@ function Room({ user }: { user: User }) {
       return;
     }
 
-    console.log("fetched", data);
     setParticipants(data || []);
   };
 
