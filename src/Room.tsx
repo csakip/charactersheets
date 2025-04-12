@@ -10,12 +10,21 @@ import { useEffect, useRef, useState } from "react";
 import CharacterSheetPage from "./CharacterSheetPage";
 import { Participant, emptyCharacter } from "./utils";
 import { logout, saveCharacter, supabase } from "./supabase";
+import useLocalStorageState from "use-local-storage-state";
 
 function Room({ user }: { user: User }) {
   const [participants, setParticipants] = useState<Participant[]>([]);
-  const [selectedParticioantId, setSelectedParticipantId] = useState<number>(null);
+  const [selectedParticioantId, setSelectedParticipantId] = useLocalStorageState<number>(
+    "wodu-selected-participant",
+    {
+      defaultValue: null,
+    }
+  );
   const [showNewCharacterDialog, setShowNewCharacterDialog] = useState(false);
   const [newPlayerName, setNewPlayerName] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useLocalStorageState("wodu-sidebar", {
+    defaultValue: true,
+  });
   const toast = useRef<Toast>(null);
   const participantsRef = useRef(participants); // Store the participants array in a ref to avoid stale data
 
@@ -105,10 +114,20 @@ function Room({ user }: { user: User }) {
   return (
     <>
       <Toast ref={toast} />
-      <div className='flex'>
-        <div className='flex flex-column align-items-center p-3 w-27rem h-screen'>
+      <div className={`flex ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
+        <div className={`sidebar-container flex flex-column align-items-center h-screen`}>
           <Card
-            title='World of Dungeons'
+            title={
+              <>
+                <div className='hidden-nowrap'>{sidebarOpen ? "World of Dungeons" : "WoDu"}</div>
+                <Button
+                  icon={sidebarOpen ? "pi pi-chevron-left" : "pi pi-chevron-right"}
+                  className='sidebar-toggle bg-yellow-800  border-0'
+                  rounded
+                  size='small'
+                  onClick={() => setSidebarOpen(!sidebarOpen)}></Button>
+              </>
+            }
             subTitle={
               <a
                 href='https://csokav.notion.site/World-of-Dungeons-1ca0f93292ad80db9f5dccfbfede8180'
@@ -119,8 +138,11 @@ function Room({ user }: { user: User }) {
               </a>
             }
             pt={{
-              content: { className: "flex-grow-1 flex flex-column justify-content-between pb-0" },
+              content: {
+                className: "flex-grow-1 flex flex-column justify-content-between pb-0 ",
+              },
               body: { className: "flex flex-column flex-1" },
+              title: { className: "relative" },
             }}
             className='w-full flex-grow-1 flex flex-column'>
             <ScrollPanel>
@@ -134,7 +156,7 @@ function Room({ user }: { user: User }) {
                       )
                       .map((p) => ({
                         label: `${p.charsheet?.playerName}${
-                          p.charsheet?.name ? ` - ${p.charsheet?.name}` : ""
+                          p.charsheet?.name && sidebarOpen ? ` - ${p.charsheet?.name}` : ""
                         }`,
                         value: p.id,
                       }))}
@@ -150,7 +172,7 @@ function Room({ user }: { user: User }) {
           </Card>
         </div>
         <div className='flex-1'>
-          <ScrollPanel className='w-full h-screen'>
+          <div className='w-full h-screen overflow-auto thin-scrollbar'>
             {selectedCharacter ? (
               <CharacterSheetPage
                 loadedParticipant={participants.find((c) => c.id === selectedParticioantId)}
@@ -166,7 +188,7 @@ function Room({ user }: { user: User }) {
                 </div>
               )
             )}
-          </ScrollPanel>
+          </div>
         </div>
       </div>
       <Dialog

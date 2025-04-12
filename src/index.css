@@ -20,3 +20,48 @@ input[type="number"] {
 .p-dropdown-label.p-inputtext {
   color: var(--p-yellow-400);
 }
+
+.hidden-nowrap {
+  overflow: hidden !important;
+  white-space: nowrap;
+  max-width: 100% !important;
+}
+
+/* sidebar */
+
+.sidebar-toggle {
+  position: absolute;
+  right: -38px;
+  top: 0;
+  width: 20px;
+  height: 37px;
+  z-index: 100;
+}
+
+.sidebar-container {
+  width: 23rem;
+  transition: width 0.2s ease-in-out;
+
+  li {
+    white-space: nowrap;
+  }
+}
+
+.sidebar-closed {
+  .sidebar-container {
+    width: 8.4rem;
+  }
+
+  li {
+    padding-left: 0;
+    padding-right: 0;
+    text-align: center;
+  }
+}
+
+/* sidebar end */
+
+.thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bluegray-800) transparent;
+}
