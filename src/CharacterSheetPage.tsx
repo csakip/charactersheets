@@ -152,7 +152,7 @@ export default function CharacterSheetPage({
     <>
       <Toast ref={toast} />
       <div
-        className='flex flex-column gap-4 p-4 my-3 border-round-md'
+        className='flex flex-column gap-4 p-4 mt-3 border-round-md'
         style={{ maxWidth: "1000px", margin: "auto", backgroundColor: "#1f2937" }}>
         {/* Top Fields */}
         <div className='flex gap-4'>
@@ -428,20 +428,16 @@ export default function CharacterSheetPage({
             />
           </div>
         </div>
-        {editable && (
-          <>
-            <div className='flex align-items-center gap-2 flex-1 justify-content-end mt-3'>
-              <Button
-                severity='danger'
-                size='small'
-                text
-                onClick={() => setShowDeleteConfirm(true)}>
-                Karakter törlése
-              </Button>
-            </div>
-          </>
-        )}
       </div>
+      {editable && (
+        <div
+          className='flex mb-3 mt-1 justify-content-end'
+          style={{ maxWidth: "1000px", margin: "auto" }}>
+          <Button severity='danger' size='small' text onClick={() => setShowDeleteConfirm(true)}>
+            Karakter törlése
+          </Button>
+        </div>
+      )}
       <ConfirmDialog
         visible={showDeleteConfirm}
         onHide={() => setShowDeleteConfirm(false)}
