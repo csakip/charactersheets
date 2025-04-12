@@ -122,7 +122,7 @@ function Room({ user }: { user: User }) {
                 <div className='hidden-nowrap'>{sidebarOpen ? "World of Dungeons" : "WoDu"}</div>
                 <Button
                   icon={sidebarOpen ? "pi pi-chevron-left" : "pi pi-chevron-right"}
-                  className='sidebar-toggle bg-yellow-800  border-0'
+                  className='sidebar-toggle bg-yellow-900  border-0'
                   rounded
                   size='small'
                   onClick={() => setSidebarOpen(!sidebarOpen)}></Button>
