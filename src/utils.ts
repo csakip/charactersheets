@@ -20,26 +20,68 @@ export const skills = [
 ];
 
 export const abilities = [
-  "Áldás",
-  "Gyógyítás",
-  "Elűzés",
-  "Látomás",
-  "Kemény",
-  "Kézitusa",
-  "Pusztítás",
-  "Szívós",
-  "Hátbaszúrás",
-  "Szerencse",
-  "Reflexek",
-  "Bűtykölés",
-  "Trükkök",
-  "Parancsolás",
-  "Rituálé",
-  "Idézés",
-  "Házikedvenc",
-  "Felderítő",
-  "Sorozás",
-  "Vad",
+  {
+    name: "Áldás",
+    description:
+      "Szentelt vízzel felkenhetsz tárgyakat,\nhogy szentnek és mágikusnak számítsanak\n+3 sebzés a gonosz ellen, rövid ideig.",
+  },
+  {
+    name: "Gyógyítás",
+    description:
+      "Megpróbálhatod semlegesíteni a mérgeket,\nátkokat, vagy sebeket gyógyíthatsz érintéssel.",
+  },
+  {
+    name: "Elűzés",
+    description:
+      "Megpróbálhatsz élőhalottakat visszatartani\nszent hatalmaddal és szent szimbólumoddal.",
+  },
+  {
+    name: "Látomás",
+    description: "Szentelt víz megivásával kapcsolatba\nléphetsz isteneddel, útmutatásért.",
+  },
+  { name: "Kemény", description: "+1 páncél" },
+  {
+    name: "Kézitusa",
+    description: "+1 sebzés és a viselt páncél\neggyel könnyebb típusnak számít.",
+  },
+  { name: "Pusztítás", description: "+2 közelharci sebzés" },
+  { name: "Szívós", description: "+6 HP" },
+  { name: "Hátbaszúrás", description: "Rejtett helyről támadva +3 sebzés." },
+  {
+    name: "Szerencse",
+    description: "Naponta egyszer egy elhibázott dobást\nrészleges sikerré változtathatsz.",
+  },
+  { name: "Reflexek", description: "Mindig először cselekedhetsz\nés reagálhatsz, ha megleptek." },
+  {
+    name: "Bűtykölés",
+    description:
+      "Gyorsan megpróbálhatsz zsebet metszeni,\nzárat nyitni vagy csapdát hatástalanítani.",
+  },
+  {
+    name: "Trükkök",
+    description:
+      "Három egyszerű mágikus hatalom ismerete:\nGyertya, Árnyék, Beszédhangod kivetítése.",
+  },
+  {
+    name: "Parancsolás",
+    description: "Megpróbálhatsz bármilyen szellemnek,\ndémonnak stb. parancsolni.",
+  },
+  {
+    name: "Rituálé",
+    description:
+      "Ősi könyvekből és tekercsekből okkult rituálékat\nvégezhetsz - két ismert rituáléval kezdesz.",
+  },
+  {
+    name: "Idézés",
+    description: "Két szellem megidézéséhez szükséges\nokkult tudással kezded a játékot.",
+  },
+  { name: "Házikedvenc", description: "Van egy hűséges és hatékony állati társad." },
+  {
+    name: "Felderítő",
+    description: "Ha felderítesz, mindig észreveszed a\ncélpontot, mielőtt az észrevenne téged.",
+  },
+  { name: "Sorozás", description: "+2 távolsági sebzés." },
+  { name: "Vad", description: "Állatokkal beszélgethet és\nmegpróbálhatsz parancsolni nekik." },
 ];
 
 export interface Participant {

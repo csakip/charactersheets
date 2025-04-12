@@ -9,6 +9,7 @@ import { deleteCharacter, saveCharacter } from "./supabase";
 import { Toast } from "primereact/toast";
 import { Button } from "primereact/button";
 import { ConfirmDialog } from "primereact/confirmdialog";
+import { Tooltip } from "primereact/tooltip";
 
 export default function CharacterSheetPage({
   loadedParticipant,
@@ -242,17 +243,25 @@ export default function CharacterSheetPage({
             <div className='flex-1 border-1 border-round border-bluegray-700 p-3'>
               <div className='grid'>
                 {abilities.map((ab, idx) => (
-                  <Fragment key={ab}>
+                  <Fragment key={ab.name}>
                     <div
+                      id={`abaility-div-${idx}`}
                       className={`col-6 flex justify-content-between align-items-center p-1 ${
-                        participant.charsheet.abilities.includes(ab) ? "text-900" : "text-200"
+                        participant.charsheet.abilities.includes(ab.name) ? "text-900" : "text-200"
                       }`}>
-                      <span>{ab}</span>
+                      <span>{ab.name}</span>
                       <Checkbox
-                        checked={participant.charsheet.abilities.includes(ab)}
-                        onChange={() => toggleAbility(ab)}
+                        checked={participant.charsheet.abilities.includes(ab.name)}
+                        onChange={() => toggleAbility(ab.name)}
                       />
                     </div>
+                    <Tooltip
+                      target={`#abaility-div-${idx}`}
+                      mouseTrack
+                      position='bottom'
+                      mouseTrackTop={20}>
+                      {ab.description}
+                    </Tooltip>
                     {(idx + 1) % 4 === 0 && idx !== abilities.length - 1 && (
                       <hr className='w-full text-bluegray-700' />
                     )}
