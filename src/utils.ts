@@ -59,8 +59,7 @@ export const abilities = [
   },
   {
     name: "Trükkök",
-    description:
-      "Három egyszerű mágikus hatalom ismerete:\nGyertya, Árnyék, Beszédhangod kivetítése.",
+    description: "Három egyszerű varázslat ismerete:\nGyertya, Árnyék, Beszédhangod kivetítése.",
   },
   {
     name: "Parancsolás",
