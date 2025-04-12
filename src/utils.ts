@@ -136,3 +136,15 @@ export const emptyCharacter = (newPlayerName): CharacterSheet => ({
   nextLevel: 1000,
   xp: 0,
 });
+
+export function rollD6() {
+  return Math.floor(Math.random() * 6) + 1;
+}
+
+export function rollAttribute() {
+  const roll = rollD6() + rollD6();
+  if (roll <= 6) return 0;
+  if (roll <= 9) return 1;
+  if (roll <= 11) return 2;
+  return 3;
+}

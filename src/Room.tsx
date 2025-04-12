@@ -8,9 +8,10 @@ import { ScrollPanel } from "primereact/scrollpanel";
 import { Toast } from "primereact/toast";
 import { useEffect, useRef, useState } from "react";
 import CharacterSheetPage from "./CharacterSheetPage";
-import { Participant, emptyCharacter } from "./utils";
+import { Participant, attributes, emptyCharacter, rollAttribute } from "./utils";
 import { logout, saveCharacter, supabase } from "./supabase";
 import useLocalStorageState from "use-local-storage-state";
+import { Checkbox } from "primereact/checkbox";
 
 function Room({ user }: { user: User }) {
   const [participants, setParticipants] = useState<Participant[]>([]);
@@ -25,6 +26,7 @@ function Room({ user }: { user: User }) {
   const [sidebarOpen, setSidebarOpen] = useLocalStorageState("wodu-sidebar", {
     defaultValue: true,
   });
+  const [rollChecked, setRollChecked] = useState(false);
   const toast = useRef<Toast>(null);
   const participantsRef = useRef(participants); // Store the participants array in a ref to avoid stale data
 
@@ -91,6 +93,14 @@ function Room({ user }: { user: User }) {
   const createCharacterWithName = async () => {
     if (newPlayerName.trim()) {
       const char = emptyCharacter(newPlayerName.trim());
+      if (rollChecked) {
+        do {
+          attributes.forEach((a) => {
+            const roll = rollAttribute();
+            char.attributes[a.label.toLowerCase()] = roll;
+          });
+        } while (Object.values(char.attributes).reduce((sum, c) => sum + c, 0) < 5);
+      }
       const id = await saveCharacter({ user_id: user.id, charsheet: char });
       setSelectedParticipantId(id);
       setShowNewCharacterDialog(false);
@@ -224,6 +234,16 @@ function Room({ user }: { user: User }) {
             onChange={(e) => setNewPlayerName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && createCharacterWithName()}
           />
+          <div className='mt-1'>
+            <Checkbox
+              onChange={(e) => setRollChecked(e.checked)}
+              checked={rollChecked}
+              inputId='rollChecked'
+            />
+            <label htmlFor='rollChecked' className='ml-2 '>
+              Kidobott tualjdonságokkal?
+            </label>
+          </div>
         </div>
       </Dialog>
     </>

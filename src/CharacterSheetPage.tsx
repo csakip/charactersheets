@@ -81,8 +81,15 @@ export default function CharacterSheetPage({
   };
 
   const toggleAbility = (ability: string) => {
+    let currentArmor = participant.charsheet.sumArmor;
+    if (ability === "Kemény") {
+      const changingTo = !participant.charsheet.abilities.includes(ability);
+      currentArmor += changingTo ? 1 : -1;
+    }
+
     updateCharacter((prev) => ({
       ...prev,
+      sumArmor: currentArmor,
       abilities: prev.abilities.includes(ability)
         ? prev.abilities.filter((a) => a !== ability)
         : [...prev.abilities, ability],
@@ -93,6 +100,7 @@ export default function CharacterSheetPage({
     if (!editable) return;
     const prevShield = participant.charsheet.shield ? 1 : 0;
     const shield = type === "Pajzs" && checked ? 1 : type !== "Pajzs" ? prevShield : 0;
+    const abilityArmor = participant.charsheet.abilities.includes("Kemény") ? 1 : 0;
 
     const armor =
       type !== "Pajzs" && checked
@@ -100,12 +108,16 @@ export default function CharacterSheetPage({
         : ["Nincs", "Könnyű", "Teljes"].indexOf(participant.charsheet.armor);
 
     if (type === "Pajzs") {
-      updateCharacter((prev) => ({ ...prev, shield: checked, sumArmor: shield + armor }));
+      updateCharacter((prev) => ({
+        ...prev,
+        shield: checked,
+        sumArmor: shield + armor + abilityArmor,
+      }));
     } else {
       updateCharacter((prev) => ({
         ...prev,
         armor: checked ? type : prev.armor,
-        sumArmor: shield + armor,
+        sumArmor: shield + armor + abilityArmor,
       }));
     }
   };
@@ -301,9 +313,10 @@ export default function CharacterSheetPage({
           <div className='flex-1 flex flex-column'>
             <div className='w-full text-center font-bold mb-1'>Páncél és sebesség</div>
             <div className='flex flex-wrap align-items-center justify-content-between'>
-              {["Nincs", "Könnyű", "Teljes", "Pajzs"].map((label) => (
+              {["Nincs", "Könnyű", "Teljes", "Pajzs"].map((label, idx) => (
                 <div key={label} className='flex align-items-center gap-2'>
                   <Checkbox
+                    inputId={`arm_${idx}`}
                     checked={
                       label === "Pajzs"
                         ? participant.charsheet.shield
@@ -311,7 +324,7 @@ export default function CharacterSheetPage({
                     }
                     onChange={(e) => handleArmorTypeChange(label, e.checked)}
                   />
-                  {label}
+                  <label htmlFor={`arm_${idx}`}>{label}</label>
                 </div>
               ))}
               <div className='flex align-items-center gap-2'>
