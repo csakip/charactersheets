@@ -23,7 +23,7 @@ export const abilities = [
   {
     name: "Áldás",
     description:
-      "Szentelt vízzel felkenhetsz tárgyakat,\nhogy szentnek és mágikusnak számítsanak\n+3 sebzés a gonosz ellen, rövid ideig.",
+      "Szentelt vízzel felkenhetsz tárgyakat,\nhogy szentnek és mágikusnak számítsanak.\n+3 sebzés a gonosz ellen, rövid ideig.",
   },
   {
     name: "Gyógyítás",
@@ -81,7 +81,7 @@ export const abilities = [
     description: "Ha felderítesz, mindig észreveszed a\ncélpontot, mielőtt az észrevenne téged.",
   },
   { name: "Sorozás", description: "+2 távolsági sebzés." },
-  { name: "Vad", description: "Állatokkal beszélgethet és\nmegpróbálhatsz parancsolni nekik." },
+  { name: "Vad", description: "Állatokkal beszélgethetsz és\nmegpróbálhatsz parancsolni nekik." },
 ];
 
 export interface Participant {
