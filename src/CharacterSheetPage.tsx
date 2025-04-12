@@ -206,7 +206,7 @@ export default function CharacterSheetPage({
               <div key={attr.label} className='flex flex-row align-items-center w-6 mb-3'>
                 <InputText
                   type='number'
-                  className='w-4rem text-center p-inputtext-lg p-2 text-4xl text-yellow-400'
+                  className='w-4rem text-center p-inputtext-lg p-2 text-4xl text-yellow-400 font-bold'
                   value={
                     participant.charsheet.attributes[
                       attr.label.toLowerCase() as keyof typeof participant.charsheet.attributes
