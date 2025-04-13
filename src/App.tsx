@@ -39,9 +39,7 @@ function App() {
   }, []);
 
   if (loading) {
-    return (
-      <div className='flex align-items-center justify-content-center min-h-screen'>Loading...</div>
-    );
+    return <div className='flex align-items-center justify-content-center min-h-screen'>...</div>;
   }
 
   return (

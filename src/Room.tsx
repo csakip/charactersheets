@@ -70,6 +70,7 @@ function Room({ user }: { user: User }) {
     return () => {
       supabase.removeChannel(channel);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -241,7 +242,7 @@ function Room({ user }: { user: User }) {
               inputId='rollChecked'
             />
             <label htmlFor='rollChecked' className='ml-2 '>
-              Kidobott tualjdonságokkal?
+              Kidobott tulajdonságokkal?
             </label>
           </div>
         </div>
