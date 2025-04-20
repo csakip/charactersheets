@@ -4,6 +4,7 @@ import AuthPage from "./AuthPage";
 import { supabase } from "./supabase";
 import Room from "./Room";
 import { User } from "@supabase/supabase-js";
+import Rooms from "./Rooms";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -46,7 +47,11 @@ function App() {
     <HashRouter>
       <Routes>
         <Route path='auth' element={<AuthPage />} />
-        <Route path='/*' element={user ? <Room user={user} /> : <Navigate to='auth' replace />} />
+        <Route path='/*' element={user ? <Rooms user={user} /> : <Navigate to='auth' replace />} />
+        <Route
+          path='/:roomId/*'
+          element={user ? <Room user={user} /> : <Navigate to='auth' replace />}
+        />
       </Routes>
     </HashRouter>
   );

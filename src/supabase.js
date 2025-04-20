@@ -19,50 +19,6 @@ export const onAuthStateChange = (callback) => {
   });
 };
 
-export const saveCharacter = async (character) => {
-  if (character.charsheet.playerName.trim() === "") return 0;
-  try {
-    const user = (await supabase.auth.getUser()).data.user;
-    if (!user) return 0;
-
-    const { data, error } = await supabase
-      .from("rooms")
-      .upsert(
-        {
-          charsheet: character.charsheet,
-          user_id: user.id,
-        },
-        {
-          onConflict: "user_id",
-        }
-      )
-      .select();
-
-    if (error) {
-      console.error("Error saving character:", error);
-    } else {
-      return data[0].id || 0;
-    }
-  } catch (error) {
-    console.error("Error saving character:", error);
-  }
-};
-
-export const deleteCharacter = async (id) => {
-  try {
-    const { error } = await supabase.from("rooms").delete().eq("id", id);
-
-    if (error) {
-      console.error("Error deleting character:", error);
-      return false;
-    }
-    return true;
-  } catch (error) {
-    console.error("Error deleting character:", error);
-    return false;
-  }
-};
-
 export async function logout() {
   const { error } = await supabase.auth.signOut();
   if (error) {
@@ -71,3 +27,91 @@ export async function logout() {
     console.log("Successfully logged out");
   }
 }
+
+export const saveRoom = async (room) => {
+  if (room.name.trim() === "") return 0;
+  try {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return 0;
+
+    const { data, error } = await supabase.from("rooms").insert(room).select();
+
+    if (error) {
+      console.error("Error saving room:", error);
+    } else {
+      return data[0].id || 0;
+    }
+  } catch (error) {
+    console.error("Error saving room:", error);
+  }
+};
+
+export const saveCharsheet = async (charsheet, roomId) => {
+  if (charsheet.data.playerName.trim() === "") return 0;
+  try {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return 0;
+
+    delete charsheet.updated_at;
+    console.log("Saving charsheet:", charsheet);
+
+    // Upsert the character sheet
+    const { data: charData, error: charError } = await supabase
+      .from("charsheets")
+      .upsert(charsheet, {
+        onConflict: "id",
+      })
+      .select();
+
+    if (charError) {
+      console.error("Error saving charsheet:", charError);
+      return 0;
+    }
+
+    console.log("Character data:", charData);
+
+    // Create the room-charsheet relationship
+    if (roomId && !charsheet.id) {
+      const { error: relationError } = await supabase.from("rooms_charsheets").insert({
+        room_id: roomId,
+        charsheet_id: charData[0].id,
+      });
+
+      if (relationError) {
+        console.error("Error linking charsheet to room:", relationError);
+      }
+    }
+
+    const { data, error } = { data: charData, error: charError };
+
+    if (error) {
+      console.error("Error saving charsheet:", error);
+    } else {
+      return data[0].id || 0;
+    }
+  } catch (error) {
+    console.error("Error saving character:", error);
+  }
+};
+
+export const deleteCharsheet = async (id) => {
+  console.log("Deleting charsheet with ID:", id);
+  try {
+    const { error: error1 } = await supabase.from("charsheets").delete().eq("id", id);
+    if (error1) {
+      console.error("Error deleting charsheet:", error1);
+      return false;
+    }
+
+    const { error } = await supabase.from("rooms_charsheets").delete().eq("charsheet_id", id);
+
+    if (error) {
+      console.error("Error deleting charsheet:", error);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error("Error deleting charsheet:", error);
+    return false;
+  }
+};

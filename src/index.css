@@ -17,7 +17,7 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-.p-dropdown-label.p-inputtext {
+.charactersheet .p-dropdown-label.p-inputtext {
   color: var(--p-yellow-400);
 }
 

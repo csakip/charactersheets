@@ -83,15 +83,26 @@ export const abilities = [
   { name: "Vad", description: "Állatokkal beszélgethetsz és\nmegpróbálhatsz parancsolni nekik." },
 ];
 
-export interface Participant {
+export type Room = {
+  id?: number;
+  created_at?: string;
+  user_id: string;
+  name: string;
+  description?: string;
+  system: string;
+  private: boolean;
+};
+
+export type Charsheet = {
   id?: number;
   created_at?: string;
   updated_at?: string;
   user_id: string;
-  charsheet: CharacterSheet;
-}
+  data: WoduData | BladesData;
+};
 
-export type CharacterSheet = {
+export type WoduData = {
+  system: string;
   id?: number;
   playerName: string;
   name: string;
@@ -114,7 +125,8 @@ export type CharacterSheet = {
   xp: number;
 };
 
-export const emptyCharacter = (newPlayerName): CharacterSheet => ({
+export const emptyWoduData = (newPlayerName): WoduData => ({
+  system: "wodu",
   playerName: newPlayerName,
   name: "",
   class: "Egyedi",
@@ -135,6 +147,25 @@ export const emptyCharacter = (newPlayerName): CharacterSheet => ({
   nextLevel: 1000,
   xp: 0,
 });
+
+export type BladesData = {
+  system: string;
+  id?: number;
+  class?: string;
+  playerName: string;
+  name: string;
+};
+
+export const emptyBladesData = (newPlayerName): BladesData => ({
+  system: "blades",
+  playerName: newPlayerName,
+  name: "",
+});
+
+export const systems = [
+  { label: "World of Dungeons", value: "wodu", shortLabel: "WoDu" },
+  { label: "Blades in the Dark", value: "blades", shortLabel: "BitD" },
+];
 
 export function rollD6() {
   return Math.floor(Math.random() * 6) + 1;

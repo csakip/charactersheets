@@ -3,66 +3,68 @@ import { InputTextarea } from "primereact/inputtextarea";
 import { Checkbox } from "primereact/checkbox";
 import { Dropdown } from "primereact/dropdown";
 import { Fragment } from "react/jsx-runtime";
-import { abilities, attributes, Participant, skills } from "./utils";
+import { abilities, attributes, skills, Charsheet, WoduData } from "./utils";
 import { useEffect, useState, useRef } from "react";
-import { deleteCharacter, saveCharacter } from "./supabase";
+import { deleteCharsheet, saveCharsheet } from "./supabase";
 import { Toast } from "primereact/toast";
 import { Button } from "primereact/button";
 import { ConfirmDialog } from "primereact/confirmdialog";
 import { Tooltip } from "primereact/tooltip";
 
-export default function CharacterSheetPage({
-  loadedParticipant,
+export default function WoDuCharacterSheetPage({
+  loadedCharsheet,
   editable,
   updateCharacterDisplay,
 }: {
-  loadedParticipant: Participant;
+  loadedCharsheet: Charsheet;
   editable: boolean;
-  updateCharacterDisplay: (name: string, playerName: string) => void;
+  updateCharacterDisplay: (charsheet: Charsheet) => void;
 }) {
-  const [participant, setParticipant] = useState<Participant>(loadedParticipant);
+  const [charsheet, setCharsheet] = useState<Charsheet>(loadedCharsheet);
   const [isDirty, setIsDirty] = useState(false);
   const toast = useRef<Toast>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  const charsheetData = charsheet.data as WoduData;
+
   useEffect(() => {
-    setParticipant(loadedParticipant);
+    setCharsheet(loadedCharsheet);
     return () => {
       if (isDirty) {
         setIsDirty(false);
-        saveCharacter(participant);
+        saveCharsheet(charsheet);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadedParticipant]);
+  }, [loadedCharsheet]);
 
   useEffect(() => {
     if (!isDirty) return;
 
+    updateCharacterDisplay(charsheet);
+
     const timeoutId = setTimeout(() => {
-      saveCharacter(participant).then(() => {
-        updateCharacterDisplay(participant.charsheet.name, participant.charsheet.playerName);
-      });
+      saveCharsheet(charsheet);
       setIsDirty(false);
     }, 1000); // Delay the save
 
     return () => clearTimeout(timeoutId); // Clear the timer if `isDirty` changes again
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [participant, isDirty]);
+  }, [charsheet, isDirty]);
 
-  function updateCharacter(value: (prev: any) => any) {
+  function updateData(value: (prev: any) => any) {
     if (!editable) return;
-    const newParticipant = {
-      ...participant,
-      charsheet: value(participant.charsheet),
+    const newCharsheet = {
+      ...charsheet,
+      data: value(charsheetData),
     };
-    setParticipant(newParticipant);
+    setCharsheet(newCharsheet);
     setIsDirty(true);
   }
 
   const handleAttributeChange = (attr: string, value: string) => {
     const numValue = value === "" ? 0 : Math.max(0, Math.min(3, parseInt(value)));
-    updateCharacter((prev) => ({
+    updateData((prev) => ({
       ...prev,
       attributes: {
         ...prev.attributes,
@@ -72,7 +74,7 @@ export default function CharacterSheetPage({
   };
 
   const toggleSkill = (skill: string) => {
-    updateCharacter((prev) => ({
+    updateData((prev) => ({
       ...prev,
       skills: prev.skills.includes(skill)
         ? prev.skills.filter((s) => s !== skill)
@@ -81,13 +83,13 @@ export default function CharacterSheetPage({
   };
 
   const toggleAbility = (ability: string) => {
-    let currentArmor = participant.charsheet.sumArmor;
+    let currentArmor = charsheetData.sumArmor;
     if (ability === "Kemény") {
-      const changingTo = !participant.charsheet.abilities.includes(ability);
+      const changingTo = !charsheetData.abilities.includes(ability);
       currentArmor += changingTo ? 1 : -1;
     }
 
-    updateCharacter((prev) => ({
+    updateData((prev) => ({
       ...prev,
       sumArmor: currentArmor,
       abilities: prev.abilities.includes(ability)
@@ -98,23 +100,23 @@ export default function CharacterSheetPage({
 
   const handleArmorTypeChange = (type: string, checked: boolean) => {
     if (!editable) return;
-    const prevShield = participant.charsheet.shield ? 1 : 0;
+    const prevShield = charsheetData.shield ? 1 : 0;
     const shield = type === "Pajzs" && checked ? 1 : type !== "Pajzs" ? prevShield : 0;
-    const abilityArmor = participant.charsheet.abilities.includes("Kemény") ? 1 : 0;
+    const abilityArmor = charsheetData.abilities.includes("Kemény") ? 1 : 0;
 
     const armor =
       type !== "Pajzs" && checked
         ? ["Nincs", "Könnyű", "Teljes"].indexOf(type)
-        : ["Nincs", "Könnyű", "Teljes"].indexOf(participant.charsheet.armor);
+        : ["Nincs", "Könnyű", "Teljes"].indexOf(charsheetData.armor);
 
     if (type === "Pajzs") {
-      updateCharacter((prev) => ({
+      updateData((prev) => ({
         ...prev,
         shield: checked,
         sumArmor: shield + armor + abilityArmor,
       }));
     } else {
-      updateCharacter((prev) => ({
+      updateData((prev) => ({
         ...prev,
         armor: checked ? type : prev.armor,
         sumArmor: shield + armor + abilityArmor,
@@ -132,18 +134,18 @@ export default function CharacterSheetPage({
       Kósza: ["Túlélés"],
     };
     (classSkills[value] ?? []).forEach((skill) => {
-      if (!participant.charsheet.skills.includes(skill)) participant.charsheet.skills.push(skill);
+      if (!charsheetData.skills.includes(skill)) charsheetData.skills.push(skill);
     });
-    updateCharacter((prev) => ({
+    updateData((prev) => ({
       ...prev,
       class: value,
-      skills: [...participant.charsheet.skills],
+      skills: [...charsheetData.skills],
     }));
   }
 
   const handleDeleteCharacter = async () => {
     if (!editable) return;
-    const success = await deleteCharacter(participant.id);
+    const success = await deleteCharsheet(charsheet.id);
     if (success) {
       toast.current?.show({
         severity: "success",
@@ -165,7 +167,7 @@ export default function CharacterSheetPage({
     <>
       <Toast ref={toast} />
       <div
-        className='flex flex-column gap-4 p-4 mt-3 border-round-md'
+        className='charactersheet flex flex-column gap-4 p-4 mt-3 border-round-md'
         style={{ maxWidth: "1000px", margin: "auto", backgroundColor: "#1f2937" }}>
         {/* Top Fields */}
         <div className='flex gap-4'>
@@ -173,13 +175,13 @@ export default function CharacterSheetPage({
             placeholder='Név'
             className='flex-1 text-yellow-400'
             maxLength={50}
-            value={participant.charsheet.name}
-            onChange={(e) => updateCharacter((prev) => ({ ...prev, name: e.target.value }))}
+            value={charsheetData.name}
+            onChange={(e) => updateData((prev) => ({ ...prev, name: e.target.value }))}
           />
           <Dropdown
             placeholder='Kaszt'
             className='w-10rem text-yellow-400'
-            value={participant.charsheet.class}
+            value={charsheetData.class}
             options={["Harcos", "Tolvaj", "Pap", "Varázsló", "Kósza", "Egyedi"].map((value) => ({
               label: value,
               value,
@@ -189,18 +191,18 @@ export default function CharacterSheetPage({
           <InputText
             placeholder='Játékos'
             className='w-10rem text-yellow-400'
-            value={participant.charsheet.playerName}
+            value={charsheetData.playerName}
             maxLength={50}
-            onChange={(e) => updateCharacter((prev) => ({ ...prev, playerName: e.target.value }))}
+            onChange={(e) => updateData((prev) => ({ ...prev, playerName: e.target.value }))}
           />
           <div className='flex align-items-center gap-2'>
             <span>Szint</span>
             <InputText
               type='number'
               className='w-3rem text-center text-yellow-400'
-              value={participant.charsheet.level?.toString() || ""}
+              value={charsheetData.level?.toString() || ""}
               onChange={(e) =>
-                updateCharacter((prev) => ({
+                updateData((prev) => ({
                   ...prev,
                   level: e.target.value ? Math.min(10, Math.max(1, parseInt(e.target.value))) : 1,
                 }))
@@ -220,8 +222,8 @@ export default function CharacterSheetPage({
                   type='number'
                   className='w-4rem text-center p-inputtext-lg p-2 text-4xl text-yellow-400 font-bold'
                   value={
-                    participant.charsheet.attributes[
-                      attr.label.toLowerCase() as keyof typeof participant.charsheet.attributes
+                    charsheetData.attributes[
+                      attr.label.toLowerCase() as keyof typeof charsheetData.attributes
                     ]?.toString() || "0"
                   }
                   onChange={(e) => handleAttributeChange(attr.label.slice(0, 3), e.target.value)}
@@ -239,11 +241,11 @@ export default function CharacterSheetPage({
                 <div
                   key={skill}
                   className={`flex justify-content-between align-items-center ${
-                    participant.charsheet.skills.includes(skill) ? "text-900" : "text-200"
+                    charsheetData.skills.includes(skill) ? "text-900" : "text-200"
                   }`}>
                   <span>{skill}</span>
                   <Checkbox
-                    checked={participant.charsheet.skills.includes(skill)}
+                    checked={charsheetData.skills.includes(skill)}
                     onChange={() => toggleSkill(skill)}
                   />
                 </div>
@@ -259,11 +261,11 @@ export default function CharacterSheetPage({
                     <div
                       id={`abaility-div-${idx}`}
                       className={`col-6 flex justify-content-between align-items-center p-1 ${
-                        participant.charsheet.abilities.includes(ab.name) ? "text-900" : "text-200"
+                        charsheetData.abilities.includes(ab.name) ? "text-900" : "text-200"
                       }`}>
                       <span>{ab.name}</span>
                       <Checkbox
-                        checked={participant.charsheet.abilities.includes(ab.name)}
+                        checked={charsheetData.abilities.includes(ab.name)}
                         onChange={() => toggleAbility(ab.name)}
                       />
                     </div>
@@ -293,8 +295,8 @@ export default function CharacterSheetPage({
             placeholder='Fegyverek'
             className='flex-1 text-yellow-400'
             maxLength={1000}
-            value={participant.charsheet.weapons}
-            onChange={(e) => updateCharacter((prev) => ({ ...prev, weapons: e.target.value }))}
+            value={charsheetData.weapons}
+            onChange={(e) => updateData((prev) => ({ ...prev, weapons: e.target.value }))}
           />
           <InputTextarea
             autoResize
@@ -303,8 +305,8 @@ export default function CharacterSheetPage({
             placeholder='Felszerelés'
             className='flex-1 text-yellow-400'
             maxLength={1000}
-            value={participant.charsheet.gear}
-            onChange={(e) => updateCharacter((prev) => ({ ...prev, gear: e.target.value }))}
+            value={charsheetData.gear}
+            onChange={(e) => updateData((prev) => ({ ...prev, gear: e.target.value }))}
           />
         </div>
 
@@ -318,9 +320,7 @@ export default function CharacterSheetPage({
                   <Checkbox
                     inputId={`arm_${idx}`}
                     checked={
-                      label === "Pajzs"
-                        ? participant.charsheet.shield
-                        : participant.charsheet.armor === label
+                      label === "Pajzs" ? charsheetData.shield : charsheetData.armor === label
                     }
                     onChange={(e) => handleArmorTypeChange(label, e.checked)}
                   />
@@ -332,10 +332,10 @@ export default function CharacterSheetPage({
                 <InputText
                   style={{ borderRadius: "0 0 50% 50% / 0 0 100% 100%" }}
                   className='w-3rem text-center text-yellow-400'
-                  value={participant.charsheet.sumArmor?.toString() || ""}
+                  value={charsheetData.sumArmor?.toString() || ""}
                   type='number'
                   onChange={(e) =>
-                    updateCharacter((prev) => ({
+                    updateData((prev) => ({
                       ...prev,
                       sumArmor: e.target.value
                         ? Math.max(0, Math.min(10, parseInt(e.target.value)))
@@ -355,10 +355,10 @@ export default function CharacterSheetPage({
               <div className='flex align-items-center justify-content-between'>
                 <InputText
                   className='w-6rem text-center text-yellow-400'
-                  value={participant.charsheet.hpDice?.toString() || ""}
+                  value={charsheetData.hpDice?.toString() || ""}
                   type='number'
                   onChange={(e) =>
-                    updateCharacter((prev) => ({
+                    updateData((prev) => ({
                       ...prev,
                       hpDice: e.target.value
                         ? Math.max(1, Math.min(10, parseInt(e.target.value)))
@@ -370,10 +370,10 @@ export default function CharacterSheetPage({
               <div className='flex align-items-center gap-2'>
                 <InputText
                   className='w-6rem text-center text-yellow-400'
-                  value={participant.charsheet.hp?.toString() || ""}
+                  value={charsheetData.hp?.toString() || ""}
                   type='number'
                   onChange={(e) =>
-                    updateCharacter((prev) => ({
+                    updateData((prev) => ({
                       ...prev,
                       hp: e.target.value ? Math.max(0, Math.min(50, parseInt(e.target.value))) : 0,
                     }))
@@ -393,8 +393,8 @@ export default function CharacterSheetPage({
             placeholder='Jegyzetek'
             className='w-full text-yellow-400'
             maxLength={1000}
-            value={participant.charsheet.notesLeft}
-            onChange={(e) => updateCharacter((prev) => ({ ...prev, notesLeft: e.target.value }))}
+            value={charsheetData.notesLeft}
+            onChange={(e) => updateData((prev) => ({ ...prev, notesLeft: e.target.value }))}
           />
           <InputTextarea
             autoResize
@@ -403,8 +403,8 @@ export default function CharacterSheetPage({
             placeholder='Jegyzetek'
             className='w-full text-yellow-400'
             maxLength={1000}
-            value={participant.charsheet.notesRight}
-            onChange={(e) => updateCharacter((prev) => ({ ...prev, notesRight: e.target.value }))}
+            value={charsheetData.notesRight}
+            onChange={(e) => updateData((prev) => ({ ...prev, notesRight: e.target.value }))}
           />
         </div>
 
@@ -414,20 +414,20 @@ export default function CharacterSheetPage({
             <span>Pénz</span>
             <InputText
               className='w-10rem text-center text-yellow-400'
-              value={participant.charsheet.money}
+              value={charsheetData.money}
               maxLength={50}
-              onChange={(e) => updateCharacter((prev) => ({ ...prev, money: e.target.value }))}
+              onChange={(e) => updateData((prev) => ({ ...prev, money: e.target.value }))}
             />
           </div>
           <div className='flex align-items-center gap-2 flex-1 justify-content-center'>
             <span>Köv. szint</span>
             <InputText
               className='w-6rem text-center text-yellow-400'
-              value={participant.charsheet.nextLevel?.toString() || "0"}
+              value={charsheetData.nextLevel?.toString() || "0"}
               maxLength={5}
               type='number'
               onChange={(e) =>
-                updateCharacter((prev) => ({
+                updateData((prev) => ({
                   ...prev,
                   nextLevel: e.target.value ? parseInt(e.target.value) : 0,
                 }))
@@ -438,11 +438,11 @@ export default function CharacterSheetPage({
             <span>XP</span>
             <InputText
               className='w-6rem text-center text-yellow-400'
-              value={participant.charsheet.xp?.toString() || "0"}
+              value={charsheetData.xp?.toString() || "0"}
               maxLength={5}
               type='number'
               onChange={(e) =>
-                updateCharacter((prev) => ({
+                updateData((prev) => ({
                   ...prev,
                   xp: e.target.value ? parseInt(e.target.value) : 0,
                 }))
