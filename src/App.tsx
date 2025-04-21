@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { JSX, useEffect, useState } from "react";
 import { HashRouter, Route, Routes, Navigate } from "react-router-dom";
 import AuthPage from "./AuthPage";
 import { supabase } from "./supabase";
@@ -46,15 +46,33 @@ function App() {
   return (
     <HashRouter>
       <Routes>
-        <Route path='auth' element={<AuthPage />} />
-        <Route path='/*' element={user ? <Rooms user={user} /> : <Navigate to='auth' replace />} />
+        <Route path='/auth' element={<AuthPage />} />
         <Route
-          path='/:roomId/*'
-          element={user ? <Room user={user} /> : <Navigate to='auth' replace />}
+          path='/'
+          element={
+            <RequireAuth user={user}>
+              <Rooms user={user} />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path='/:roomId'
+          element={
+            <RequireAuth user={user}>
+              <Room user={user} />
+            </RequireAuth>
+          }
         />
       </Routes>
     </HashRouter>
   );
+}
+
+function RequireAuth({ user, children }: { user?: User; children: JSX.Element }) {
+  if (!user) {
+    return <Navigate to='/auth' replace />;
+  }
+  return children;
 }
 
 export default App;
