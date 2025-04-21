@@ -95,14 +95,14 @@ export type Room = {
 
 export type Charsheet = {
   id?: number;
+  user_id: string;
+  system: string;
+  data: WoduData | BladesData;
   created_at?: string;
   updated_at?: string;
-  user_id: string;
-  data: WoduData | BladesData;
 };
 
 export type WoduData = {
-  system: string;
   id?: number;
   playerName: string;
   name: string;
@@ -126,7 +126,6 @@ export type WoduData = {
 };
 
 export const emptyWoduData = (newPlayerName): WoduData => ({
-  system: "wodu",
   playerName: newPlayerName,
   name: "",
   class: "Egyedi",
@@ -149,7 +148,6 @@ export const emptyWoduData = (newPlayerName): WoduData => ({
 });
 
 export type BladesData = {
-  system: string;
   id?: number;
   class?: string;
   playerName: string;
@@ -157,7 +155,6 @@ export type BladesData = {
 };
 
 export const emptyBladesData = (newPlayerName): BladesData => ({
-  system: "blades",
   playerName: newPlayerName,
   name: "",
 });

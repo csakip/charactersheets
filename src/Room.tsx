@@ -1,9 +1,6 @@
 import { User } from "@supabase/supabase-js";
 import { Button } from "primereact/button";
 import { Card } from "primereact/card";
-import { Checkbox } from "primereact/checkbox";
-import { Dialog } from "primereact/dialog";
-import { InputText } from "primereact/inputtext";
 import { ListBox } from "primereact/listbox";
 import { ScrollPanel } from "primereact/scrollpanel";
 import { Toast } from "primereact/toast";
@@ -23,8 +20,9 @@ import {
   systems,
   WoduData,
 } from "./utils";
+import InputDialog from "./components/InputDialog";
+import NewCharacterDialog from "./components/NewCharacterDialog";
 import BladesCharacterSheetPage from "./BladesCharacterSheetPage";
-import InputDialog from "./InputDialog";
 
 function RoomPage({ user }: { user: User }) {
   const [charsheets, setCharsheets] = useState<Charsheet[]>([]);
@@ -35,12 +33,10 @@ function RoomPage({ user }: { user: User }) {
     }
   );
   const [showNewCharacterDialog, setShowNewCharacterDialog] = useState(false);
-  const [newPlayerName, setNewPlayerName] = useState("");
   const [room, setRoom] = useState<Room>();
   const [sidebarOpen, setSidebarOpen] = useLocalStorageState("wodu-sidebar", {
     defaultValue: true,
   });
-  const [rollChecked, setRollChecked] = useState(false);
   const toast = useRef<Toast>(null);
   const charsheetsRef = useRef(charsheets); // Store the charsheets array in a ref to avoid stale data
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
@@ -106,7 +102,6 @@ function RoomPage({ user }: { user: User }) {
 
     if (data) {
       setRoom(data);
-      console.log("Fetched room:", data);
     }
   }
 
@@ -128,11 +123,16 @@ function RoomPage({ user }: { user: User }) {
     }
   };
 
-  const createCharacterWithName = async () => {
+  const createCharacterWithName = async (
+    newPlayerName: string,
+    rollChecked: boolean,
+    selectedSystem = system.value
+  ) => {
+    console.log("Creating new character with name:", newPlayerName, rollChecked, selectedSystem);
     if (newPlayerName.trim()) {
       let char: WoduData | BladesData = null;
 
-      if (system.value === "wodu") {
+      if (selectedSystem === "wodu") {
         char = emptyWoduData(newPlayerName.trim());
 
         // Roll attributes if the checkbox is checked
@@ -146,14 +146,17 @@ function RoomPage({ user }: { user: User }) {
         }
       }
 
-      if (system.value === "blades") {
+      if (selectedSystem === "blades") {
         char = emptyBladesData(newPlayerName.trim());
       }
+      console.log("Creating new character:", char, selectedSystem);
 
-      const id = await saveCharsheet({ user_id: user.id, data: char }, roomId);
+      const id = await saveCharsheet(
+        { user_id: user.id, system: selectedSystem, data: char },
+        roomId
+      );
       setSelectedCharsheetId(id);
       setShowNewCharacterDialog(false);
-      setNewPlayerName("");
     }
   };
 
@@ -171,6 +174,18 @@ function RoomPage({ user }: { user: User }) {
     if (newName.trim() === "") return;
     setRenameDialogOpen(false);
     console.log("Renaming room to:", newName);
+    supabase
+      .from("rooms")
+      .update({ name: newName })
+      .eq("id", roomId)
+      .then(() => {
+        fetchRoom();
+        toast.current?.show({
+          severity: "success",
+          summary: "Szoba átnevezve",
+          detail: `A szoba új neve: ${newName}`,
+        });
+      });
   }
 
   const selectedCharacter = charsheets.find((c) => c.id === selectedCharsheetId);
@@ -285,54 +300,13 @@ function RoomPage({ user }: { user: User }) {
           </div>
         </div>
       </div>
-      <Dialog
+      <NewCharacterDialog
         visible={showNewCharacterDialog}
         onHide={() => setShowNewCharacterDialog(false)}
-        header='Új karakter'
-        style={{ width: 600 }}
-        onShow={() => {
-          document.getElementById("playerName").focus();
-        }}
-        modal
-        footer={
-          <div>
-            <Button
-              label='Mégse'
-              icon='pi pi-times'
-              onClick={() => setShowNewCharacterDialog(false)}
-              className='p-button-text'
-            />
-            <Button
-              label='Létrehozás'
-              icon='pi pi-check'
-              onClick={createCharacterWithName}
-              disabled={!newPlayerName.trim()}
-            />
-          </div>
-        }>
-        <div className='flex flex-column gap-2'>
-          <label htmlFor='playerName'>Játékos neve</label>
-          <InputText
-            id='playerName'
-            value={newPlayerName}
-            onChange={(e) => setNewPlayerName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && createCharacterWithName()}
-          />
-          {system.value === "wodu" && (
-            <div className='mt-1'>
-              <Checkbox
-                onChange={(e) => setRollChecked(e.checked)}
-                checked={rollChecked}
-                inputId='rollChecked'
-              />
+        onSave={createCharacterWithName}
+        system={system.value}
+      />
 
-              <label htmlFor='rollChecked' className='ml-2 '>
-                Kidobott tulajdonságokkal?
-              </label>
-            </div>
-          )}
-        </div>
-      </Dialog>
       <InputDialog
         visible={renameDialogOpen}
         onHide={() => setRenameDialogOpen(false)}
