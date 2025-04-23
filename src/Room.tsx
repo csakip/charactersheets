@@ -1,13 +1,15 @@
 import { User } from "@supabase/supabase-js";
 import { Button } from "primereact/button";
 import { Card } from "primereact/card";
-import { ListBox } from "primereact/listbox";
-import { ScrollPanel } from "primereact/scrollpanel";
 import { Toast } from "primereact/toast";
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import useLocalStorageState from "use-local-storage-state";
+import BladesCharacterSheetPage from "./BladesCharacterSheetPage";
 import WoDuCharacterSheetPage from "./WoDuCharacterSheetPage";
+import CharacterSheetList from "./components/CharacterSheetList";
+import InputDialog from "./components/InputDialog";
+import NewCharacterDialog from "./components/NewCharacterDialog";
 import { logout, saveCharsheet, supabase } from "./supabase";
 import {
   attributes,
@@ -15,16 +17,15 @@ import {
   Charsheet,
   emptyBladesData,
   emptyWoduData,
+  shortenName,
   rollAttribute,
   Room,
   systems,
   WoduData,
 } from "./utils";
-import InputDialog from "./components/InputDialog";
-import NewCharacterDialog from "./components/NewCharacterDialog";
-import BladesCharacterSheetPage from "./BladesCharacterSheetPage";
+import { useStore } from "./store";
 
-function RoomPage({ user }: { user: User }) {
+function RoomPage() {
   const [charsheets, setCharsheets] = useState<Charsheet[]>([]);
   const [selectedCharsheetId, setSelectedCharsheetId] = useLocalStorageState<number>(
     "wodu-selected-charsheet",
@@ -40,6 +41,8 @@ function RoomPage({ user }: { user: User }) {
   const toast = useRef<Toast>(null);
   const charsheetsRef = useRef(charsheets); // Store the charsheets array in a ref to avoid stale data
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+
+  const user: User = useStore((state) => state.user);
 
   const { roomId } = useParams();
 
@@ -82,7 +85,17 @@ function RoomPage({ user }: { user: User }) {
       )
       .subscribe();
 
+    // subscribe to characters update
+    const unsubscribe = useStore.subscribe(
+      (state) => state.charactersToUpdate,
+      () => {
+        console.log("Characters updated!");
+        fetchCharsheets();
+      }
+    );
+
     return () => {
+      unsubscribe();
       supabase.removeChannel(channel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -108,10 +121,10 @@ function RoomPage({ user }: { user: User }) {
   const fetchCharsheets = async () => {
     const { data, error } = await supabase
       .from("rooms_charsheets")
-      .select("charsheets(*)") // Get full charsheet data
+      .select("charsheets(*), room_id") // Get full charsheet data
       .eq("room_id", roomId);
 
-    const charsheets = data?.map((item) => item.charsheets) || [];
+    const charsheets = data?.map((item) => ({ ...item.charsheets, room_id: item.room_id })) || [];
 
     if (data) {
       setCharsheets(charsheets as unknown as Charsheet[]);
@@ -128,7 +141,6 @@ function RoomPage({ user }: { user: User }) {
     rollChecked: boolean,
     selectedSystem = system.value
   ) => {
-    console.log("Creating new character with name:", newPlayerName, rollChecked, selectedSystem);
     if (newPlayerName.trim()) {
       let char: WoduData | BladesData = null;
 
@@ -149,7 +161,6 @@ function RoomPage({ user }: { user: User }) {
       if (selectedSystem === "blades") {
         char = emptyBladesData(newPlayerName.trim());
       }
-      console.log("Creating new character:", char, selectedSystem);
 
       const id = await saveCharsheet(
         { user_id: user.id, system: selectedSystem, data: char },
@@ -188,6 +199,21 @@ function RoomPage({ user }: { user: User }) {
       });
   }
 
+  function toggleRoomPrivate() {
+    supabase
+      .from("rooms")
+      .update({ private: !room.private })
+      .eq("id", roomId)
+      .then(() => {
+        fetchRoom();
+        toast.current?.show({
+          severity: "success",
+          summary: "Szoba beállítások frissítve",
+          detail: `A szoba most ${room.private ? "nyilvános." : "privát."}`,
+        });
+      });
+  }
+
   const selectedCharacter = charsheets.find((c) => c.id === selectedCharsheetId);
   const system = systems.find((s) => s.value === room?.system);
 
@@ -204,8 +230,22 @@ function RoomPage({ user }: { user: User }) {
                 <Link to='/' className='text-base'>
                   <i className='pi pi-arrow-left mr-1 mb-4'></i> Szobák
                 </Link>
-                <div className='flex gap-1 justify-content-between align-items-center'>
-                  <div className='hidden-nowrap'>{room.name}</div>
+                <div className='flex gap-1 justify-content-start align-items-center'>
+                  <div className='hidden-nowrap'>
+                    {sidebarOpen ? room.name : shortenName(room.name)}
+                  </div>
+                  {sidebarOpen && user.id === room.user_id && (
+                    <Button
+                      icon={`pi ${room.private ? "pi-lock" : "pi-lock-open"}`}
+                      className='ml-auto'
+                      severity='secondary'
+                      text
+                      size='small'
+                      pt={{ root: { className: "p-0 w-1" } }}
+                      title='Privát szoba'
+                      onClick={toggleRoomPrivate}></Button>
+                  )}
+
                   {sidebarOpen && user.id === room.user_id && (
                     <Button
                       icon='pi pi-pencil'
@@ -247,25 +287,12 @@ function RoomPage({ user }: { user: User }) {
               title: { className: "relative" },
             }}
             className='w-full flex-grow-1 flex flex-column'>
-            <ScrollPanel>
-              <div className='flex flex-column gap-2'>
-                {!!charsheets.length && (
-                  <ListBox
-                    value={selectedCharsheetId}
-                    options={charsheets
-                      .toSorted((a, b) => (a.data.playerName < b.data.playerName ? 1 : -1))
-                      .map((p) => ({
-                        label: `${p.data?.playerName}${
-                          p.data?.name && sidebarOpen ? ` - ${p.data?.name}` : ""
-                        }`,
-                        value: p.id,
-                      }))}
-                    onChange={(e) => setSelectedCharsheetId(e.value)}
-                    className='w-full'
-                  />
-                )}
-              </div>
-            </ScrollPanel>
+            <CharacterSheetList
+              charsheets={charsheets}
+              selectedCharsheetId={selectedCharsheetId}
+              setSelectedCharsheetId={setSelectedCharsheetId}
+              sidebarOpen={sidebarOpen}
+            />
             <Button text className='p-0 align-self-start' size='small' onClick={logout}>
               Kijelentkezés
             </Button>

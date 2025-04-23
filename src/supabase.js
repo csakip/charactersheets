@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { useStore } from "./store";
 
 const supabaseUrl = "https://cgevwsmvmboahhgjfhya.supabase.co";
 const supabaseKey =
@@ -24,6 +25,7 @@ export async function logout() {
   if (error) {
     console.error("Error logging out:", error.message);
   } else {
+    useStore.setState({ user: undefined });
     console.log("Successfully logged out");
   }
 }
@@ -55,10 +57,12 @@ export const saveCharsheet = async (charsheet, roomId) => {
     delete charsheet.updated_at;
     console.log("Saving charsheet:", charsheet);
 
+    const charsheetWithoutRoomId = structuredClone(charsheet);
+    delete charsheetWithoutRoomId.room_id;
     // Upsert the character sheet
     const { data: charData, error: charError } = await supabase
       .from("charsheets")
-      .upsert(charsheet, {
+      .upsert(charsheetWithoutRoomId, {
         onConflict: "id",
       })
       .select();
@@ -115,3 +119,25 @@ export const deleteCharsheet = async (id) => {
     return false;
   }
 };
+
+// Removes a character from a room
+export const characterExitRoom = async (id) => {
+  try {
+    const { error } = await supabase.from("rooms_charsheets").delete().eq("charsheet_id", id);
+    if (error) {
+      console.error("Error removing character from room:", error);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error("Error removing character from room:", error);
+    return false;
+  }
+};
+
+export async function addCharacterToRoom(roomId, charsheetId) {
+  return await supabase.from("rooms_charsheets").insert({
+    room_id: roomId,
+    charsheet_id: charsheetId,
+  });
+}

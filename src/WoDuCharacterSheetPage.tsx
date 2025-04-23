@@ -1,15 +1,14 @@
-import { InputText } from "primereact/inputtext";
-import { InputTextarea } from "primereact/inputtextarea";
 import { Checkbox } from "primereact/checkbox";
 import { Dropdown } from "primereact/dropdown";
-import { Fragment } from "react/jsx-runtime";
-import { abilities, attributes, skills, Charsheet, WoduData } from "./utils";
-import { useEffect, useState, useRef } from "react";
-import { deleteCharsheet, saveCharsheet } from "./supabase";
+import { InputText } from "primereact/inputtext";
+import { InputTextarea } from "primereact/inputtextarea";
 import { Toast } from "primereact/toast";
-import { Button } from "primereact/button";
-import { ConfirmDialog } from "primereact/confirmdialog";
 import { Tooltip } from "primereact/tooltip";
+import { useEffect, useRef, useState } from "react";
+import { Fragment } from "react/jsx-runtime";
+import CharacterSheetBottom from "./components/CharacterSheetBottom";
+import { saveCharsheet } from "./supabase";
+import { abilities, attributes, Charsheet, skills, WoduData } from "./utils";
 
 export default function WoDuCharacterSheetPage({
   loadedCharsheet,
@@ -23,7 +22,6 @@ export default function WoDuCharacterSheetPage({
   const [charsheet, setCharsheet] = useState<Charsheet>(loadedCharsheet);
   const [isDirty, setIsDirty] = useState(false);
   const toast = useRef<Toast>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const charsheetData = charsheet.data as WoduData;
 
@@ -142,26 +140,6 @@ export default function WoDuCharacterSheetPage({
       skills: [...charsheetData.skills],
     }));
   }
-
-  const handleDeleteCharacter = async () => {
-    if (!editable) return;
-    const success = await deleteCharsheet(charsheet.id);
-    if (success) {
-      toast.current?.show({
-        severity: "success",
-        summary: "Siker",
-        detail: "A karakter sikeresen törölve",
-        life: 3000,
-      });
-    } else {
-      toast.current?.show({
-        severity: "error",
-        summary: "Hiba",
-        detail: "Nem sikerült törölni a karaktert",
-        life: 3000,
-      });
-    }
-  };
 
   return (
     <>
@@ -451,25 +429,7 @@ export default function WoDuCharacterSheetPage({
           </div>
         </div>
       </div>
-      {editable && (
-        <div
-          className='flex mb-3 mt-1 justify-content-end'
-          style={{ maxWidth: "1000px", margin: "auto" }}>
-          <Button severity='danger' size='small' text onClick={() => setShowDeleteConfirm(true)}>
-            Karakter törlése
-          </Button>
-        </div>
-      )}
-      <ConfirmDialog
-        visible={showDeleteConfirm}
-        onHide={() => setShowDeleteConfirm(false)}
-        message='Biztosan törölni szeretnéd ezt a karaktert?'
-        header='Megerősítés'
-        icon='pi pi-exclamation-circle'
-        accept={handleDeleteCharacter}
-        acceptLabel='Igen'
-        rejectLabel='Nem'
-      />
+      {editable && <CharacterSheetBottom charsheet={charsheet} setCharsheet={setCharsheet} />}
     </>
   );
 }

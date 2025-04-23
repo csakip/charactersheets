@@ -1,9 +1,9 @@
-import { Button } from "primereact/button";
 import { ConfirmDialog } from "primereact/confirmdialog";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { Toast } from "primereact/toast";
 import { useEffect, useRef, useState } from "react";
+import CharacterSheetBottom from "./components/CharacterSheetBottom";
 import { deleteCharsheet, saveCharsheet } from "./supabase";
 import { BladesData, Charsheet } from "./utils";
 
@@ -193,15 +193,7 @@ export default function BladesCharacterSheetPage({
           />
         </div>
       </div>
-      {editable && (
-        <div
-          className='flex mb-3 mt-1 justify-content-end'
-          style={{ maxWidth: "1000px", margin: "auto" }}>
-          <Button severity='danger' size='small' text onClick={() => setShowDeleteConfirm(true)}>
-            Karakter törlése
-          </Button>
-        </div>
-      )}
+      {editable && <CharacterSheetBottom charsheet={charsheet} setCharsheet={setCharsheet} />}
       <ConfirmDialog
         visible={showDeleteConfirm}
         onHide={() => setShowDeleteConfirm(false)}

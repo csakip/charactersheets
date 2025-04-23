@@ -100,6 +100,8 @@ export type Charsheet = {
   data: WoduData | BladesData;
   created_at?: string;
   updated_at?: string;
+  rooms_charsheets?: { room_id: number }[];
+  room_id?: number;
 };
 
 export type WoduData = {
@@ -161,7 +163,7 @@ export const emptyBladesData = (newPlayerName): BladesData => ({
 
 export const systems = [
   { label: "World of Dungeons", value: "wodu", shortLabel: "WoDu" },
-  { label: "Blades in the Dark", value: "blades", shortLabel: "BitD" },
+  { label: "Kések az Éjben", value: "blades", shortLabel: "KaÉ" },
 ];
 
 export function rollD6() {
@@ -174,4 +176,15 @@ export function rollAttribute() {
   if (roll <= 9) return 1;
   if (roll <= 11) return 2;
   return 3;
+}
+
+// Take each word, use the first letter and capitalize it, then join them with a dot
+export function shortenName(name: string) {
+  if (name.length < 8) return name;
+  return (
+    name
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase())
+      .join(".") + "."
+  );
 }

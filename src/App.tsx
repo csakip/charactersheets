@@ -5,10 +5,11 @@ import { supabase } from "./supabase";
 import Room from "./Room";
 import { User } from "@supabase/supabase-js";
 import Rooms from "./Rooms";
+import { useStore } from "./store";
 
 function App() {
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<User>();
+  const user = useStore((state) => state.user);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -17,9 +18,9 @@ function App() {
           data: { session },
         } = await supabase.auth.getSession();
         if (session) {
-          setUser(session.user);
+          useStore.setState({ user: session.user });
         } else {
-          setUser(undefined);
+          useStore.setState({ user: undefined });
         }
       } finally {
         setLoading(false);
@@ -31,7 +32,7 @@ function App() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session ? session.user : undefined);
+      useStore.setState({ user: session?.user ?? undefined });
     });
 
     return () => {
@@ -51,7 +52,7 @@ function App() {
           path='/'
           element={
             <RequireAuth user={user}>
-              <Rooms user={user} />
+              <Rooms />
             </RequireAuth>
           }
         />
@@ -59,7 +60,7 @@ function App() {
           path='/:roomId'
           element={
             <RequireAuth user={user}>
-              <Room user={user} />
+              <Room />
             </RequireAuth>
           }
         />
