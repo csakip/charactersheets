@@ -55,7 +55,6 @@ export const saveCharsheet = async (charsheet, roomId) => {
     if (!user) return 0;
 
     delete charsheet.updated_at;
-    console.log("Saving charsheet:", charsheet);
 
     const charsheetWithoutRoomId = structuredClone(charsheet);
     delete charsheetWithoutRoomId.room_id;
@@ -71,8 +70,6 @@ export const saveCharsheet = async (charsheet, roomId) => {
       console.error("Error saving charsheet:", charError);
       return 0;
     }
-
-    console.log("Character data:", charData);
 
     // Create the room-charsheet relationship
     if (roomId && !charsheet.id) {

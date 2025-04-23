@@ -124,7 +124,7 @@ function RoomPage() {
       .select("charsheets(*), room_id") // Get full charsheet data
       .eq("room_id", roomId);
 
-    const charsheets = data?.map((item) => ({ ...item.charsheets, room_id: item.room_id })) || [];
+    const charsheets = data?.map((c) => ({ ...c.charsheets, room_id: c.room_id })) || [];
 
     if (data) {
       setCharsheets(charsheets as unknown as Charsheet[]);
@@ -163,9 +163,14 @@ function RoomPage() {
       }
 
       const id = await saveCharsheet(
-        { user_id: user.id, system: selectedSystem, data: char },
+        {
+          user_id: user.id,
+          system: selectedSystem,
+          data: char,
+        },
         roomId
       );
+      fetchCharsheets();
       setSelectedCharsheetId(id);
       setShowNewCharacterDialog(false);
     }
