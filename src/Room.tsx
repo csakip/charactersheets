@@ -11,28 +11,14 @@ import CharacterSheetList from "./components/CharacterSheetList";
 import InputDialog from "./components/InputDialog";
 import NewCharacterDialog from "./components/NewCharacterDialog";
 import { logout, saveCharsheet, supabase } from "./supabase";
-import {
-  attributes,
-  BladesData,
-  Charsheet,
-  emptyBladesData,
-  emptyWoduData,
-  shortenName,
-  rollAttribute,
-  Room,
-  systems,
-  WoduData,
-} from "./utils";
+import { attributes, BladesData, Charsheet, emptyBladesData, emptyWoduData, shortenName, rollAttribute, Room, systems, WoduData } from "./utils";
 import { useStore } from "./store";
 
 function RoomPage() {
   const [charsheets, setCharsheets] = useState<Charsheet[]>([]);
-  const [selectedCharsheetId, setSelectedCharsheetId] = useLocalStorageState<number>(
-    "wodu-selected-charsheet",
-    {
-      defaultValue: null,
-    }
-  );
+  const [selectedCharsheetId, setSelectedCharsheetId] = useLocalStorageState<number>("wodu-selected-charsheet", {
+    defaultValue: null,
+  });
   const [showNewCharacterDialog, setShowNewCharacterDialog] = useState(false);
   const [room, setRoom] = useState<Room>();
   const [sidebarOpen, setSidebarOpen] = useLocalStorageState("wodu-sidebar", {
@@ -57,14 +43,25 @@ function RoomPage() {
         {
           event: "*",
           schema: "public",
+          table: "rooms_charsheets",
+          filter: `room_id=eq.${roomId}`, // dynamic filtering
+        },
+        (payload) => {
+          if (payload.eventType === "INSERT" || payload.eventType === "DELETE") {
+            console.log("Change received!", payload);
+            fetchCharsheets();
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
           table: "charsheets",
         },
         (payload) => {
-          if (
-            payload.eventType === "INSERT" ||
-            payload.eventType === "UPDATE" ||
-            payload.eventType === "DELETE"
-          ) {
+          if (payload.eventType === "INSERT" || payload.eventType === "UPDATE" || payload.eventType === "DELETE") {
             console.log("Change received!", payload);
             if (payload.eventType === "UPDATE" || payload.eventType === "INSERT") {
               const newCharsheet = payload.new as Charsheet;
@@ -72,10 +69,7 @@ function RoomPage() {
               // Don't update my own character
               if (newCharsheet.user_id === user.id && payload.eventType === "UPDATE") return;
 
-              const newCharsheets = [
-                ...charsheetsRef.current.filter((p) => p.id !== newCharsheet.id),
-                newCharsheet,
-              ];
+              const newCharsheets = [...charsheetsRef.current.filter((p) => p.id !== newCharsheet.id), newCharsheet];
               setCharsheets(newCharsheets);
             } else if (payload.eventType === "DELETE") {
               setCharsheets([...charsheetsRef.current.filter((p) => p.id !== payload.old.id)]);
@@ -85,17 +79,7 @@ function RoomPage() {
       )
       .subscribe();
 
-    // subscribe to characters update
-    const unsubscribe = useStore.subscribe(
-      (state) => state.charactersToUpdate,
-      () => {
-        console.log("Characters updated!");
-        fetchCharsheets();
-      }
-    );
-
     return () => {
-      unsubscribe();
       supabase.removeChannel(channel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -125,6 +109,7 @@ function RoomPage() {
       .eq("room_id", roomId);
 
     const charsheets = data?.map((c) => ({ ...c.charsheets, room_id: c.room_id })) || [];
+    console.log("updated charsheets", charsheets);
 
     if (data) {
       setCharsheets(charsheets as unknown as Charsheet[]);
@@ -136,11 +121,7 @@ function RoomPage() {
     }
   };
 
-  const createCharacterWithName = async (
-    newPlayerName: string,
-    rollChecked: boolean,
-    selectedSystem = system.value
-  ) => {
+  const createCharacterWithName = async (newPlayerName: string, rollChecked: boolean, selectedSystem = system.value) => {
     if (newPlayerName.trim()) {
       let char: WoduData | BladesData = null;
 
@@ -236,9 +217,7 @@ function RoomPage() {
                   <i className='pi pi-arrow-left mr-1 mb-4'></i> Szobák
                 </Link>
                 <div className='flex gap-1 justify-content-start align-items-center'>
-                  <div className='hidden-nowrap'>
-                    {sidebarOpen ? room.name : shortenName(room.name)}
-                  </div>
+                  <div className='hidden-nowrap'>{sidebarOpen ? room.name : shortenName(room.name)}</div>
                   {sidebarOpen && user.id === room.user_id && (
                     <Button
                       icon={`pi ${room.private ? "pi-lock" : "pi-lock-open"}`}
@@ -262,9 +241,7 @@ function RoomPage() {
                       onClick={() => setRenameDialogOpen(true)}></Button>
                   )}
                 </div>
-                <div className='hidden-nowrap text-base text-400 mt-1 font-normal'>
-                  {sidebarOpen ? system.label : system.shortLabel}
-                </div>
+                <div className='hidden-nowrap text-base text-400 mt-1 font-normal'>{sidebarOpen ? system.label : system.shortLabel}</div>
                 <Button
                   icon={sidebarOpen ? "pi pi-chevron-left" : "pi pi-chevron-right"}
                   className='sidebar-toggle bg-yellow-900  border-0'
@@ -275,11 +252,7 @@ function RoomPage() {
             }
             subTitle={
               system.value === "wodu" && (
-                <a
-                  href='https://csokav.notion.site/World-of-Dungeons-1ca0f93292ad80db9f5dccfbfede8180'
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  className='text-300 text-sm'>
+                <a href='https://csokav.notion.site/World-of-Dungeons-1ca0f93292ad80db9f5dccfbfede8180' target='_blank' rel='noopener noreferrer' className='text-300 text-sm'>
                   Ismertető <i className='pi pi-external-link text-xs ml-1'></i>
                 </a>
               )
@@ -292,12 +265,7 @@ function RoomPage() {
               title: { className: "relative" },
             }}
             className='w-full flex-grow-1 flex flex-column'>
-            <CharacterSheetList
-              charsheets={charsheets}
-              selectedCharsheetId={selectedCharsheetId}
-              setSelectedCharsheetId={setSelectedCharsheetId}
-              sidebarOpen={sidebarOpen}
-            />
+            <CharacterSheetList charsheets={charsheets} selectedCharsheetId={selectedCharsheetId} setSelectedCharsheetId={setSelectedCharsheetId} sidebarOpen={sidebarOpen} />
             <Button text className='p-0 align-self-start' size='small' onClick={logout}>
               Kijelentkezés
             </Button>
@@ -324,29 +292,15 @@ function RoomPage() {
               </>
             ) : (
               <div className='flex align-items-center justify-content-center h-full'>
-                <Button onClick={() => setShowNewCharacterDialog(true)}>
-                  Új karakter létrehozása
-                </Button>
+                <Button onClick={() => setShowNewCharacterDialog(true)}>Új karakter létrehozása</Button>
               </div>
             )}
           </div>
         </div>
       </div>
-      <NewCharacterDialog
-        visible={showNewCharacterDialog}
-        onHide={() => setShowNewCharacterDialog(false)}
-        onSave={createCharacterWithName}
-        system={system.value}
-      />
+      <NewCharacterDialog visible={showNewCharacterDialog} onHide={() => setShowNewCharacterDialog(false)} onSave={createCharacterWithName} system={system.value} />
 
-      <InputDialog
-        visible={renameDialogOpen}
-        onHide={() => setRenameDialogOpen(false)}
-        onSave={renameRoom}
-        title='Szoba átnevezése'
-        content='Új név'
-        defaultValue={room.name}
-      />
+      <InputDialog visible={renameDialogOpen} onHide={() => setRenameDialogOpen(false)} onSave={renameRoom} title='Szoba átnevezése' content='Új név' defaultValue={room.name} />
     </>
   );
 }

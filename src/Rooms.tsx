@@ -9,16 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import { logout, saveCharsheet, saveRoom, supabase } from "./supabase";
 import { useNavigate } from "react-router";
 import { Dropdown } from "primereact/dropdown";
-import {
-  attributes,
-  BladesData,
-  Charsheet,
-  emptyBladesData,
-  emptyWoduData,
-  rollAttribute,
-  systems,
-  WoduData,
-} from "./utils";
+import { attributes, BladesData, Charsheet, emptyBladesData, emptyWoduData, rollAttribute, systems, WoduData } from "./utils";
 import { Checkbox } from "primereact/checkbox";
 import NewCharacterDialog from "./components/NewCharacterDialog";
 import CharacterSheetList from "./components/CharacterSheetList";
@@ -37,12 +28,9 @@ function Rooms() {
   const [isPrivate, setIsPrivate] = useState(true);
   const toast = useRef<Toast>(null);
   const [charsheets, setCharsheets] = useState<Charsheet[]>([]);
-  const [selectedCharsheetId, setSelectedCharsheetId] = useLocalStorageState<number>(
-    "wodu-selected-charsheet",
-    {
-      defaultValue: null,
-    }
-  );
+  const [selectedCharsheetId, setSelectedCharsheetId] = useLocalStorageState<number>("wodu-selected-charsheet", {
+    defaultValue: null,
+  });
 
   const user: User = useStore((state) => state.user);
 
@@ -52,6 +40,37 @@ function Rooms() {
     fetchRooms();
     fetchCharsheets();
     setSelectedCharsheetId(null);
+
+    const channel = supabase
+      .channel("charsheets_changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "rooms_charsheets",
+          filter: `user_id=eq.${user.id},private=eq.false`,
+        },
+        () => {
+          fetchCharsheets();
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "charsheets",
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          fetchCharsheets();
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -66,11 +85,7 @@ function Rooms() {
   }, [selectedCharsheetId]);
 
   const fetchRooms = async () => {
-    const { data, error } = await supabase
-      .from("rooms")
-      .select("*")
-      .or(`user_id.eq.${user.id},private.eq.false`)
-      .order("created_at", { ascending: true });
+    const { data, error } = await supabase.from("rooms").select("*").or(`user_id.eq.${user.id},private.eq.false`).order("created_at", { ascending: true });
 
     if (error) {
       console.error("Error fetching rooms:", error);
@@ -81,10 +96,7 @@ function Rooms() {
   };
 
   const fetchCharsheets = async () => {
-    const { data, error } = await supabase
-      .from("charsheets")
-      .select("*, rooms_charsheets(room_id)")
-      .eq("user_id", user.id);
+    const { data, error } = await supabase.from("charsheets").select("*, rooms_charsheets(room_id)").eq("user_id", user.id);
 
     if (data) {
       data.forEach((c) => {
@@ -118,11 +130,7 @@ function Rooms() {
     }
   };
 
-  const createCharacterWithName = async (
-    newPlayerName: string,
-    rollChecked: boolean,
-    selectedSystem: string
-  ) => {
+  const createCharacterWithName = async (newPlayerName: string, rollChecked: boolean, selectedSystem: string) => {
     if (newPlayerName.trim()) {
       let char: WoduData | BladesData = null;
 
@@ -144,10 +152,7 @@ function Rooms() {
         char = emptyBladesData(newPlayerName.trim());
       }
 
-      const id = await saveCharsheet(
-        { user_id: user.id, system: selectedSystem, data: char },
-        null
-      );
+      const id = await saveCharsheet({ user_id: user.id, system: selectedSystem, data: char }, null);
       setSelectedCharsheetId(id);
       fetchCharsheets();
       setShowNewCharacterDialog(false);
@@ -177,17 +182,9 @@ function Rooms() {
       <Toast ref={toast} />
       <div className={`flex sidebar-open`}>
         <div className={`sidebar-container flex flex-column align-items-center h-screen`}>
-          <div
-            className='flex flex-column w-full flex-1 p-3 thin-scrollbar overflow-y-auto relative'
-            style={{ backgroundColor: "#1f2937" }}>
+          <div className='flex flex-column w-full flex-1 p-3 thin-scrollbar overflow-y-auto relative' style={{ backgroundColor: "#1f2937" }}>
             <div className='float-right absolute right-0 mr-3 mt-1 z-5'>
-              <Button
-                icon={`pi pi-sync`}
-                severity='secondary'
-                text
-                size='small'
-                title='Frissítés'
-                onClick={refreshData}></Button>
+              <Button icon={`pi pi-sync`} severity='secondary' text size='small' title='Frissítés' onClick={refreshData}></Button>
             </div>
             <TabView pt={{ panelContainer: { className: "px-0" } }}>
               <TabPanel className='flex flex-column gap-2' header='Szobák'>
@@ -201,13 +198,7 @@ function Rooms() {
                             -&nbsp;
                             {systems.find((s) => s.value === p.system)?.label}
                           </span>
-                          {p.private && (
-                            <i
-                              className='pi pi-lock ml-1 text-300'
-                              style={{ float: "right" }}
-                              title='Privát szoba'
-                            />
-                          )}
+                          {p.private && <i className='pi pi-lock ml-1 text-300' style={{ float: "right" }} title='Privát szoba' />}
                         </>
                       ),
                       value: p.id,
@@ -229,11 +220,7 @@ function Rooms() {
                 />
               </TabPanel>
             </TabView>
-            <Button
-              text
-              className='p-0 align-self-start mt-auto flex-shrink-0'
-              size='small'
-              onClick={logout}>
+            <Button text className='p-0 align-self-start mt-auto flex-shrink-0' size='small' onClick={logout}>
               Kijelentkezés
             </Button>
           </div>
@@ -241,29 +228,17 @@ function Rooms() {
         <div className='flex-1'>
           <div className='w-full h-screen overflow-auto thin-scrollbar'>
             {selectedCharsheet && selectedCharsheet.system === "blades" && (
-              <BladesCharacterSheetPage
-                loadedCharsheet={selectedCharsheet}
-                editable={selectedCharsheet.user_id === user.id}
-                updateCharacterDisplay={updateCharacterDisplay}
-              />
+              <BladesCharacterSheetPage loadedCharsheet={selectedCharsheet} editable={selectedCharsheet.user_id === user.id} updateCharacterDisplay={updateCharacterDisplay} />
             )}
             {selectedCharsheet && selectedCharsheet.system === "wodu" && (
-              <WoDuCharacterSheetPage
-                loadedCharsheet={selectedCharsheet}
-                editable={selectedCharsheet.user_id === user.id}
-                updateCharacterDisplay={updateCharacterDisplay}
-              />
+              <WoDuCharacterSheetPage loadedCharsheet={selectedCharsheet} editable={selectedCharsheet.user_id === user.id} updateCharacterDisplay={updateCharacterDisplay} />
             )}
             {!selectedCharsheet && (
               <div className='flex flex-column gap-3 align-items-center justify-content-center h-full'>
-                <Button
-                  onClick={() => setShowNewRoomDialog(true)}
-                  pt={{ root: { className: "w-14rem justify-content-center w-full" } }}>
+                <Button onClick={() => setShowNewRoomDialog(true)} pt={{ root: { className: "w-14rem justify-content-center w-full" } }}>
                   Új szoba létrehozása
                 </Button>
-                <Button
-                  onClick={() => setShowNewCharacterDialog(true)}
-                  pt={{ root: { className: "w-14rem justify-content-center w-full" } }}>
+                <Button onClick={() => setShowNewCharacterDialog(true)} pt={{ root: { className: "w-14rem justify-content-center w-full" } }}>
                   Új karakter létrehozása
                 </Button>
               </div>
@@ -272,11 +247,7 @@ function Rooms() {
         </div>
       </div>
 
-      <NewCharacterDialog
-        visible={showNewCharacterDialog}
-        onHide={() => setShowNewCharacterDialog(false)}
-        onSave={createCharacterWithName}
-      />
+      <NewCharacterDialog visible={showNewCharacterDialog} onHide={() => setShowNewCharacterDialog(false)} onSave={createCharacterWithName} />
 
       <Dialog
         visible={showNewRoomDialog}
@@ -289,38 +260,18 @@ function Rooms() {
         modal
         footer={
           <div>
-            <Button
-              label='Mégse'
-              icon='pi pi-times'
-              onClick={() => setShowNewRoomDialog(false)}
-              className='p-button-text'
-            />
-            <Button
-              label='Létrehozás'
-              icon='pi pi-check'
-              onClick={createRoom}
-              disabled={!newRoomName.trim()}
-            />
+            <Button label='Mégse' icon='pi pi-times' onClick={() => setShowNewRoomDialog(false)} className='p-button-text' />
+            <Button label='Létrehozás' icon='pi pi-check' onClick={createRoom} disabled={!newRoomName.trim() || !selectedSystem} />
           </div>
         }>
         <div className='flex flex-column gap-3'>
           <div className='flex flex-column gap-2'>
             <label>Rendszer</label>
-            <Dropdown
-              value={selectedSystem}
-              options={systems}
-              onChange={(e) => setSelectedSystem(e.value)}
-              placeholder='Válassz rendszert!'
-            />
+            <Dropdown value={selectedSystem} options={systems} onChange={(e) => setSelectedSystem(e.value)} placeholder='Válassz rendszert!' />
           </div>
           <div className='flex flex-column gap-2'>
             <label htmlFor='roomName'>Szoba neve</label>
-            <InputText
-              id='roomName'
-              value={newRoomName}
-              onChange={(e) => setNewRoomName(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && createRoom()}
-            />
+            <InputText id='roomName' value={newRoomName} onChange={(e) => setNewRoomName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && createRoom()} />
           </div>
           <div className='flex flex-column gap-2'>
             <label htmlFor='roomDescription'>Szoba leírása</label>
@@ -333,12 +284,7 @@ function Rooms() {
           </div>
           <div className='flex flex-column gap-2'>
             <div className='flex align-items-center'>
-              <Checkbox
-                inputId='privateRoom'
-                checked={isPrivate}
-                onChange={(e) => setIsPrivate(e.checked)}
-                className='mr-2'
-              />
+              <Checkbox inputId='privateRoom' checked={isPrivate} onChange={(e) => setIsPrivate(e.checked)} className='mr-2' />
               <label htmlFor='privateRoom'>A szoba csak számodra elérhető</label>
             </div>
           </div>

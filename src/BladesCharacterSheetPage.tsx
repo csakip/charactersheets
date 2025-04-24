@@ -72,9 +72,7 @@ export default function BladesCharacterSheetPage({
   const toggleSkill = (skill: string) => {
     updateData((prev) => ({
       ...prev,
-      skills: prev.skills.includes(skill)
-        ? prev.skills.filter((s) => s !== skill)
-        : [...prev.skills, skill],
+      skills: prev.skills.includes(skill) ? prev.skills.filter((s) => s !== skill) : [...prev.skills, skill],
     }));
   };
 
@@ -88,9 +86,7 @@ export default function BladesCharacterSheetPage({
     updateData((prev) => ({
       ...prev,
       sumArmor: currentArmor,
-      abilities: prev.abilities.includes(ability)
-        ? prev.abilities.filter((a) => a !== ability)
-        : [...prev.abilities, ability],
+      abilities: prev.abilities.includes(ability) ? prev.abilities.filter((a) => a !== ability) : [...prev.abilities, ability],
     }));
   };
 
@@ -100,10 +96,7 @@ export default function BladesCharacterSheetPage({
     const shield = type === "Pajzs" && checked ? 1 : type !== "Pajzs" ? prevShield : 0;
     const abilityArmor = charsheetData.abilities.includes("Kemény") ? 1 : 0;
 
-    const armor =
-      type !== "Pajzs" && checked
-        ? ["Nincs", "Könnyű", "Teljes"].indexOf(type)
-        : ["Nincs", "Könnyű", "Teljes"].indexOf(charsheetData.armor);
+    const armor = type !== "Pajzs" && checked ? ["Nincs", "Könnyű", "Teljes"].indexOf(type) : ["Nincs", "Könnyű", "Teljes"].indexOf(charsheetData.armor);
 
     if (type === "Pajzs") {
       updateData((prev) => ({
@@ -162,37 +155,53 @@ export default function BladesCharacterSheetPage({
   return (
     <>
       <Toast ref={toast} />
-      <div
-        className='charactersheet flex flex-column gap-4 p-4 mt-3 border-round-md'
-        style={{ maxWidth: "1000px", margin: "auto", backgroundColor: "#1f2937" }}>
-        {/* Top Fields */}
-        <div className='flex gap-4'>
-          <InputText
-            placeholder='Név'
-            className='flex-1 text-yellow-400'
-            maxLength={50}
-            value={charsheetData.name}
-            onChange={(e) => updateData((prev) => ({ ...prev, name: e.target.value }))}
-          />
-          <Dropdown
-            placeholder='Kaszt'
-            className='w-10rem text-yellow-400'
-            value={charsheetData.class}
-            options={["Harcos", "Tolvaj", "Pap", "Varázsló", "Kósza", "Egyedi"].map((value) => ({
-              label: value,
-              value,
-            }))}
-            onChange={(e) => handleClassChange(e.value)}
-          />
-          <InputText
-            placeholder='Játékos'
-            className='w-10rem text-yellow-400'
-            value={charsheetData.playerName}
-            maxLength={50}
-            onChange={(e) => updateData((prev) => ({ ...prev, playerName: e.target.value }))}
-          />
+      <div className='charactersheet flex flex-column gap-3 p-3 mt-3 mx-2 border-round-md' style={{ margin: "auto", backgroundColor: "#1f2937" }}>
+        <div className='flex gap-2'>
+          {/* Top Fields */}
+          <div className='flex gap-2'>
+            <InputText
+              placeholder='Banda'
+              className='flex-1 text-yellow-400'
+              maxLength={50}
+              value={charsheetData.crew}
+              onChange={(e) => updateData((prev) => ({ ...prev, crew: e.target.value }))}
+            />
+            <InputText
+              placeholder='Név'
+              className='flex-1 text-yellow-400'
+              maxLength={50}
+              value={charsheetData.name}
+              onChange={(e) => updateData((prev) => ({ ...prev, name: e.target.value }))}
+            />
+            <InputText
+              placeholder='Álnév'
+              className='flex-1 text-yellow-400'
+              maxLength={50}
+              value={charsheetData.alias}
+              onChange={(e) => updateData((prev) => ({ ...prev, alias: e.target.value }))}
+            />
+            <Dropdown
+              placeholder='Kaszt'
+              className='w-10rem text-yellow-400'
+              value={charsheetData.class}
+              options={["Suttogó", "Tolvaj", "Pap", "Varázsló", "Kósza", "Egyedi"].map((value) => ({
+                label: value,
+                value,
+              }))}
+              onChange={(e) => handleClassChange(e.value)}
+            />
+            <InputText
+              placeholder='Játékos'
+              className='w-10rem text-yellow-400'
+              value={charsheetData.playerName}
+              maxLength={50}
+              onChange={(e) => updateData((prev) => ({ ...prev, playerName: e.target.value }))}
+            />
+          </div>
         </div>
+        <div className='flex justify-content-between gap-4'>asdasdsd</div>
       </div>
+
       {editable && <CharacterSheetBottom charsheet={charsheet} setCharsheet={setCharsheet} />}
       <ConfirmDialog
         visible={showDeleteConfirm}

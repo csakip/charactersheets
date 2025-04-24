@@ -1,39 +1,19 @@
-export const attributes = [
-  { label: "ERŐ" },
-  { label: "INT" },
-  { label: "ÜGY" },
-  { label: "BÖL" },
-  { label: "EGS" },
-  { label: "KAR" },
-];
+export const attributes = [{ label: "ERŐ" }, { label: "INT" }, { label: "ÜGY" }, { label: "BÖL" }, { label: "EGS" }, { label: "KAR" }];
 
-export const skills = [
-  "Atlétika",
-  "Éberség",
-  "Megtévesztés",
-  "Rejtélyfejtés",
-  "Gyógyítás",
-  "Parancsnoklás",
-  "Mágiaismeret",
-  "Lopakodás",
-  "Túlélés",
-];
+export const skills = ["Atlétika", "Éberség", "Megtévesztés", "Rejtélyfejtés", "Gyógyítás", "Parancsnoklás", "Mágiaismeret", "Lopakodás", "Túlélés"];
 
 export const abilities = [
   {
     name: "Áldás",
-    description:
-      "Szentelt vízzel felkenhetsz tárgyakat,\nhogy szentnek és mágikusnak számítsanak.\n+3 sebzés a gonosz ellen, rövid ideig.",
+    description: "Szentelt vízzel felkenhetsz tárgyakat,\nhogy szentnek és mágikusnak számítsanak.\n+3 sebzés a gonosz ellen, rövid ideig.",
   },
   {
     name: "Gyógyítás",
-    description:
-      "Megpróbálhatod semlegesíteni a mérgeket,\nátkokat, vagy sebeket gyógyíthatsz érintéssel.",
+    description: "Megpróbálhatod semlegesíteni a mérgeket,\nátkokat, vagy sebeket gyógyíthatsz érintéssel.",
   },
   {
     name: "Elűzés",
-    description:
-      "Megpróbálhatsz élőhalottakat visszatartani\nszent hatalmaddal és szent szimbólumoddal.",
+    description: "Megpróbálhatsz élőhalottakat visszatartani\nszent hatalmaddal és szent szimbólumoddal.",
   },
   {
     name: "Látomás",
@@ -54,8 +34,7 @@ export const abilities = [
   { name: "Reflexek", description: "Mindig először cselekedhetsz\nés reagálhatsz, ha megleptek." },
   {
     name: "Bűtykölés",
-    description:
-      "Gyorsan megpróbálhatsz zsebet metszeni,\nzárat nyitni vagy csapdát hatástalanítani.",
+    description: "Gyorsan megpróbálhatsz zsebet metszeni,\nzárat nyitni vagy csapdát hatástalanítani.",
   },
   {
     name: "Trükkök",
@@ -67,8 +46,7 @@ export const abilities = [
   },
   {
     name: "Rituálé",
-    description:
-      "Ősi könyvekből és tekercsekből okkult rituálékat\nvégezhetsz - két ismert rituáléval kezdesz.",
+    description: "Ősi könyvekből és tekercsekből okkult rituálékat\nvégezhetsz - két ismert rituáléval kezdesz.",
   },
   {
     name: "Idézés",
@@ -149,16 +127,65 @@ export const emptyWoduData = (newPlayerName): WoduData => ({
   xp: 0,
 });
 
+export type Item = {
+  name: string;
+  slots: number;
+};
+
+export type Action = {
+  name: string;
+  value: number;
+};
+
 export type BladesData = {
   id?: number;
   class?: string;
   playerName: string;
-  name: string;
+  crew?: string;
+  name?: string;
+  alias?: string;
+  look?: string;
+  heritage?: string;
+  background?: string;
+  vice?: string;
+  stress: number;
+  trauma: string[];
+  harm: object;
+  specialAbilities?: string;
+  healing: number;
+  armor: boolean;
+  heavy: boolean;
+  special: boolean;
+  coin: number;
+  stash: number;
+  load: number;
+  items: Item[];
+  attributes: { prowess: number; insight: number; resolve: number };
+  actions: Action[];
+  friends?: string;
+  notesTop: string;
+  notesBottom: string;
 };
 
 export const emptyBladesData = (newPlayerName): BladesData => ({
   playerName: newPlayerName,
-  name: "",
+  specialAbilities: "",
+  stress: 0,
+  trauma: [],
+  harm: {},
+  healing: 0,
+  armor: false,
+  heavy: false,
+  special: false,
+  coin: 0,
+  stash: 0,
+  load: 0,
+  items: [],
+  attributes: { prowess: 0, insight: 0, resolve: 0 },
+  actions: [],
+  friends: "",
+  notesTop: "",
+  notesBottom: "",
 });
 
 export const systems = [

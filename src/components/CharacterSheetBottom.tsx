@@ -6,20 +6,11 @@ import { useNavigate } from "react-router-dom";
 import { addCharacterToRoom, characterExitRoom, deleteCharsheet } from "../supabase";
 import { Charsheet } from "../utils";
 import RoomDialog from "./RoomDialog";
-import { useStore } from "../store";
 
-export default function CharacterSheetBottom({
-  charsheet,
-  setCharsheet,
-}: {
-  charsheet: Charsheet;
-  setCharsheet: (charsheet: Charsheet) => void;
-}) {
+export default function CharacterSheetBottom({ charsheet, setCharsheet }: { charsheet: Charsheet; setCharsheet: (charsheet: Charsheet) => void }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showExitRoomConfirm, setShowExitRoomConfirm] = useState(false);
   const [showRoomDialog, setShowRoomDialog] = useState(false);
-
-  const triggerCharactersUpdate = useStore((state) => state.triggerCharactersUpdate);
 
   const navigate = useNavigate();
 
@@ -48,7 +39,6 @@ export default function CharacterSheetBottom({
     const success = characterExitRoom(charsheet.id);
     if (success) {
       setShowExitRoomConfirm(false);
-      triggerCharactersUpdate();
       setCharsheet({ ...charsheet, room_id: undefined });
       toast.current?.show({
         severity: "success",
@@ -63,7 +53,6 @@ export default function CharacterSheetBottom({
     setCharsheet({ ...charsheet, room_id: roomId });
     const success = await addCharacterToRoom(roomId, charsheet.id);
     if (success) {
-      triggerCharactersUpdate();
       navigate(`/${roomId}`);
     }
     setShowRoomDialog(false);
@@ -71,9 +60,7 @@ export default function CharacterSheetBottom({
 
   return (
     <>
-      <div
-        className='flex mb-3 mt-1 justify-content-end'
-        style={{ maxWidth: "1000px", margin: "auto" }}>
+      <div className='flex mb-3 mt-1 justify-content-end'>
         {charsheet.room_id && (
           <Button severity='warning' size='small' text onClick={() => setShowExitRoomConfirm(true)}>
             Kilépés a szobából
@@ -112,12 +99,7 @@ export default function CharacterSheetBottom({
         rejectLabel='Nem'
       />
 
-      <RoomDialog
-        visible={showRoomDialog}
-        onHide={() => setShowRoomDialog(false)}
-        system={charsheet.system}
-        onSave={addToRoom}
-      />
+      <RoomDialog visible={showRoomDialog} onHide={() => setShowRoomDialog(false)} system={charsheet.system} onSave={addToRoom} />
     </>
   );
 }

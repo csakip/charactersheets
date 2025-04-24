@@ -55,6 +55,7 @@ export const saveCharsheet = async (charsheet, roomId) => {
     if (!user) return 0;
 
     delete charsheet.updated_at;
+    delete charsheet.rooms_charsheets;
 
     const charsheetWithoutRoomId = structuredClone(charsheet);
     delete charsheetWithoutRoomId.room_id;
