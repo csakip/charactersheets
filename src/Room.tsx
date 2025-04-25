@@ -3,14 +3,14 @@ import { Button } from "primereact/button";
 import { Card } from "primereact/card";
 import { Toast } from "primereact/toast";
 import { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import useLocalStorageState from "use-local-storage-state";
 import BladesCharacterSheetPage from "./BladesCharacterSheetPage";
 import WoDuCharacterSheetPage from "./WoDuCharacterSheetPage";
 import CharacterSheetList from "./components/CharacterSheetList";
 import InputDialog from "./components/InputDialog";
 import NewCharacterDialog from "./components/NewCharacterDialog";
-import { logout, saveCharsheet, supabase } from "./supabase";
+import { deleteRoom, logout, saveCharsheet, supabase } from "./supabase";
 import {
   attributes,
   BladesData,
@@ -24,6 +24,7 @@ import {
   WoduData,
 } from "./utils";
 import { useStore } from "./store";
+import { ConfirmDialog } from "primereact/confirmdialog";
 
 function RoomPage() {
   const [charsheets, setCharsheets] = useState<Charsheet[]>([]);
@@ -41,10 +42,12 @@ function RoomPage() {
   const toast = useRef<Toast>(null);
   const charsheetsRef = useRef(charsheets); // Store the charsheets array in a ref to avoid stale data
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const user: User = useStore((state) => state.user);
 
   const { roomId } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchRoom();
@@ -62,7 +65,6 @@ function RoomPage() {
         },
         (payload) => {
           if (payload.eventType === "INSERT" || payload.eventType === "DELETE") {
-            console.log("Change received!", payload);
             fetchCharsheets();
           }
         }
@@ -80,7 +82,6 @@ function RoomPage() {
             payload.eventType === "UPDATE" ||
             payload.eventType === "DELETE"
           ) {
-            console.log("Change received!", payload);
             if (payload.eventType === "UPDATE" || payload.eventType === "INSERT") {
               const newCharsheet = payload.new as Charsheet;
 
@@ -194,7 +195,7 @@ function RoomPage() {
   function renameRoom(newName: string) {
     if (newName.trim() === "") return;
     setRenameDialogOpen(false);
-    console.log("Renaming room to:", newName);
+
     supabase
       .from("rooms")
       .update({ name: newName })
@@ -265,6 +266,17 @@ function RoomPage() {
                       pt={{ root: { className: "p-0 w-1" } }}
                       title='Szoba átnevezése'
                       onClick={() => setRenameDialogOpen(true)}></Button>
+                  )}
+
+                  {sidebarOpen && user.id === room.user_id && (
+                    <Button
+                      icon='pi pi-trash'
+                      severity='danger'
+                      text
+                      size='small'
+                      pt={{ root: { className: "p-0 w-1" } }}
+                      title='Szoba törlése'
+                      onClick={() => setShowDeleteConfirm(true)}></Button>
                   )}
                 </div>
                 <div className='hidden-nowrap text-base text-400 mt-1 font-normal'>
@@ -352,6 +364,26 @@ function RoomPage() {
         content='Új név'
         defaultValue={room.name}
       />
+
+      <ConfirmDialog
+        visible={showDeleteConfirm}
+        onHide={() => setShowDeleteConfirm(false)}
+        message={
+          <>
+            Biztosan törölni akarod a szobat?
+            <br />A karakterek megmaradnak.
+          </>
+        }
+        header='Szoba törölése'
+        icon='pi pi-exclamation-circle text-red-500'
+        acceptClassName='p-button-danger'
+        acceptLabel='Törlés'
+        rejectLabel='Mégse'
+        accept={async () => {
+          await deleteRoom(roomId);
+          navigate("/");
+        }}
+        reject={() => setShowDeleteConfirm(false)}></ConfirmDialog>
     </>
   );
 }

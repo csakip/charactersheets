@@ -99,7 +99,6 @@ export type Room = {
   created_at?: string;
   user_id: string;
   name: string;
-  description?: string;
   system: string;
   private: boolean;
 };

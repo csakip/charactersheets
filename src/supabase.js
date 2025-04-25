@@ -26,7 +26,7 @@ export async function logout() {
     console.error("Error logging out:", error.message);
   } else {
     useStore.setState({ user: undefined });
-    console.log("Successfully logged out");
+    console.info("Successfully logged out");
   }
 }
 
@@ -45,6 +45,24 @@ export const saveRoom = async (room) => {
     }
   } catch (error) {
     console.error("Error saving room:", error);
+  }
+};
+
+export const deleteRoom = async (roomId) => {
+  try {
+    const { error: error1 } = await supabase
+      .from("rooms_charsheets")
+      .delete()
+      .eq("room_id", roomId);
+    if (error1) {
+      console.error("Error deleting rooms_charsheets entries:", error1);
+    }
+    const { error } = await supabase.from("rooms").delete().eq("id", roomId);
+    if (error) {
+      console.error("Error deleting room:", error);
+    }
+  } catch (error) {
+    console.error("Error deleting room:", error);
   }
 };
 
@@ -97,7 +115,6 @@ export const saveCharsheet = async (charsheet, roomId) => {
 };
 
 export const deleteCharsheet = async (id) => {
-  console.log("Deleting charsheet with ID:", id);
   try {
     const { error: error1 } = await supabase.from("charsheets").delete().eq("id", id);
     if (error1) {
