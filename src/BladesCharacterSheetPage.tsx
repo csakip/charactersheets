@@ -101,7 +101,7 @@ export default function BladesCharacterSheetPage({
     <>
       <Toast ref={toast} />
       <div
-        className='charactersheet blades flex gap-3 p-3 mt-3 mx-2 border-round-md align-items-stretch'
+        className='charactersheet blades flex gap-3 p-4 mt-3 mx-2 border-round-md align-items-stretch'
         style={{ margin: "auto", backgroundColor: "#1f2937" }}>
         <div className='flex gap-4 flex-column'>
           {/* Top Fields */}
@@ -138,7 +138,6 @@ export default function BladesCharacterSheetPage({
             <FloatLabel className='flex-1 flex'>
               <Dropdown
                 id='classs'
-                placeholder='Kaszt'
                 className='w-12rem text-yellow-400'
                 value={charsheetData.class}
                 options={BitDClasses.map((c) => ({
@@ -369,7 +368,7 @@ export default function BladesCharacterSheetPage({
           </FloatLabel>
         </div>
 
-        <div className='flex w-6 gap-4 flex-column flex-1'>
+        <div className='flex w-6 gap-2 flex-column flex-1'>
           <div className='flex gap-2'>
             <span className='text-7xl font-bold text-yellow-400 flex-1 class-title'>
               {charsheetData.class?.toUpperCase() || " "}

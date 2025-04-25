@@ -308,7 +308,7 @@ function RoomPage() {
               body: { className: "flex flex-column flex-1" },
               title: { className: "relative" },
             }}
-            className='w-full flex-grow-1 flex flex-column'>
+            className='w-full flex-grow-1 flex flex-column border-noround'>
             <CharacterSheetList
               charsheets={charsheets}
               selectedCharsheetId={selectedCharsheetId}
