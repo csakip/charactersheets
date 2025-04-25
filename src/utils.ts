@@ -164,22 +164,17 @@ export type Item = {
   slots: number;
 };
 
-export type Action = {
-  name: string;
-  value: number;
-};
-
 export type BladesData = {
   id?: number;
-  class?: string;
+  class: string;
   playerName: string;
-  crew?: string;
-  name?: string;
-  alias?: string;
-  look?: string;
-  heritage?: string;
-  background?: string;
-  vice?: string;
+  crew: string;
+  name: string;
+  alias: string;
+  look: string;
+  heritage: string;
+  background: string;
+  vice: string;
   stress: number;
   trauma: number;
   traumaWords: string[];
@@ -187,7 +182,7 @@ export type BladesData = {
   harm1r: string;
   harm2: string;
   harm3: string;
-  specialAbilities?: string;
+  specialAbilities: string;
   healing: number;
   armor: boolean;
   heavy: boolean;
@@ -201,8 +196,7 @@ export type BladesData = {
     name: string;
     values: Array<{ name: string; value: number }>;
   }>;
-  actions: Action[];
-  friends?: string;
+  friends: string;
   notes: string;
 };
 
@@ -254,9 +248,16 @@ export const emptyBladesData = (newPlayerName): BladesData => ({
       ],
     },
   ],
-  actions: [],
   friends: "",
   notes: "",
+  crew: "",
+  class: "Egyedi",
+  name: "",
+  alias: "",
+  look: "",
+  heritage: "",
+  background: "",
+  vice: "",
 });
 
 export const systems = [

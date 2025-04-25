@@ -52,36 +52,74 @@ function Rooms() {
     fetchCharsheets();
     setSelectedCharsheetId(null);
 
-    const channel = supabase
-      .channel("charsheets_changes")
+    console.log("user.id", user.id);
+
+    const channel1 = supabase
+      .channel("rooms_charsheets_changes")
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
           table: "rooms_charsheets",
-          filter: `user_id=eq.${user.id},private=eq.false`,
+          // filter: `user_id=eq.${user.id}`,
         },
-        () => {
-          fetchCharsheets();
-        }
+        fetchCharsheets
       )
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
-          table: "charsheets",
-          filter: `user_id=eq.${user.id}`,
+          table: "rooms_charsheets",
+          filter: `private=eq.false`,
         },
-        () => {
-          fetchCharsheets();
-        }
+        fetchCharsheets
+      )
+      .subscribe();
+
+    const channel2 = supabase
+      .channel("charsheets_changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "charsheets",
+          // filter: `user_id=eq.${user.id}`,
+        },
+        fetchCharsheets
+      )
+      .subscribe();
+
+    const channel3 = supabase
+      .channel("rooms_changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "rooms",
+          // filter: `user_id=eq.${user.id}`,
+        },
+        fetchRooms
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "rooms",
+          filter: `private=eq.false`,
+        },
+        fetchRooms
       )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(channel1);
+      supabase.removeChannel(channel2);
+      supabase.removeChannel(channel3);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
