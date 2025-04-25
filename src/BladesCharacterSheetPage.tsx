@@ -110,9 +110,9 @@ export default function BladesCharacterSheetPage({
     <>
       <Toast ref={toast} />
       <div
-        className='charactersheet blades flex gap-3 p-4 mt-3 mx-2 border-round-md align-items-stretch'
+        className='charactersheet blades flex gap-3 p-4 mt-3 mx-2 border-round-md align-items-stretch flex-column md:flex-row'
         style={{ margin: "auto", backgroundColor: "#1f2937" }}>
-        <div className='flex gap-4 flex-column'>
+        <div className='flex gap-4 flex-column w-full md:flex-1'>
           {/* Top Fields */}
           <div className='flex w-full gap-2'>
             <FloatLabel className='flex-1 flex'>
@@ -135,19 +135,19 @@ export default function BladesCharacterSheetPage({
             </FloatLabel>
           </div>
           <div className='flex w-full gap-2'>
-            <FloatLabel className='flex-1 flex'>
+            <FloatLabel className='w-5 flex'>
               <InputText
-                className='flex-1 text-yellow-400 w-18rem'
+                className='w-full text-yellow-400'
                 maxLength={50}
                 value={charsheetData.crew}
                 onChange={(e) => updateData((prev) => ({ ...prev, crew: e.target.value }))}
               />
               <label>Banda</label>
             </FloatLabel>
-            <FloatLabel className='flex-1 flex'>
+            <FloatLabel className='w-3 flex'>
               <Dropdown
                 id='classs'
-                className='w-12rem text-yellow-400'
+                className='w-full text-yellow-400'
                 value={charsheetData.class}
                 options={BitDClasses.map((c) => ({
                   label: c.label,
@@ -157,9 +157,9 @@ export default function BladesCharacterSheetPage({
               />
               <label htmlFor='classs'>Játékkönyv</label>
             </FloatLabel>
-            <FloatLabel className='flex-1 flex'>
+            <FloatLabel className='w-4 flex'>
               <InputText
-                className='w-10rem text-yellow-400'
+                className='w-full text-yellow-400'
                 value={charsheetData.playerName}
                 maxLength={50}
                 onChange={(e) => updateData((prev) => ({ ...prev, playerName: e.target.value }))}
@@ -238,7 +238,7 @@ export default function BladesCharacterSheetPage({
             </FloatLabel>
           </div>
           <div className='flex w-full gap-2'>
-            <div className='flex flex-1 p-2' style={{ backgroundColor: "#111827" }}>
+            <div className='flex flex-1 p-2' style={{ backgroundColor: "#010817" }}>
               <Dots
                 value={charsheetData.stress}
                 labelLeft='Stressz'
@@ -247,7 +247,7 @@ export default function BladesCharacterSheetPage({
                 onChange={(value) => updateData((prev) => ({ ...prev, stress: value }))}
               />
             </div>
-            <div className='flex flex-1 p-2' style={{ backgroundColor: "#111827" }}>
+            <div className='flex flex-1 p-2' style={{ backgroundColor: "#010817" }}>
               <Dots
                 value={charsheetData.trauma}
                 labelLeft='Trauma'
@@ -281,12 +281,13 @@ export default function BladesCharacterSheetPage({
           </FloatLabel>
           <div className='flex w-full gap-2'>
             <div className='flex flex-1 flex-column align-self-start'>
-              <div className='p-1' style={{ backgroundColor: "#111827" }}>
+              <div className='p-1' style={{ backgroundColor: "#010817" }}>
                 Seb
               </div>
               <div className='p-inputgroup flex-1'>
                 <span className='p-inputgroup-addon border-noround'>3</span>
                 <InputText
+                  className='wound-box'
                   value={charsheetData.harm3}
                   onChange={(e) => updateData((prev) => ({ ...prev, harm3: e.target.value }))}
                 />
@@ -295,35 +296,37 @@ export default function BladesCharacterSheetPage({
                 </span>
               </div>
               <div className='p-inputgroup flex-1'>
-                <span className='p-inputgroup-addon border-noround border-top-none'>2</span>
+                <span className='p-inputgroup-addon border-noround border-top-transparent'>2</span>
                 <InputText
-                  className='border-top-none'
+                  className='border-top-transparent wound-box'
                   value={charsheetData.harm2}
                   onChange={(e) => updateData((prev) => ({ ...prev, harm2: e.target.value }))}
                 />
-                <span className='p-inputgroup-addon w-5rem border-noround border-top-none'>
+                <span className='p-inputgroup-addon w-5rem border-noround border-top-transparent'>
                   -1K
                 </span>
               </div>
               <div className='p-inputgroup flex-1'>
-                <span className='p-inputgroup-addon border-noround-top border-top-none'>1</span>
+                <span className='p-inputgroup-addon border-noround-top border-top-transparent'>
+                  1
+                </span>
                 <InputText
-                  className='w-6rem border-top-none'
+                  className='w-6rem border-top-transparent wound-box'
                   value={charsheetData.harm1l}
                   onChange={(e) => updateData((prev) => ({ ...prev, harm1l: e.target.value }))}
                 />
                 <InputText
-                  className='w-6rem border-top-none'
+                  className='w-6rem border-top-transparent wound-box'
                   value={charsheetData.harm1r}
                   onChange={(e) => updateData((prev) => ({ ...prev, harm1r: e.target.value }))}
                 />
-                <span className='p-inputgroup-addon w-5rem text-xs text-center py-0 border-noround-top border-top-none'>
+                <span className='p-inputgroup-addon w-5rem text-xs text-center py-0 border-noround-top border-top-transparent'>
                   Csökkent hatás
                 </span>
               </div>
             </div>
-            <div className='flex gap-2 flex-column'>
-              <div className='p-1' style={{ backgroundColor: "#111827" }}>
+            <div className='flex gap-2 flex-column w-6rem'>
+              <div className='p-1' style={{ backgroundColor: "#010817" }}>
                 Gyógyulás
               </div>
               <Dots
@@ -332,7 +335,7 @@ export default function BladesCharacterSheetPage({
                 value={charsheetData.healing}
                 onChange={(value) => updateData((prev) => ({ ...prev, healing: value }))}
               />
-              <div className='p-1' style={{ backgroundColor: "#111827" }}>
+              <div className='p-1' style={{ backgroundColor: "#010817" }}>
                 Páncélok
               </div>
               <div className='flex flex-1 justify-content-between'>
@@ -377,109 +380,111 @@ export default function BladesCharacterSheetPage({
           </FloatLabel>
         </div>
 
-        <div className='flex w-6 gap-4 flex-column flex-1'>
-          <div className='flex gap-2'>
-            <span className='text-7xl font-bold text-yellow-400 flex-1 class-title'>
-              {charsheetData.class?.toUpperCase() || " "}
-            </span>
-            <span className='text-yellow-400 class-title w-8rem mt-2'>
-              {BitDClasses.find(
-                (c) => c.label === charsheetData.class
-              )?.description.toUpperCase() || " "}
-            </span>
-          </div>
-          <div className='flex w-full'>
-            <FloatLabel className='flex-1 flex'>
-              <InputTextarea
-                rows={5}
-                spellCheck={false}
-                className='flex-1 text-yellow-400 thin-scrollbar'
-                maxLength={1000}
-                value={charsheetData.specialAbilities}
-                onChange={(e) =>
-                  updateData((prev) => ({ ...prev, specialAbilities: e.target.value }))
-                }
-              />
-              <label>Speciális képességek</label>
-            </FloatLabel>
-          </div>
-          <div className='flex w-full'>
-            <FloatLabel className='flex-1 flex'>
-              <InputTextarea
-                rows={5}
-                spellCheck={false}
-                className='flex-1 text-yellow-400 thin-scrollbar'
-                maxLength={1000}
-                value={charsheetData.friends}
-                onChange={(e) => updateData((prev) => ({ ...prev, friends: e.target.value }))}
-              />
-              <label>Barátok és ellenségek</label>
-            </FloatLabel>
-          </div>
-          <div className='flex flex-1'>
-            <FloatLabel className='flex-1 flex'>
-              <InputTextarea
-                spellCheck={false}
-                className='flex-1 text-yellow-400 thin-scrollbar'
-                maxLength={1000}
-                value={charsheetData.items}
-                onChange={(e) => updateData((prev) => ({ ...prev, items: e.target.value }))}
-              />
-              <label>Tárgyak</label>
-            </FloatLabel>
-          </div>
-        </div>
-
-        <div className='flex gap-2 w-20rem align-self-start'>
-          <div className='flex flex-1 flex-column gap-2'>
-            <Dots
-              value={charsheetData.stash}
-              labelLeft='Szajré'
-              maxValue={40}
-              className='align-items-start h-5rem'
-              labelWidth='w-7rem'
-              onChange={(value) => updateData((prev) => ({ ...prev, stash: value }))}
-            />
-            <Dots
-              value={charsheetData.coin}
-              labelWidth='w-6rem'
-              labelLeft='Érme'
-              onChange={(value) => updateData((prev) => ({ ...prev, coin: value }))}
-            />
-            <div className='flex p-2' style={{ backgroundColor: "#111827" }}>
-              <Dots
-                value={charsheetData.playbook}
-                maxValue={8}
-                labelWidth='w-7rem'
-                labelLeft='Játékkönyv'
-                onChange={(value) => updateData((prev) => ({ ...prev, playbook: value }))}
-              />
+        <div className='flex flex-row flex-1 gap-3'>
+          <div className='flex gap-4 flex-column flex-1 md:w-6 w-full'>
+            <div className='flex gap-2'>
+              <span className='text-7xl font-bold text-yellow-400 flex-1 class-title'>
+                {charsheetData.class?.toUpperCase() || " "}
+              </span>
+              <span className='text-yellow-400 class-title w-8rem mt-2'>
+                {BitDClasses.find(
+                  (c) => c.label === charsheetData.class
+                )?.description.toUpperCase() || " "}
+              </span>
             </div>
-            {charsheetData.attributes?.map((attr) => (
-              <Fragment key={attr.name}>
-                <div className='flex p-2' style={{ backgroundColor: "#111827" }}>
-                  <Dots
-                    key={attr.name}
-                    value={attr.xp}
-                    labelWidth='w-8rem'
-                    maxValue={6}
-                    labelLeft={`${attr.name} [${calculateAttribute(attr)}]`}
-                    onChange={(value) => handleAttributeXpChange(attr.name, value)}
-                  />
-                </div>
-                {attr.values.map((action) => (
-                  <Dots
-                    key={action.name}
-                    value={action.value}
-                    labelWidth='w-8rem'
-                    dotsClassName='w-6rem'
-                    labelRight={action.name}
-                    rounded
-                    onChange={(value) => handleActionChange(attr.name, action.name, value)}
-                  />
-                ))}
-              </Fragment>
-            ))}
+            <div className='flex w-full'>
+              <FloatLabel className='flex-1 flex'>
+                <InputTextarea
+                  rows={5}
+                  spellCheck={false}
+                  className='flex-1 text-yellow-400 thin-scrollbar'
+                  maxLength={1000}
+                  value={charsheetData.specialAbilities}
+                  onChange={(e) =>
+                    updateData((prev) => ({ ...prev, specialAbilities: e.target.value }))
+                  }
+                />
+                <label>Speciális képességek</label>
+              </FloatLabel>
+            </div>
+            <div className='flex w-full'>
+              <FloatLabel className='flex-1 flex'>
+                <InputTextarea
+                  rows={5}
+                  spellCheck={false}
+                  className='flex-1 text-yellow-400 thin-scrollbar'
+                  maxLength={1000}
+                  value={charsheetData.friends}
+                  onChange={(e) => updateData((prev) => ({ ...prev, friends: e.target.value }))}
+                />
+                <label>Barátok és ellenségek</label>
+              </FloatLabel>
+            </div>
+            <div className='flex md:flex-1 h-8rem'>
+              <FloatLabel className='flex-1 flex'>
+                <InputTextarea
+                  spellCheck={false}
+                  className='flex-1 text-yellow-400 thin-scrollbar'
+                  maxLength={1000}
+                  value={charsheetData.items}
+                  onChange={(e) => updateData((prev) => ({ ...prev, items: e.target.value }))}
+                />
+                <label>Tárgyak</label>
+              </FloatLabel>
+            </div>
+          </div>
+
+          <div className='flex gap-2 align-self-start align-self-center md:align-self-start w-full md:w-20rem'>
+            <div className='flex flex-1 flex-column gap-2'>
+              <Dots
+                value={charsheetData.stash}
+                labelLeft='Szajré'
+                maxValue={40}
+                className='align-items-start h-5rem'
+                labelWidth='w-7rem'
+                onChange={(value) => updateData((prev) => ({ ...prev, stash: value }))}
+              />
+              <Dots
+                value={charsheetData.coin}
+                labelWidth='w-6rem'
+                labelLeft='Érme'
+                onChange={(value) => updateData((prev) => ({ ...prev, coin: value }))}
+              />
+              <div className='flex p-2' style={{ backgroundColor: "#010817" }}>
+                <Dots
+                  value={charsheetData.playbook}
+                  maxValue={8}
+                  labelWidth='w-7rem'
+                  labelLeft='Játékkönyv'
+                  onChange={(value) => updateData((prev) => ({ ...prev, playbook: value }))}
+                />
+              </div>
+              {charsheetData.attributes?.map((attr) => (
+                <Fragment key={attr.name}>
+                  <div className='flex p-2' style={{ backgroundColor: "#010817" }}>
+                    <Dots
+                      key={attr.name}
+                      value={attr.xp}
+                      labelWidth='w-8rem'
+                      maxValue={6}
+                      labelLeft={`${attr.name} [${calculateAttribute(attr)}]`}
+                      onChange={(value) => handleAttributeXpChange(attr.name, value)}
+                    />
+                  </div>
+                  {attr.values.map((action) => (
+                    <Dots
+                      key={action.name}
+                      value={action.value}
+                      labelWidth='w-8rem'
+                      dotsClassName='w-6rem'
+                      labelRight={action.name}
+                      rounded
+                      onChange={(value) => handleActionChange(attr.name, action.name, value)}
+                    />
+                  ))}
+                </Fragment>
+              ))}
+            </div>
           </div>
         </div>
       </div>

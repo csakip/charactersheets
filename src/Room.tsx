@@ -1,6 +1,5 @@
 import { User } from "@supabase/supabase-js";
 import { Button } from "primereact/button";
-import { Card } from "primereact/card";
 import { Toast } from "primereact/toast";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -22,6 +21,7 @@ import {
   Room,
   systems,
   WoduData,
+  isMobile,
 } from "./utils";
 import { useStore } from "./store";
 import { ConfirmDialog } from "primereact/confirmdialog";
@@ -48,6 +48,7 @@ function RoomPage() {
 
   const { roomId } = useParams();
   const navigate = useNavigate();
+  const mobile = isMobile();
 
   useEffect(() => {
     fetchRoom();
@@ -234,91 +235,82 @@ function RoomPage() {
     <>
       <Toast ref={toast} />
       <div className={`flex ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
-        <div className={`sidebar-container flex flex-column align-items-center h-screen`}>
-          <Card
-            title={
-              <>
-                <Link to='/' className='text-base'>
-                  <i className='pi pi-arrow-left mr-1 mb-4'></i> Szobák
-                </Link>
-                <div className='flex gap-1 justify-content-start align-items-center'>
-                  <div className='hidden-nowrap'>
-                    {sidebarOpen ? room.name : shortenName(room.name)}
-                  </div>
-                  {sidebarOpen && user.id === room.user_id && (
-                    <Button
-                      icon={`pi ${room.private ? "pi-lock" : "pi-lock-open"}`}
-                      className='ml-auto'
-                      severity='secondary'
-                      text
-                      size='small'
-                      pt={{ root: { className: "p-0 w-1" } }}
-                      title='Privát szoba'
-                      onClick={toggleRoomPrivate}></Button>
-                  )}
-
-                  {sidebarOpen && user.id === room.user_id && (
-                    <Button
-                      icon='pi pi-pencil'
-                      severity='secondary'
-                      text
-                      size='small'
-                      pt={{ root: { className: "p-0 w-1" } }}
-                      title='Szoba átnevezése'
-                      onClick={() => setRenameDialogOpen(true)}></Button>
-                  )}
-
-                  {sidebarOpen && user.id === room.user_id && (
-                    <Button
-                      icon='pi pi-trash'
-                      severity='danger'
-                      text
-                      size='small'
-                      pt={{ root: { className: "p-0 w-1" } }}
-                      title='Szoba törlése'
-                      onClick={() => setShowDeleteConfirm(true)}></Button>
-                  )}
-                </div>
-                <div className='hidden-nowrap text-base text-400 mt-1 font-normal'>
-                  {sidebarOpen ? system.label : system.shortLabel}
-                </div>
+        <div className='sidebar-container flex flex-column align-items-center h-screen relative'>
+          <Button
+            icon={sidebarOpen ? "pi pi-chevron-left" : "pi pi-chevron-right"}
+            className='sidebar-toggle bg-yellow-900 border-0'
+            rounded
+            size='small'
+            onClick={() => setSidebarOpen(!sidebarOpen)}></Button>
+          <div
+            className='flex flex-column flex-1 p-3 pt-4 thin-scrollbar overflow-y-auto  w-full'
+            style={{ backgroundColor: "#1f2937" }}>
+            <Link to='/' className='text-base text-yellow-400'>
+              <i className='pi pi-arrow-left mr-1 mb-4'></i> Szobák
+            </Link>
+            <div className='flex gap-1 justify-content-start align-items-center'>
+              <div className='hidden-nowrap text-2xl font-bold opacity-90'>
+                {sidebarOpen ? room.name : shortenName(room.name)}
+              </div>
+              {sidebarOpen && user.id === room.user_id && (
                 <Button
-                  icon={sidebarOpen ? "pi pi-chevron-left" : "pi pi-chevron-right"}
-                  className='sidebar-toggle bg-yellow-900  border-0'
-                  rounded
+                  icon={`pi ${room.private ? "pi-lock" : "pi-lock-open"}`}
+                  className='ml-auto'
+                  severity='secondary'
+                  text
                   size='small'
-                  onClick={() => setSidebarOpen(!sidebarOpen)}></Button>
-              </>
-            }
-            subTitle={
-              system.value === "wodu" && (
-                <a
-                  href='https://csokav.notion.site/World-of-Dungeons-1ca0f93292ad80db9f5dccfbfede8180'
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  className='text-300 text-sm'>
-                  Ismertető <i className='pi pi-external-link text-xs ml-1'></i>
-                </a>
-              )
-            }
-            pt={{
-              content: {
-                className: "flex-grow-1 flex flex-column justify-content-between pb-0 ",
-              },
-              body: { className: "flex flex-column flex-1" },
-              title: { className: "relative" },
-            }}
-            className='w-full flex-grow-1 flex flex-column border-noround'>
-            <CharacterSheetList
-              charsheets={charsheets}
-              selectedCharsheetId={selectedCharsheetId}
-              setSelectedCharsheetId={setSelectedCharsheetId}
-              sidebarOpen={sidebarOpen}
-            />
-            <Button text className='p-0 align-self-start' size='small' onClick={logout}>
-              Kijelentkezés
-            </Button>
-          </Card>
+                  pt={{ root: { className: "p-0 w-1" } }}
+                  title='Privát szoba'
+                  onClick={toggleRoomPrivate}></Button>
+              )}
+
+              {sidebarOpen && user.id === room.user_id && (
+                <Button
+                  icon='pi pi-pencil'
+                  severity='secondary'
+                  text
+                  size='small'
+                  pt={{ root: { className: "p-0 w-1" } }}
+                  title='Szoba átnevezése'
+                  onClick={() => setRenameDialogOpen(true)}></Button>
+              )}
+
+              {sidebarOpen && user.id === room.user_id && (
+                <Button
+                  icon='pi pi-trash'
+                  severity='danger'
+                  text
+                  size='small'
+                  pt={{ root: { className: "p-0 w-1" } }}
+                  title='Szoba törlése'
+                  onClick={() => setShowDeleteConfirm(true)}></Button>
+              )}
+            </div>
+            <div className='hidden-nowrap text-base text-400 mt-1 font-normal'>
+              {sidebarOpen ? system.label : system.shortLabel}
+            </div>
+            {system.value === "wodu" && (
+              <a
+                href='https://csokav.notion.site/World-of-Dungeons-1ca0f93292ad80db9f5dccfbfede8180'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='text-300 text-sm'>
+                Ismertető <i className='pi pi-external-link text-xs ml-1'></i>
+              </a>
+            )}
+
+            <div className='flex-grow-1 flex flex-column justify-content-between pb-0 mt-3'>
+              <CharacterSheetList
+                charsheets={charsheets}
+                selectedCharsheetId={selectedCharsheetId}
+                setSelectedCharsheetId={setSelectedCharsheetId}
+                sidebarOpen={sidebarOpen}
+              />
+              <Button text className='p-0 align-self-start' size='small' onClick={logout}>
+                Kijelentkezés
+              </Button>
+            </div>
+          </div>
         </div>
         <div className='flex-1'>
           <div className='w-full h-screen overflow-auto thin-scrollbar'>

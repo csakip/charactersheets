@@ -21,7 +21,7 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 .charactersheet {
-  min-height: 90vh;
+  min-height: calc(100vh - 76px);
 }
 
 .charactersheet .p-dropdown-label.p-inputtext {
@@ -38,8 +38,8 @@ input[type="number"] {
 
 .sidebar-toggle {
   position: absolute;
-  right: -36px;
-  top: -1px;
+  right: -15px;
+  top: 20px;
   width: 32px;
   height: 32px;
   z-index: 100;
@@ -50,6 +50,7 @@ input[type="number"] {
 .sidebar-container {
   width: 23rem;
   transition: width 0.2s ease-in-out;
+  overflow: visible !important;
 
   li {
     white-space: nowrap;
@@ -94,4 +95,18 @@ input[type="number"] {
 
 .blades.charactersheet textarea {
   resize: none;
+}
+
+.wound-box {
+  box-shadow: none;
+
+  &.border-top-transparent {
+    border-top-style: none;
+  }
+}
+
+.wound-box:hover,
+.wound-box:focus {
+  border-width: 1px !important;
+  border-top-style: solid;
 }

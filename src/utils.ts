@@ -291,3 +291,7 @@ export function shortenName(name: string) {
       .join(".") + "."
   );
 }
+
+export function isMobile() {
+  return window.matchMedia("(max-width: 768px)");
+}
