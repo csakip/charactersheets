@@ -194,6 +194,7 @@ export type BladesData = {
   items: string;
   attributes: Array<{
     name: string;
+    xp: number;
     values: Array<{ name: string; value: number }>;
   }>;
   friends: string;
@@ -222,6 +223,7 @@ export const emptyBladesData = (newPlayerName): BladesData => ({
   attributes: [
     {
       name: "Egészség",
+      xp: 0,
       values: [
         { name: "Cserkel", value: 0 },
         { name: "Tanulmányoz", value: 0 },
@@ -231,6 +233,7 @@ export const emptyBladesData = (newPlayerName): BladesData => ({
     },
     {
       name: "Bátorság",
+      xp: 0,
       values: [
         { name: "Finesz", value: 0 },
         { name: "Oson", value: 0 },
@@ -240,6 +243,7 @@ export const emptyBladesData = (newPlayerName): BladesData => ({
     },
     {
       name: "Eltökéltség",
+      xp: 0,
       values: [
         { name: "Hangol", value: 0 },
         { name: "Parancsol", value: 0 },

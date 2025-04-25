@@ -63,6 +63,15 @@ export default function BladesCharacterSheetPage({
     setIsDirty(true);
   }
 
+  const handleAttributeXpChange = (attr: string, value: number) => {
+    const newAttr = structuredClone(charsheetData.attributes);
+    newAttr.find((a) => a.name === attr).xp = value;
+    updateData((prev) => ({
+      ...prev,
+      attributes: newAttr,
+    }));
+  };
+
   const handleActionChange = (attr: string, action: string, value: number) => {
     const newAttr = structuredClone(charsheetData.attributes);
     newAttr.find((a) => a.name === attr).values.find((a) => a.name === action).value = value;
@@ -368,7 +377,7 @@ export default function BladesCharacterSheetPage({
           </FloatLabel>
         </div>
 
-        <div className='flex w-6 gap-2 flex-column flex-1'>
+        <div className='flex w-6 gap-4 flex-column flex-1'>
           <div className='flex gap-2'>
             <span className='text-7xl font-bold text-yellow-400 flex-1 class-title'>
               {charsheetData.class?.toUpperCase() || " "}
@@ -451,11 +460,11 @@ export default function BladesCharacterSheetPage({
                 <div className='flex p-2' style={{ backgroundColor: "#111827" }}>
                   <Dots
                     key={attr.name}
-                    value={calculateAttribute(attr)}
+                    value={attr.xp}
                     labelWidth='w-8rem'
                     maxValue={6}
-                    labelLeft={attr.name}
-                    onChange={() => {}}
+                    labelLeft={`${attr.name} [${calculateAttribute(attr)}]`}
+                    onChange={(value) => handleAttributeXpChange(attr.name, value)}
                   />
                 </div>
                 {attr.values.map((action) => (

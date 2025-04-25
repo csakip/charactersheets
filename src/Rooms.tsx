@@ -26,6 +26,7 @@ import useLocalStorageState from "use-local-storage-state";
 import BladesCharacterSheetPage from "./BladesCharacterSheetPage";
 import WoDuCharacterSheetPage from "./WoDuCharacterSheetPage";
 import { useStore } from "./store";
+import { Tooltip } from "primereact/tooltip";
 
 function Rooms() {
   const [rooms, setRooms] = useState([]);
@@ -260,13 +261,18 @@ function Rooms() {
               <TabPanel className='flex flex-column gap-2' header='Szobák'>
                 {!!rooms.length && (
                   <ListBox
-                    options={rooms.map((p) => ({
+                    options={rooms.map((p, idx) => ({
+                      title: "Szobák",
+
                       label: (
-                        <>
+                        <div id={`room-${idx}`}>
+                          <Tooltip target={`#room-${idx}`} position='right' showDelay={300}>
+                            {systems.find((s) => s.value === p.system)?.label}
+                          </Tooltip>
                           <span className='font-semibold'>{p.name}</span>
                           <span className='text-sm text-300 ml-1'>
                             -&nbsp;
-                            {systems.find((s) => s.value === p.system)?.label}
+                            {systems.find((s) => s.value === p.system)?.shortLabel}
                           </span>
                           {p.private && (
                             <i
@@ -275,7 +281,7 @@ function Rooms() {
                               title='Privát szoba'
                             />
                           )}
-                        </>
+                        </div>
                       ),
                       value: p.id,
                     }))}
