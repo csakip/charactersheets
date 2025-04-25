@@ -2,10 +2,15 @@ import { ConfirmDialog } from "primereact/confirmdialog";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { Toast } from "primereact/toast";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import CharacterSheetBottom from "./components/CharacterSheetBottom";
 import { deleteCharsheet, saveCharsheet } from "./supabase";
-import { BladesData, Charsheet } from "./utils";
+import { BitDClasses, BladesData, Charsheet } from "./utils";
+import Dots from "./components/Dots";
+import { InputTextarea } from "primereact/inputtextarea";
+import { FloatLabel } from "primereact/floatlabel";
+import { MultiSelect } from "primereact/multiselect";
+import { Checkbox } from "primereact/checkbox";
 
 export default function BladesCharacterSheetPage({
   loadedCharsheet,
@@ -58,79 +63,14 @@ export default function BladesCharacterSheetPage({
     setIsDirty(true);
   }
 
-  const handleAttributeChange = (attr: string, value: string) => {
-    const numValue = value === "" ? 0 : Math.max(0, Math.min(3, parseInt(value)));
+  const handleActionChange = (attr: string, action: string, value: number) => {
+    const newAttr = structuredClone(charsheetData.attributes);
+    newAttr.find((a) => a.name === attr).values.find((a) => a.name === action).value = value;
     updateData((prev) => ({
       ...prev,
-      attributes: {
-        ...prev.attributes,
-        [attr.toLowerCase()]: numValue,
-      },
+      attributes: newAttr,
     }));
   };
-
-  const toggleSkill = (skill: string) => {
-    updateData((prev) => ({
-      ...prev,
-      skills: prev.skills.includes(skill) ? prev.skills.filter((s) => s !== skill) : [...prev.skills, skill],
-    }));
-  };
-
-  const toggleAbility = (ability: string) => {
-    let currentArmor = charsheetData.sumArmor;
-    if (ability === "Kemény") {
-      const changingTo = !charsheetData.abilities.includes(ability);
-      currentArmor += changingTo ? 1 : -1;
-    }
-
-    updateData((prev) => ({
-      ...prev,
-      sumArmor: currentArmor,
-      abilities: prev.abilities.includes(ability) ? prev.abilities.filter((a) => a !== ability) : [...prev.abilities, ability],
-    }));
-  };
-
-  const handleArmorTypeChange = (type: string, checked: boolean) => {
-    if (!editable) return;
-    const prevShield = charsheetData.shield ? 1 : 0;
-    const shield = type === "Pajzs" && checked ? 1 : type !== "Pajzs" ? prevShield : 0;
-    const abilityArmor = charsheetData.abilities.includes("Kemény") ? 1 : 0;
-
-    const armor = type !== "Pajzs" && checked ? ["Nincs", "Könnyű", "Teljes"].indexOf(type) : ["Nincs", "Könnyű", "Teljes"].indexOf(charsheetData.armor);
-
-    if (type === "Pajzs") {
-      updateData((prev) => ({
-        ...prev,
-        shield: checked,
-        sumArmor: shield + armor + abilityArmor,
-      }));
-    } else {
-      updateData((prev) => ({
-        ...prev,
-        armor: checked ? type : prev.armor,
-        sumArmor: shield + armor + abilityArmor,
-      }));
-    }
-  };
-
-  function handleClassChange(value: string) {
-    if (!editable) return;
-    const classSkills = {
-      Harcos: ["Atlétika"],
-      Tolvaj: ["Lopakodás"],
-      Pap: ["Rejtélyfejtés", "Gyógyítás"],
-      Varázsló: ["Mágiaismeret"],
-      Kósza: ["Túlélés"],
-    };
-    (classSkills[value] ?? []).forEach((skill) => {
-      if (!charsheetData.skills.includes(skill)) charsheetData.skills.push(skill);
-    });
-    updateData((prev) => ({
-      ...prev,
-      class: value,
-      skills: [...charsheetData.skills],
-    }));
-  }
 
   const handleDeleteCharacter = async () => {
     if (!editable) return;
@@ -152,54 +92,388 @@ export default function BladesCharacterSheetPage({
     }
   };
 
+  function calculateAttribute(attr) {
+    // Add one for each action in the attr.value if it's > 0
+    return attr.values.reduce((count, action) => count + (action.value > 0 ? 1 : 0), 0);
+  }
+
   return (
     <>
       <Toast ref={toast} />
-      <div className='charactersheet flex flex-column gap-3 p-3 mt-3 mx-2 border-round-md' style={{ margin: "auto", backgroundColor: "#1f2937" }}>
-        <div className='flex gap-2'>
+      <div
+        className='charactersheet blades flex gap-3 p-3 mt-3 mx-2 border-round-md align-items-stretch'
+        style={{ margin: "auto", backgroundColor: "#1f2937" }}>
+        <div className='flex gap-4 flex-column'>
           {/* Top Fields */}
-          <div className='flex gap-2'>
+          <div className='flex w-full gap-2'>
+            <FloatLabel className='flex-1 flex'>
+              <InputText
+                className='flex-1 text-yellow-400'
+                maxLength={50}
+                value={charsheetData.alias}
+                onChange={(e) => updateData((prev) => ({ ...prev, alias: e.target.value }))}
+              />
+              <label>Név</label>
+            </FloatLabel>
+            <FloatLabel className='flex-1 flex'>
+              <InputText
+                className='flex-1 text-yellow-400'
+                maxLength={50}
+                value={charsheetData.name}
+                onChange={(e) => updateData((prev) => ({ ...prev, name: e.target.value }))}
+              />
+              <label>Álnév</label>
+            </FloatLabel>
+          </div>
+          <div className='flex w-full gap-2'>
+            <FloatLabel className='flex-1 flex'>
+              <InputText
+                className='flex-1 text-yellow-400 w-18rem'
+                maxLength={50}
+                value={charsheetData.crew}
+                onChange={(e) => updateData((prev) => ({ ...prev, crew: e.target.value }))}
+              />
+              <label>Banda</label>
+            </FloatLabel>
+            <FloatLabel className='flex-1 flex'>
+              <Dropdown
+                id='classs'
+                placeholder='Kaszt'
+                className='w-12rem text-yellow-400'
+                value={charsheetData.class}
+                options={BitDClasses.map((c) => ({
+                  label: c.label,
+                  value: c.label,
+                }))}
+                onChange={(e) => updateData((prev) => ({ ...prev, class: e.value }))}
+              />
+              <label htmlFor='classs'>Játékkönyv</label>
+            </FloatLabel>
+            <FloatLabel className='flex-1 flex'>
+              <InputText
+                className='w-10rem text-yellow-400'
+                value={charsheetData.playerName}
+                maxLength={50}
+                onChange={(e) => updateData((prev) => ({ ...prev, playerName: e.target.value }))}
+              />
+              <label>Játékos</label>
+            </FloatLabel>
+          </div>
+          <FloatLabel className='w-full flex'>
             <InputText
-              placeholder='Banda'
               className='flex-1 text-yellow-400'
-              maxLength={50}
-              value={charsheetData.crew}
-              onChange={(e) => updateData((prev) => ({ ...prev, crew: e.target.value }))}
+              maxLength={150}
+              value={charsheetData.look}
+              onChange={(e) => updateData((prev) => ({ ...prev, look: e.target.value }))}
             />
-            <InputText
-              placeholder='Név'
+            <label>Kinézet</label>
+          </FloatLabel>
+          <div className='flex w-full gap-2'>
+            <FloatLabel className='w-4 flex'>
+              <Dropdown
+                className='flex-1 text-yellow-400'
+                value={charsheetData.heritage}
+                options={[
+                  "Akoros",
+                  "Tőr-szigetek",
+                  "Iruvia",
+                  "Severos",
+                  "Skovföld",
+                  "Tycheros",
+                ].map((value) => ({
+                  label: value,
+                  value,
+                }))}
+                onChange={(e) => updateData((prev) => ({ ...prev, heritage: e.value }))}
+              />
+              <label htmlFor='heritage'>Örökség</label>
+            </FloatLabel>
+            <FloatLabel className='w-4 flex'>
+              <Dropdown
+                className='flex-1 text-yellow-400'
+                value={charsheetData.background}
+                options={[
+                  "Alvilág",
+                  "Hadsereg",
+                  "Kereskedelem",
+                  "Munkás",
+                  "Nemes",
+                  "Törvény",
+                  "Tudományos",
+                ].map((value) => ({
+                  label: value,
+                  value,
+                }))}
+                onChange={(e) => updateData((prev) => ({ ...prev, background: e.value }))}
+              />
+              <label>Háttér</label>
+            </FloatLabel>
+            <FloatLabel className='w-4 flex'>
+              <Dropdown
+                className='flex-1 text-yellow-400'
+                value={charsheetData.vice}
+                options={[
+                  "Elkötelezettség",
+                  "Élvezet",
+                  "Hit",
+                  "Kábulat",
+                  "Luxus",
+                  "Szerencsejáték",
+                  "Természetfeletti",
+                ].map((value) => ({
+                  label: value,
+                  value,
+                }))}
+                onChange={(e) => updateData((prev) => ({ ...prev, vice: e.value }))}
+              />
+              <label>Szenvedély</label>
+            </FloatLabel>
+          </div>
+          <div className='flex w-full gap-2'>
+            <div className='flex flex-1 p-2' style={{ backgroundColor: "#111827" }}>
+              <Dots
+                value={charsheetData.stress}
+                labelLeft='Stressz'
+                maxValue={9}
+                labelWidth='w-6rem'
+                onChange={(value) => updateData((prev) => ({ ...prev, stress: value }))}
+              />
+            </div>
+            <div className='flex flex-1 p-2' style={{ backgroundColor: "#111827" }}>
+              <Dots
+                value={charsheetData.trauma}
+                labelLeft='Trauma'
+                maxValue={4}
+                labelWidth='w-6rem'
+                onChange={(value) => updateData((prev) => ({ ...prev, trauma: value }))}
+              />
+            </div>
+          </div>
+          <FloatLabel className='flex w-full'>
+            <MultiSelect
               className='flex-1 text-yellow-400'
-              maxLength={50}
-              value={charsheetData.name}
-              onChange={(e) => updateData((prev) => ({ ...prev, name: e.target.value }))}
-            />
-            <InputText
-              placeholder='Álnév'
-              className='flex-1 text-yellow-400'
-              maxLength={50}
-              value={charsheetData.alias}
-              onChange={(e) => updateData((prev) => ({ ...prev, alias: e.target.value }))}
-            />
-            <Dropdown
-              placeholder='Kaszt'
-              className='w-10rem text-yellow-400'
-              value={charsheetData.class}
-              options={["Suttogó", "Tolvaj", "Pap", "Varázsló", "Kósza", "Egyedi"].map((value) => ({
+              value={charsheetData.traumaWords}
+              panelHeaderTemplate={<></>}
+              options={[
+                "Kőszívű",
+                "Kísértett",
+                "Megszállott",
+                "Paranoid",
+                "Vakmerő",
+                "Lágyszívű",
+                "Instabil",
+                "Kegyetlen",
+              ].map((value) => ({
                 label: value,
                 value,
               }))}
-              onChange={(e) => handleClassChange(e.value)}
+              onChange={(e) => updateData((prev) => ({ ...prev, traumaWords: e.value }))}
             />
-            <InputText
-              placeholder='Játékos'
-              className='w-10rem text-yellow-400'
-              value={charsheetData.playerName}
-              maxLength={50}
-              onChange={(e) => updateData((prev) => ({ ...prev, playerName: e.target.value }))}
+            <label>Trauma</label>
+          </FloatLabel>
+          <div className='flex w-full gap-2'>
+            <div className='flex flex-1 flex-column align-self-start'>
+              <div className='p-1' style={{ backgroundColor: "#111827" }}>
+                Seb
+              </div>
+              <div className='p-inputgroup flex-1'>
+                <span className='p-inputgroup-addon border-noround'>3</span>
+                <InputText
+                  value={charsheetData.harm3}
+                  onChange={(e) => updateData((prev) => ({ ...prev, harm3: e.target.value }))}
+                />
+                <span className='p-inputgroup-addon w-5rem text-xs text-center py-0 border-noround'>
+                  Segítségre szorul
+                </span>
+              </div>
+              <div className='p-inputgroup flex-1'>
+                <span className='p-inputgroup-addon border-noround border-top-none'>2</span>
+                <InputText
+                  className='border-top-none'
+                  value={charsheetData.harm2}
+                  onChange={(e) => updateData((prev) => ({ ...prev, harm2: e.target.value }))}
+                />
+                <span className='p-inputgroup-addon w-5rem border-noround border-top-none'>
+                  -1K
+                </span>
+              </div>
+              <div className='p-inputgroup flex-1'>
+                <span className='p-inputgroup-addon border-noround-top border-top-none'>1</span>
+                <InputText
+                  className='w-6rem border-top-none'
+                  value={charsheetData.harm1l}
+                  onChange={(e) => updateData((prev) => ({ ...prev, harm1l: e.target.value }))}
+                />
+                <InputText
+                  className='w-6rem border-top-none'
+                  value={charsheetData.harm1r}
+                  onChange={(e) => updateData((prev) => ({ ...prev, harm1r: e.target.value }))}
+                />
+                <span className='p-inputgroup-addon w-5rem text-xs text-center py-0 border-noround-top border-top-none'>
+                  Csökkent hatás
+                </span>
+              </div>
+            </div>
+            <div className='flex gap-2 flex-column'>
+              <div className='p-1' style={{ backgroundColor: "#111827" }}>
+                Gyógyulás
+              </div>
+              <Dots
+                maxValue={4}
+                dotsClassName='justify-content-center flex-1'
+                value={charsheetData.healing}
+                onChange={(value) => updateData((prev) => ({ ...prev, healing: value }))}
+              />
+              <div className='p-1' style={{ backgroundColor: "#111827" }}>
+                Páncélok
+              </div>
+              <div className='flex flex-1 justify-content-between'>
+                <label htmlFor='armor'>Páncél</label>
+                <Checkbox
+                  inputId='armor'
+                  checked={charsheetData.armor}
+                  onChange={(e) =>
+                    updateData((prev) => ({ ...prev, armor: e.checked }))
+                  }></Checkbox>
+              </div>
+              <div className='flex flex-1 justify-content-between'>
+                <label htmlFor='heavyarmor'>Nehéz</label>
+                <Checkbox
+                  inputId='heavyarmor'
+                  checked={charsheetData.heavy}
+                  onChange={(e) =>
+                    updateData((prev) => ({ ...prev, heavy: e.checked }))
+                  }></Checkbox>
+              </div>
+              <div className='flex flex-1 justify-content-between'>
+                <label htmlFor='specialarmor'>Speciális</label>
+                <Checkbox
+                  inputId='specialarmor'
+                  checked={charsheetData.special}
+                  onChange={(e) =>
+                    updateData((prev) => ({ ...prev, special: e.checked }))
+                  }></Checkbox>
+              </div>
+            </div>
+          </div>
+          <FloatLabel className='flex-1 flex'>
+            <InputTextarea
+              rows={5}
+              spellCheck={false}
+              className='flex-1 text-yellow-400 thin-scrollbar'
+              maxLength={1000}
+              value={charsheetData.notes}
+              onChange={(e) => updateData((prev) => ({ ...prev, notes: e.target.value }))}
             />
+            <label>Jegyzetek</label>
+          </FloatLabel>
+        </div>
+
+        <div className='flex w-6 gap-4 flex-column flex-1'>
+          <div className='flex gap-2'>
+            <span className='text-7xl font-bold text-yellow-400 flex-1 class-title'>
+              {charsheetData.class?.toUpperCase() || " "}
+            </span>
+            <span className='text-yellow-400 class-title w-8rem mt-2'>
+              {BitDClasses.find(
+                (c) => c.label === charsheetData.class
+              )?.description.toUpperCase() || " "}
+            </span>
+          </div>
+          <div className='flex w-full'>
+            <FloatLabel className='flex-1 flex'>
+              <InputTextarea
+                rows={5}
+                spellCheck={false}
+                className='flex-1 text-yellow-400 thin-scrollbar'
+                maxLength={1000}
+                value={charsheetData.specialAbilities}
+                onChange={(e) =>
+                  updateData((prev) => ({ ...prev, specialAbilities: e.target.value }))
+                }
+              />
+              <label>Speciális képességek</label>
+            </FloatLabel>
+          </div>
+          <div className='flex w-full'>
+            <FloatLabel className='flex-1 flex'>
+              <InputTextarea
+                rows={5}
+                spellCheck={false}
+                className='flex-1 text-yellow-400 thin-scrollbar'
+                maxLength={1000}
+                value={charsheetData.friends}
+                onChange={(e) => updateData((prev) => ({ ...prev, friends: e.target.value }))}
+              />
+              <label>Barátok és ellenségek</label>
+            </FloatLabel>
+          </div>
+          <div className='flex flex-1'>
+            <FloatLabel className='flex-1 flex'>
+              <InputTextarea
+                spellCheck={false}
+                className='flex-1 text-yellow-400 thin-scrollbar'
+                maxLength={1000}
+                value={charsheetData.items}
+                onChange={(e) => updateData((prev) => ({ ...prev, items: e.target.value }))}
+              />
+              <label>Tárgyak</label>
+            </FloatLabel>
           </div>
         </div>
-        <div className='flex justify-content-between gap-4'>asdasdsd</div>
+
+        <div className='flex gap-2 w-20rem align-self-start'>
+          <div className='flex flex-1 flex-column gap-2'>
+            <Dots
+              value={charsheetData.stash}
+              labelLeft='Szajré'
+              maxValue={40}
+              className='align-items-start h-5rem'
+              labelWidth='w-7rem'
+              onChange={(value) => updateData((prev) => ({ ...prev, stash: value }))}
+            />
+            <Dots
+              value={charsheetData.coin}
+              labelWidth='w-6rem'
+              labelLeft='Érme'
+              onChange={(value) => updateData((prev) => ({ ...prev, coin: value }))}
+            />
+            <div className='flex p-2' style={{ backgroundColor: "#111827" }}>
+              <Dots
+                value={charsheetData.playbook}
+                maxValue={8}
+                labelWidth='w-7rem'
+                labelLeft='Játékkönyv'
+                onChange={(value) => updateData((prev) => ({ ...prev, playbook: value }))}
+              />
+            </div>
+            {charsheetData.attributes?.map((attr) => (
+              <Fragment key={attr.name}>
+                <div className='flex p-2' style={{ backgroundColor: "#111827" }}>
+                  <Dots
+                    key={attr.name}
+                    value={calculateAttribute(attr)}
+                    labelWidth='w-8rem'
+                    maxValue={6}
+                    labelLeft={attr.name}
+                    onChange={() => {}}
+                  />
+                </div>
+                {attr.values.map((action) => (
+                  <Dots
+                    key={action.name}
+                    value={action.value}
+                    labelWidth='w-8rem'
+                    dotsClassName='w-6rem'
+                    labelRight={action.name}
+                    rounded
+                    onChange={(value) => handleActionChange(attr.name, action.name, value)}
+                  />
+                ))}
+              </Fragment>
+            ))}
+          </div>
+        </div>
       </div>
 
       {editable && <CharacterSheetBottom charsheet={charsheet} setCharsheet={setCharsheet} />}

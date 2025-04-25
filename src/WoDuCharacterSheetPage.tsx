@@ -145,7 +145,7 @@ export default function WoDuCharacterSheetPage({
     <>
       <Toast ref={toast} />
       <div
-        className='charactersheet flex flex-column gap-4 p-4 mt-3 border-round-md'
+        className='charactersheet wodu flex flex-column gap-4 p-4 mt-3 border-round-md'
         style={{ maxWidth: "1000px", margin: "auto", backgroundColor: "#1f2937" }}>
         {/* Top Fields */}
         <div className='flex gap-4'>
@@ -271,7 +271,7 @@ export default function WoDuCharacterSheetPage({
             rows={5}
             spellCheck={false}
             placeholder='Fegyverek'
-            className='flex-1 text-yellow-400'
+            className='flex-1 text-yellow-400 thin-scrollbar'
             maxLength={1000}
             value={charsheetData.weapons}
             onChange={(e) => updateData((prev) => ({ ...prev, weapons: e.target.value }))}
@@ -281,7 +281,7 @@ export default function WoDuCharacterSheetPage({
             rows={5}
             spellCheck={false}
             placeholder='Felszerelés'
-            className='flex-1 text-yellow-400'
+            className='flex-1 text-yellow-400 thin-scrollbar'
             maxLength={1000}
             value={charsheetData.gear}
             onChange={(e) => updateData((prev) => ({ ...prev, gear: e.target.value }))}
@@ -369,7 +369,7 @@ export default function WoDuCharacterSheetPage({
             spellCheck={false}
             rows={3}
             placeholder='Jegyzetek'
-            className='w-full text-yellow-400'
+            className='w-full text-yellow-400 thin-scrollbar'
             maxLength={1000}
             value={charsheetData.notesLeft}
             onChange={(e) => updateData((prev) => ({ ...prev, notesLeft: e.target.value }))}
@@ -379,7 +379,7 @@ export default function WoDuCharacterSheetPage({
             spellCheck={false}
             rows={3}
             placeholder='Jegyzetek'
-            className='w-full text-yellow-400'
+            className='w-full text-yellow-400 thin-scrollbar'
             maxLength={1000}
             value={charsheetData.notesRight}
             onChange={(e) => updateData((prev) => ({ ...prev, notesRight: e.target.value }))}

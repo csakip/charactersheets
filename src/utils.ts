@@ -1,19 +1,39 @@
-export const attributes = [{ label: "ERŐ" }, { label: "INT" }, { label: "ÜGY" }, { label: "BÖL" }, { label: "EGS" }, { label: "KAR" }];
+export const attributes = [
+  { label: "ERŐ" },
+  { label: "INT" },
+  { label: "ÜGY" },
+  { label: "BÖL" },
+  { label: "EGS" },
+  { label: "KAR" },
+];
 
-export const skills = ["Atlétika", "Éberség", "Megtévesztés", "Rejtélyfejtés", "Gyógyítás", "Parancsnoklás", "Mágiaismeret", "Lopakodás", "Túlélés"];
+export const skills = [
+  "Atlétika",
+  "Éberség",
+  "Megtévesztés",
+  "Rejtélyfejtés",
+  "Gyógyítás",
+  "Parancsnoklás",
+  "Mágiaismeret",
+  "Lopakodás",
+  "Túlélés",
+];
 
 export const abilities = [
   {
     name: "Áldás",
-    description: "Szentelt vízzel felkenhetsz tárgyakat,\nhogy szentnek és mágikusnak számítsanak.\n+3 sebzés a gonosz ellen, rövid ideig.",
+    description:
+      "Szentelt vízzel felkenhetsz tárgyakat,\nhogy szentnek és mágikusnak számítsanak.\n+3 sebzés a gonosz ellen, rövid ideig.",
   },
   {
     name: "Gyógyítás",
-    description: "Megpróbálhatod semlegesíteni a mérgeket,\nátkokat, vagy sebeket gyógyíthatsz érintéssel.",
+    description:
+      "Megpróbálhatod semlegesíteni a mérgeket,\nátkokat, vagy sebeket gyógyíthatsz érintéssel.",
   },
   {
     name: "Elűzés",
-    description: "Megpróbálhatsz élőhalottakat visszatartani\nszent hatalmaddal és szent szimbólumoddal.",
+    description:
+      "Megpróbálhatsz élőhalottakat visszatartani\nszent hatalmaddal és szent szimbólumoddal.",
   },
   {
     name: "Látomás",
@@ -34,7 +54,8 @@ export const abilities = [
   { name: "Reflexek", description: "Mindig először cselekedhetsz\nés reagálhatsz, ha megleptek." },
   {
     name: "Bűtykölés",
-    description: "Gyorsan megpróbálhatsz zsebet metszeni,\nzárat nyitni vagy csapdát hatástalanítani.",
+    description:
+      "Gyorsan megpróbálhatsz zsebet metszeni,\nzárat nyitni vagy csapdát hatástalanítani.",
   },
   {
     name: "Trükkök",
@@ -46,7 +67,8 @@ export const abilities = [
   },
   {
     name: "Rituálé",
-    description: "Ősi könyvekből és tekercsekből okkult rituálékat\nvégezhetsz - két ismert rituáléval kezdesz.",
+    description:
+      "Ősi könyvekből és tekercsekből okkult rituálékat\nvégezhetsz - két ismert rituáléval kezdesz.",
   },
   {
     name: "Idézés",
@@ -59,6 +81,17 @@ export const abilities = [
   },
   { name: "Sorozás", description: "+2 távolsági sebzés." },
   { name: "Vad", description: "Állatokkal beszélgethetsz és\nmegpróbálhatsz parancsolni nekik." },
+];
+
+export const BitDClasses = [
+  { label: "Kaszaboló", description: "félelmetes és veszélyes harcos" },
+  { label: "Kopó", description: "halálos mesterlövész és nyomkövető" },
+  { label: "Pióca", description: "Szabotőr és technikus" },
+  { label: "Pók", description: "körmönfont stratéga" },
+  { label: "Sumák", description: "körmönfont manipulátor és kém" },
+  { label: "Surranó", description: "lopakodó beszivárgó és betörő" },
+  { label: "Suttogó", description: "varázshasználó és elementarista" },
+  { label: "Egyedi", description: "" },
 ];
 
 export type Room = {
@@ -149,8 +182,12 @@ export type BladesData = {
   background?: string;
   vice?: string;
   stress: number;
-  trauma: string[];
-  harm: object;
+  trauma: number;
+  traumaWords: string[];
+  harm1l: string;
+  harm1r: string;
+  harm2: string;
+  harm3: string;
   specialAbilities?: string;
   healing: number;
   armor: boolean;
@@ -158,34 +195,69 @@ export type BladesData = {
   special: boolean;
   coin: number;
   stash: number;
+  playbook: number;
   load: number;
-  items: Item[];
-  attributes: { prowess: number; insight: number; resolve: number };
+  items: string;
+  attributes: Array<{
+    name: string;
+    values: Array<{ name: string; value: number }>;
+  }>;
   actions: Action[];
   friends?: string;
-  notesTop: string;
-  notesBottom: string;
+  notes: string;
 };
 
 export const emptyBladesData = (newPlayerName): BladesData => ({
   playerName: newPlayerName,
   specialAbilities: "",
   stress: 0,
-  trauma: [],
-  harm: {},
+  trauma: 0,
+  traumaWords: [],
+  harm1l: "",
+  harm1r: "",
+  harm2: "",
+  harm3: "",
   healing: 0,
   armor: false,
   heavy: false,
   special: false,
   coin: 0,
   stash: 0,
+  playbook: 0,
   load: 0,
-  items: [],
-  attributes: { prowess: 0, insight: 0, resolve: 0 },
+  items: "",
+  attributes: [
+    {
+      name: "Egészség",
+      values: [
+        { name: "Cserkel", value: 0 },
+        { name: "Tanulmányoz", value: 0 },
+        { name: "Felmér", value: 0 },
+        { name: "Bütyköl", value: 0 },
+      ],
+    },
+    {
+      name: "Bátorság",
+      values: [
+        { name: "Finesz", value: 0 },
+        { name: "Oson", value: 0 },
+        { name: "Küzd", value: 0 },
+        { name: "Zúz", value: 0 },
+      ],
+    },
+    {
+      name: "Eltökéltség",
+      values: [
+        { name: "Hangol", value: 0 },
+        { name: "Parancsol", value: 0 },
+        { name: "Társul", value: 0 },
+        { name: "Elbűvöl", value: 0 },
+      ],
+    },
+  ],
   actions: [],
   friends: "",
-  notesTop: "",
-  notesBottom: "",
+  notes: "",
 });
 
 export const systems = [
