@@ -291,7 +291,6 @@ function RoomPage() {
                     text
                     size='small'
                     pt={{ root: { className: "p-0 w-1" }, icon: { className: "text-400" } }}
-                    title='Szoba törlése'
                     onClick={(event) => roomMenu.current.toggle(event)}></Button>
                 </>
               )}
