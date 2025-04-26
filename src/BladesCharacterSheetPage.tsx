@@ -112,7 +112,7 @@ export default function BladesCharacterSheetPage({
       <div
         className='charactersheet blades flex gap-3 p-4 mt-3 mx-2 border-round-md align-items-stretch flex-column md:flex-row'
         style={{ margin: "auto", backgroundColor: "#1f2937" }}>
-        <div className='flex gap-4 flex-column w-full md:flex-1'>
+        <div className='flex gap-4 flex-column w-full flex-1' style={{ maxWidth: "40rem" }}>
           {/* Top Fields */}
           <div className='flex w-full gap-2'>
             <FloatLabel className='flex-1 flex'>
