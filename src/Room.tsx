@@ -1,5 +1,6 @@
 import { User } from "@supabase/supabase-js";
 import { Button } from "primereact/button";
+import { ConfirmDialog } from "primereact/confirmdialog";
 import { Toast } from "primereact/toast";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -9,6 +10,8 @@ import WoDuCharacterSheetPage from "./WoDuCharacterSheetPage";
 import CharacterSheetList from "./components/CharacterSheetList";
 import InputDialog from "./components/InputDialog";
 import NewCharacterDialog from "./components/NewCharacterDialog";
+import { Menu } from "primereact/menu";
+import { useStore } from "./store";
 import { deleteRoom, logout, saveCharsheet, supabase } from "./supabase";
 import {
   attributes,
@@ -16,15 +19,12 @@ import {
   Charsheet,
   emptyBladesData,
   emptyWoduData,
-  shortenName,
   rollAttribute,
   Room,
+  shortenName,
   systems,
   WoduData,
-  isMobile,
 } from "./utils";
-import { useStore } from "./store";
-import { ConfirmDialog } from "primereact/confirmdialog";
 
 function RoomPage() {
   const [charsheets, setCharsheets] = useState<Charsheet[]>([]);
@@ -41,6 +41,7 @@ function RoomPage() {
   });
   const toast = useRef<Toast>(null);
   const charsheetsRef = useRef(charsheets); // Store the charsheets array in a ref to avoid stale data
+  const roomMenu = useRef(null);
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -48,7 +49,6 @@ function RoomPage() {
 
   const { roomId } = useParams();
   const navigate = useNavigate();
-  const mobile = isMobile();
 
   useEffect(() => {
     fetchRoom();
@@ -231,6 +231,27 @@ function RoomPage() {
 
   if (!room) return <></>;
 
+  const menuItems = [
+    {
+      label: `${room.private ? "Nyilvánossá tesz" : "Priváttá tesz"}`,
+      icon: `pi ${room.private ? "pi-lock" : "pi-lock-open"}`,
+      value: "private",
+      command: toggleRoomPrivate,
+    },
+    {
+      label: "Szoba átnevezése",
+      icon: "pi pi-pencil",
+      value: "rename",
+      command: () => setRenameDialogOpen(true),
+    },
+    {
+      label: "Szoba törlése",
+      icon: "pi pi-trash",
+      value: "delete",
+      command: () => setShowDeleteConfirm(true),
+    },
+  ];
+
   return (
     <>
       <Toast ref={toast} />
@@ -245,45 +266,34 @@ function RoomPage() {
           <div
             className='flex flex-column flex-1 p-3 pt-4 thin-scrollbar overflow-y-auto  w-full'
             style={{ backgroundColor: "#1f2937" }}>
-            <Link to='/' className='text-base text-yellow-400'>
-              <i className='pi pi-arrow-left mr-1 mb-4'></i> Szobák
-            </Link>
+            <div>
+              <Link to='/' className='text-base text-yellow-400'>
+                <i className='pi pi-arrow-left mr-1 mb-4'></i> Szobák
+              </Link>
+            </div>
             <div className='flex gap-1 justify-content-start align-items-center'>
               <div className='hidden-nowrap text-2xl font-bold opacity-90'>
                 {sidebarOpen ? room.name : shortenName(room.name)}
               </div>
-              {sidebarOpen && user.id === room.user_id && (
-                <Button
-                  icon={`pi ${room.private ? "pi-lock" : "pi-lock-open"}`}
-                  className='ml-auto'
-                  severity='secondary'
-                  text
-                  size='small'
-                  pt={{ root: { className: "p-0 w-1" } }}
-                  title='Privát szoba'
-                  onClick={toggleRoomPrivate}></Button>
-              )}
 
               {sidebarOpen && user.id === room.user_id && (
-                <Button
-                  icon='pi pi-pencil'
-                  severity='secondary'
-                  text
-                  size='small'
-                  pt={{ root: { className: "p-0 w-1" } }}
-                  title='Szoba átnevezése'
-                  onClick={() => setRenameDialogOpen(true)}></Button>
-              )}
-
-              {sidebarOpen && user.id === room.user_id && (
-                <Button
-                  icon='pi pi-trash'
-                  severity='danger'
-                  text
-                  size='small'
-                  pt={{ root: { className: "p-0 w-1" } }}
-                  title='Szoba törlése'
-                  onClick={() => setShowDeleteConfirm(true)}></Button>
+                <>
+                  <Menu
+                    model={menuItems}
+                    popup
+                    ref={roomMenu}
+                    id='popup_menu_left'
+                    pt={{ root: { className: "w-14rem" } }}
+                  />
+                  <Button
+                    icon='pi pi-bars'
+                    className='ml-auto'
+                    text
+                    size='small'
+                    pt={{ root: { className: "p-0 w-1" }, icon: { className: "text-400" } }}
+                    title='Szoba törlése'
+                    onClick={(event) => roomMenu.current.toggle(event)}></Button>
+                </>
               )}
             </div>
             <div className='hidden-nowrap text-base text-400 mt-1 font-normal'>

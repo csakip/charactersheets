@@ -403,7 +403,7 @@ function Rooms() {
                 onChange={(e) => setIsPrivate(e.checked)}
                 className='mr-2'
               />
-              <label htmlFor='privateRoom'>A szoba csak számodra elérhető</label>
+              <label htmlFor='privateRoom'>A szoba csak számodra legyen elérhető most</label>
             </div>
           </div>
         </div>
