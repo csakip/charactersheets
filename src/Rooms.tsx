@@ -1,32 +1,25 @@
 import { User } from "@supabase/supabase-js";
 import { Button } from "primereact/button";
+import { Checkbox } from "primereact/checkbox";
 import { Dialog } from "primereact/dialog";
+import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { ListBox } from "primereact/listbox";
-import { TabView, TabPanel } from "primereact/tabview";
+import { TabPanel, TabView } from "primereact/tabview";
 import { Toast } from "primereact/toast";
+import { Tooltip } from "primereact/tooltip";
 import { useEffect, useRef, useState } from "react";
-import { logout, saveCharsheet, saveRoom, supabase } from "./supabase";
 import { useNavigate } from "react-router";
-import { Dropdown } from "primereact/dropdown";
-import {
-  attributes,
-  BladesData,
-  Charsheet,
-  emptyBladesData,
-  emptyWoduData,
-  systems,
-  WoduData,
-} from "./constants";
-import { Checkbox } from "primereact/checkbox";
-import NewCharacterDialog from "./components/NewCharacterDialog";
-import CharacterSheetList from "./components/CharacterSheetList";
 import useLocalStorageState from "use-local-storage-state";
 import BladesCharacterSheetPage from "./charSheets/BladesCharacterSheetPage";
+import SWCharacterSheetPage from "./charSheets/SWCharacterSheetPage";
 import WoDuCharacterSheetPage from "./charSheets/WoDuCharacterSheetPage";
+import CharacterSheetList from "./components/CharacterSheetList";
+import NewCharacterDialog from "./components/NewCharacterDialog";
+import { attributes, Charsheet, systems } from "./constants";
 import { useStore } from "./store";
-import { Tooltip } from "primereact/tooltip";
-import { rollAttribute } from "./utils";
+import { logout, saveRoom, supabase } from "./supabase";
+import { createCharacter } from "./utils";
 
 function Rooms() {
   const [rooms, setRooms] = useState([]);
@@ -89,7 +82,12 @@ function Rooms() {
           table: "charsheets",
           // filter: `user_id=eq.${user.id}`,
         },
-        fetchCharsheets
+        (payload) => {
+          // Don't update my own character
+          if ((payload.new as Charsheet).user_id === user.id && payload.eventType === "UPDATE")
+            return;
+          fetchCharsheets();
+        }
       )
       .subscribe();
 
@@ -193,28 +191,12 @@ function Rooms() {
     selectedSystem: string
   ) => {
     if (newPlayerName.trim()) {
-      let char: WoduData | BladesData = null;
-
-      if (selectedSystem === "wodu") {
-        char = emptyWoduData(newPlayerName.trim());
-
-        // Roll attributes if the checkbox is checked
-        if (rollChecked) {
-          do {
-            attributes.forEach((a) => {
-              const roll = rollAttribute();
-              (char as WoduData).attributes[a.label.toLowerCase()] = roll;
-            });
-          } while (Object.values((char as WoduData).attributes).reduce((sum, c) => sum + c, 0) < 5);
-        }
-      }
-
-      if (selectedSystem === "blades") {
-        char = emptyBladesData(newPlayerName.trim());
-      }
-
-      const id = await saveCharsheet(
-        { user_id: user.id, system: selectedSystem, data: char },
+      const id = await createCharacter(
+        user.id,
+        selectedSystem,
+        newPlayerName.trim(),
+        rollChecked,
+        attributes,
         null
       );
       setSelectedCharsheetId(id);
@@ -313,6 +295,13 @@ function Rooms() {
         </div>
         <div className='flex-1'>
           <div className='w-full h-screen overflow-auto thin-scrollbar'>
+            {selectedCharsheet && selectedCharsheet.system === "wodu" && (
+              <WoDuCharacterSheetPage
+                loadedCharsheet={selectedCharsheet}
+                editable={selectedCharsheet.user_id === user.id}
+                updateCharacterDisplay={updateCharacterDisplay}
+              />
+            )}
             {selectedCharsheet && selectedCharsheet.system === "blades" && (
               <BladesCharacterSheetPage
                 loadedCharsheet={selectedCharsheet}
@@ -320,8 +309,8 @@ function Rooms() {
                 updateCharacterDisplay={updateCharacterDisplay}
               />
             )}
-            {selectedCharsheet && selectedCharsheet.system === "wodu" && (
-              <WoDuCharacterSheetPage
+            {selectedCharsheet && selectedCharsheet.system === "starwars" && (
+              <SWCharacterSheetPage
                 loadedCharsheet={selectedCharsheet}
                 editable={selectedCharsheet.user_id === user.id}
                 updateCharacterDisplay={updateCharacterDisplay}

@@ -1,3 +1,13 @@
+import {
+  BladesData,
+  emptyBladesData,
+  emptyStarWarsData,
+  emptyWoduData,
+  StarWarsData,
+  WoduData,
+} from "./constants";
+import { saveCharsheet } from "./supabase";
+
 export function rollD6() {
   return Math.floor(Math.random() * 6) + 1;
 }
@@ -23,4 +33,50 @@ export function shortenName(name: string) {
 
 export function isMobile() {
   return window.matchMedia("(max-width: 768px)");
+}
+
+export async function createCharacter(
+  userId: string,
+  selectedSystem: string,
+  newPlayerName: string,
+  rollChecked: boolean,
+  attributes: any,
+  roomId: string | null
+) {
+  let char: WoduData | BladesData | StarWarsData = null;
+
+  switch (selectedSystem) {
+    case "wodu": {
+      char = emptyWoduData(newPlayerName.trim());
+
+      // Roll attributes if the checkbox is checked
+      if (rollChecked) {
+        do {
+          attributes.forEach((a) => {
+            const roll = rollAttribute();
+            (char as WoduData).attributes[a.label.toLowerCase()] = roll;
+          });
+        } while (Object.values((char as WoduData).attributes).reduce((sum, c) => sum + c, 0) < 5);
+      }
+
+      break;
+    }
+    case "blades": {
+      char = emptyBladesData(newPlayerName.trim());
+      break;
+    }
+    case "starwars": {
+      char = emptyStarWarsData(newPlayerName.trim());
+      break;
+    }
+  }
+  const id = await saveCharsheet(
+    {
+      user_id: userId,
+      system: selectedSystem,
+      data: char,
+    },
+    roomId
+  );
+  return id;
 }

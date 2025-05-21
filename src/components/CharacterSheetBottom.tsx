@@ -10,9 +10,11 @@ import RoomDialog from "./RoomDialog";
 export default function CharacterSheetBottom({
   charsheet,
   setCharsheet,
+  children,
 }: {
   charsheet: Charsheet;
   setCharsheet: (charsheet: Charsheet) => void;
+  children?: React.ReactNode;
 }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showExitRoomConfirm, setShowExitRoomConfirm] = useState(false);
@@ -67,6 +69,7 @@ export default function CharacterSheetBottom({
   return (
     <>
       <div className='flex mb-3 mt-1 justify-content-end'>
+        {children}
         {charsheet.room_id && (
           <Button severity='warning' size='small' text onClick={() => setShowExitRoomConfirm(true)}>
             Kilépés a szobából

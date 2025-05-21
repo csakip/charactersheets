@@ -1,29 +1,21 @@
 import { User } from "@supabase/supabase-js";
 import { Button } from "primereact/button";
 import { ConfirmDialog } from "primereact/confirmdialog";
+import { Menu } from "primereact/menu";
 import { Toast } from "primereact/toast";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import useLocalStorageState from "use-local-storage-state";
 import BladesCharacterSheetPage from "./charSheets/BladesCharacterSheetPage";
+import SWCharacterSheetPage from "./charSheets/SWCharacterSheetPage";
 import WoDuCharacterSheetPage from "./charSheets/WoDuCharacterSheetPage";
 import CharacterSheetList from "./components/CharacterSheetList";
 import InputDialog from "./components/InputDialog";
 import NewCharacterDialog from "./components/NewCharacterDialog";
-import { Menu } from "primereact/menu";
+import { attributes, Charsheet, Room, systems } from "./constants";
 import { useStore } from "./store";
-import { deleteRoom, logout, saveCharsheet, supabase } from "./supabase";
-import {
-  attributes,
-  BladesData,
-  Charsheet,
-  emptyBladesData,
-  emptyWoduData,
-  Room,
-  systems,
-  WoduData,
-} from "./constants";
-import { rollAttribute, shortenName } from "./utils";
+import { deleteRoom, logout, supabase } from "./supabase";
+import { createCharacter, shortenName } from "./utils";
 
 function RoomPage() {
   const [charsheets, setCharsheets] = useState<Charsheet[]>([]);
@@ -148,32 +140,12 @@ function RoomPage() {
     selectedSystem = system.value
   ) => {
     if (newPlayerName.trim()) {
-      let char: WoduData | BladesData = null;
-
-      if (selectedSystem === "wodu") {
-        char = emptyWoduData(newPlayerName.trim());
-
-        // Roll attributes if the checkbox is checked
-        if (rollChecked) {
-          do {
-            attributes.forEach((a) => {
-              const roll = rollAttribute();
-              (char as WoduData).attributes[a.label.toLowerCase()] = roll;
-            });
-          } while (Object.values((char as WoduData).attributes).reduce((sum, c) => sum + c, 0) < 5);
-        }
-      }
-
-      if (selectedSystem === "blades") {
-        char = emptyBladesData(newPlayerName.trim());
-      }
-
-      const id = await saveCharsheet(
-        {
-          user_id: user.id,
-          system: selectedSystem,
-          data: char,
-        },
+      const id = await createCharacter(
+        user.id,
+        selectedSystem,
+        newPlayerName.trim(),
+        rollChecked,
+        attributes,
         roomId
       );
       fetchCharsheets();
@@ -333,6 +305,13 @@ function RoomPage() {
                 )}
                 {system.value === "blades" && (
                   <BladesCharacterSheetPage
+                    loadedCharsheet={charsheets.find((c) => c.id === selectedCharsheetId)}
+                    editable={user.id === selectedCharacter.user_id}
+                    updateCharacterDisplay={updateCharacterDisplay}
+                  />
+                )}
+                {system.value === "starwars" && (
+                  <SWCharacterSheetPage
                     loadedCharsheet={charsheets.find((c) => c.id === selectedCharsheetId)}
                     editable={user.id === selectedCharacter.user_id}
                     updateCharacterDisplay={updateCharacterDisplay}

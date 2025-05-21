@@ -107,7 +107,7 @@ export type Charsheet = {
   id?: number;
   user_id: string;
   system: string;
-  data: WoduData | BladesData;
+  data: WoduData | BladesData | StarWarsData;
   created_at?: string;
   updated_at?: string;
   rooms_charsheets?: { room_id: number }[];
@@ -165,8 +165,8 @@ export type BladesData = {
   id?: number;
   class: string;
   playerName: string;
-  crew: string;
   name: string;
+  crew: string;
   alias: string;
   look: string;
   heritage: string;
@@ -201,6 +201,7 @@ export type BladesData = {
 export function emptyBladesData(newPlayerName: string): BladesData {
   return {
     playerName: newPlayerName,
+    name: "",
     specialAbilities: "",
     stress: 0,
     trauma: 0,
@@ -254,7 +255,6 @@ export function emptyBladesData(newPlayerName: string): BladesData {
     notes: "",
     crew: "",
     class: "Egyedi",
-    name: "",
     alias: "",
     look: "",
     heritage: "",
@@ -347,7 +347,7 @@ export function emptyMothershipData(newPlayerName): mothershipData {
 export type StarWarsData = {
   id?: string;
   playerName: string;
-  characterName: string;
+  name: string;
   type: string;
   attributes: {
     name: string;
@@ -388,7 +388,7 @@ export type StarWarsData = {
 
 export const starWarsAttributesAndSkills = [
   {
-    name: "Ügyesség",
+    name: "ÜGYESSÉG",
     skills: [
       "Archaikus löfegyver",
       "Sugárfegyver",
@@ -410,7 +410,7 @@ export const starWarsAttributesAndSkills = [
     ],
   },
   {
-    name: "Tudás",
+    name: "TUDÁS",
     skills: [
       "Idegen fajok ismerete",
       "Bürokrácia",
@@ -427,7 +427,7 @@ export const starWarsAttributesAndSkills = [
     ],
   },
   {
-    name: "Mechanika",
+    name: "MECHANIKA",
     skills: [
       "Archaikus űrhajó",
       "Asztrogáció",
@@ -450,7 +450,7 @@ export const starWarsAttributesAndSkills = [
     ],
   },
   {
-    name: "Érzékelés",
+    name: "ÉRZÉKELÉS",
     skills: [
       "Alkudozás",
       "Parancsnoklás",
@@ -465,11 +465,11 @@ export const starWarsAttributesAndSkills = [
     ],
   },
   {
-    name: "Erő",
+    name: "ERŐ",
     skills: ["Pusztakezes harc", "Mászás/Ugrás", "Súlyemelés", "Kitartás", "Úszás"],
   },
   {
-    name: "Technológia",
+    name: "TECHNOLÓGIA",
     skills: [
       "Páncéljavítás",
       "Sugárfegyver javítás",
@@ -495,7 +495,7 @@ export const starWarsAttributesAndSkills = [
 export function emptyStarWarsData(newPlayerName): StarWarsData {
   return {
     playerName: newPlayerName,
-    characterName: "",
+    name: "",
     type: "",
     attributes: starWarsAttributesAndSkills.map((a) => ({
       name: a.name,
