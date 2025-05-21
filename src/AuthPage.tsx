@@ -33,6 +33,15 @@ function AuthPage() {
     }
   };
 
+  function loginWithOTP() {
+    if (!email.trim()) {
+      setMessage("Email kötelező!");
+    } else {
+      supabase.auth.signInWithOtp({ email });
+      setMessage("Email küldés sikeres. Bezárhatod ezt a lapot.");
+    }
+  }
+
   return (
     <div className='flex align-items-center justify-content-center min-h-screen bg-black-alpha-90 p-4'>
       <Card
@@ -46,6 +55,7 @@ function AuthPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className='p-inputtext-lg'
+                required
               />
               <label htmlFor='email'>Email</label>
             </span>
@@ -80,6 +90,15 @@ function AuthPage() {
             size='large'
             className='p-button-raised mt-2'
           />
+
+          {isLogin && (
+            <Button
+              label={"Belépés emailes linkkel"}
+              onClick={() => loginWithOTP()}
+              severity='secondary'
+              size='large'
+            />
+          )}
 
           <div className='flex align-items-center gap-2'>
             <Divider className='flex-1' />
