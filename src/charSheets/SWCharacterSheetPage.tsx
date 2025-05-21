@@ -151,6 +151,19 @@ export default function SWCharacterSheetPage({
     setAddSkillToAttribute(undefined);
   }
 
+  function getAttribtesSum() {
+    return format(charsheetData.attributes.reduce((sum, a) => sum + a.value, 0));
+  }
+
+  function getSkillsSum() {
+    return format(
+      charsheetData.attributes.reduce(
+        (sum, a) => sum + a.skills.reduce((sum, s) => sum + s.value, 0),
+        0
+      )
+    );
+  }
+
   const characterSkillNames = charsheetData.attributes.flatMap((a) => a.skills.map((s) => s.name));
 
   return (
@@ -172,7 +185,7 @@ export default function SWCharacterSheetPage({
           <FloatLabel className='w-10rem'>
             <InputText
               className='w-full text-yellow-400'
-              maxLength={50}
+              maxLength={20}
               value={charsheetData.species}
               onChange={(e) => updateData((prev) => ({ ...prev, species: e.target.value }))}
             />
@@ -181,7 +194,7 @@ export default function SWCharacterSheetPage({
           <FloatLabel className='w-5rem'>
             <InputText
               className='w-full text-yellow-400'
-              maxLength={50}
+              maxLength={5}
               value={charsheetData.gender}
               onChange={(e) => updateData((prev) => ({ ...prev, gender: e.target.value }))}
             />
@@ -190,7 +203,7 @@ export default function SWCharacterSheetPage({
           <FloatLabel className='w-5rem'>
             <InputText
               className='w-full text-yellow-400'
-              maxLength={50}
+              maxLength={5}
               value={charsheetData.age}
               onChange={(e) => updateData((prev) => ({ ...prev, age: e.target.value }))}
             />
@@ -199,7 +212,7 @@ export default function SWCharacterSheetPage({
           <FloatLabel className='w-10rem'>
             <InputText
               className='w-full text-yellow-400'
-              maxLength={50}
+              maxLength={20}
               value={charsheetData.playerName}
               onChange={(e) => updateData((prev) => ({ ...prev, playerName: e.target.value }))}
             />
@@ -210,7 +223,7 @@ export default function SWCharacterSheetPage({
           <FloatLabel className='flex-1'>
             <InputText
               className='w-full text-yellow-400'
-              maxLength={50}
+              maxLength={150}
               value={charsheetData.physicalDescription}
               onChange={(e) =>
                 updateData((prev) => ({ ...prev, physicalDescription: e.target.value }))
@@ -223,13 +236,28 @@ export default function SWCharacterSheetPage({
           <FloatLabel className='flex-1'>
             <InputText
               className='w-full text-yellow-400'
-              maxLength={50}
+              maxLength={150}
               value={charsheetData.personality}
               onChange={(e) => updateData((prev) => ({ ...prev, personality: e.target.value }))}
             />
             <label>Személyiség</label>
           </FloatLabel>
         </div>
+
+        {improveMode && (
+          <div className='flex w-full gap-5 text-xl'>
+            <div>
+              Főjellemzők: <span className='text-yellow-400'>{getAttribtesSum()}</span>
+            </div>
+            <div>
+              Jártasságok: <span className='text-yellow-400'>{getSkillsSum()}</span>
+            </div>
+            <div>
+              Specializációk: <span className='text-yellow-400'>{0}</span>
+            </div>
+          </div>
+        )}
+
         {/* Attributes */}
         <div className='flex-1 flex flex-column'>
           <div className='flex gap-5 flex-wrap'>
@@ -258,6 +286,7 @@ export default function SWCharacterSheetPage({
                 {improveMode && (
                   <Button
                     severity='secondary'
+                    className='px-3 py-1'
                     text
                     size='small'
                     onClick={() => {

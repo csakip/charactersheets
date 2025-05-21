@@ -5,7 +5,7 @@ export function format(value) {
   }
   const k = Math.floor(value / 3);
   const pip = value % 3;
-  if (k * 3 + pip < 3) return "-";
+  if (k * 3 + pip < 3) return pip;
   return `${k}K${pip ? "+" + pip : ""}`;
 }
 

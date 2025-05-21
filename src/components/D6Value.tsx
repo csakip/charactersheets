@@ -24,17 +24,15 @@ export default function D6Value({
   }
 
   function rollValue() {
-    if (onClick) onClick(label, parentValue + value);
+    if (onClick && !showArrows) onClick(label, parentValue + value);
   }
 
   return (
-    <div className={`flex align-content-start mb-2 ${className}`}>
-      <span className='font-medium cursor-pointer select-none' onClick={() => rollValue()}>
-        {label}
-      </span>
-      <span
-        className='font-medium text-yellow-400 ml-auto cursor-pointer select-none'
-        onClick={() => rollValue()}>
+    <div
+      className={`flex align-content-start mb-2 ${showArrows ? "" : "cursor-pointer"} ${className}`}
+      onClick={() => rollValue()}>
+      <span className='font-medium  select-none'>{label}</span>
+      <span className='font-medium text-yellow-400 ml-auto select-none'>
         {format(parentValue + value)}
       </span>
       {showArrows && (
