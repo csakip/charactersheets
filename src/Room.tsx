@@ -19,12 +19,11 @@ import {
   Charsheet,
   emptyBladesData,
   emptyWoduData,
-  rollAttribute,
   Room,
-  shortenName,
   systems,
   WoduData,
-} from "./utils";
+} from "./constants";
+import { rollAttribute, shortenName } from "./utils";
 
 function RoomPage() {
   const [charsheets, setCharsheets] = useState<Charsheet[]>([]);

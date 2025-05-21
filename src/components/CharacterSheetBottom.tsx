@@ -4,10 +4,16 @@ import { Toast } from "primereact/toast";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { addCharacterToRoom, characterExitRoom, deleteCharsheet } from "../supabase";
-import { Charsheet } from "../utils";
+import { Charsheet } from "../constants";
 import RoomDialog from "./RoomDialog";
 
-export default function CharacterSheetBottom({ charsheet, setCharsheet }: { charsheet: Charsheet; setCharsheet: (charsheet: Charsheet) => void }) {
+export default function CharacterSheetBottom({
+  charsheet,
+  setCharsheet,
+}: {
+  charsheet: Charsheet;
+  setCharsheet: (charsheet: Charsheet) => void;
+}) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showExitRoomConfirm, setShowExitRoomConfirm] = useState(false);
   const [showRoomDialog, setShowRoomDialog] = useState(false);
@@ -99,7 +105,12 @@ export default function CharacterSheetBottom({ charsheet, setCharsheet }: { char
         rejectLabel='Nem'
       />
 
-      <RoomDialog visible={showRoomDialog} onHide={() => setShowRoomDialog(false)} system={charsheet.system} onSave={addToRoom} />
+      <RoomDialog
+        visible={showRoomDialog}
+        onHide={() => setShowRoomDialog(false)}
+        system={charsheet.system}
+        onSave={addToRoom}
+      />
     </>
   );
 }

@@ -4,7 +4,7 @@ import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { useEffect, useState } from "react";
-import { systems } from "../utils";
+import { systems } from "../constants";
 
 export default function NewCharacterDialog({
   visible,

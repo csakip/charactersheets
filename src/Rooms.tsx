@@ -15,10 +15,9 @@ import {
   Charsheet,
   emptyBladesData,
   emptyWoduData,
-  rollAttribute,
   systems,
   WoduData,
-} from "./utils";
+} from "./constants";
 import { Checkbox } from "primereact/checkbox";
 import NewCharacterDialog from "./components/NewCharacterDialog";
 import CharacterSheetList from "./components/CharacterSheetList";
@@ -27,6 +26,7 @@ import BladesCharacterSheetPage from "./BladesCharacterSheetPage";
 import WoDuCharacterSheetPage from "./WoDuCharacterSheetPage";
 import { useStore } from "./store";
 import { Tooltip } from "primereact/tooltip";
+import { rollAttribute } from "./utils";
 
 function Rooms() {
   const [rooms, setRooms] = useState([]);

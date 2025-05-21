@@ -4,16 +4,10 @@ import { subscribeWithSelector } from "zustand/middleware";
 
 export interface State {
   user: User | null;
-  // charactersToUpdate: boolean;
-  // triggerCharactersUpdate: () => void;
 }
 
 export const useStore = create<State>()(
-  subscribeWithSelector((set, get) => ({
+  subscribeWithSelector(() => ({
     user: null,
-    // charactersToUpdate: false,
-    // triggerCharactersUpdate: () => {
-    //   set({ charactersToUpdate: !get().charactersToUpdate });
-    // },
   }))
 );

@@ -1,5 +1,5 @@
 import { ListBox } from "primereact/listbox";
-import { systems } from "../utils";
+import { systems } from "../constants";
 
 export default function CharacterSheetList({
   charsheets,

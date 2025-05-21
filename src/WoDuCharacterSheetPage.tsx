@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { Fragment } from "react/jsx-runtime";
 import CharacterSheetBottom from "./components/CharacterSheetBottom";
 import { saveCharsheet } from "./supabase";
-import { abilities, attributes, Charsheet, skills, WoduData } from "./utils";
+import { abilities, attributes, Charsheet, skills, WoduData } from "./constants";
 
 export default function WoDuCharacterSheetPage({
   loadedCharsheet,

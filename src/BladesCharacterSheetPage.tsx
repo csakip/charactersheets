@@ -5,7 +5,7 @@ import { Toast } from "primereact/toast";
 import { Fragment, useEffect, useRef, useState } from "react";
 import CharacterSheetBottom from "./components/CharacterSheetBottom";
 import { deleteCharsheet, saveCharsheet } from "./supabase";
-import { BitDClasses, BladesData, Charsheet } from "./utils";
+import { BitDClasses, BladesData, Charsheet } from "./constants";
 import Dots from "./components/Dots";
 import { InputTextarea } from "primereact/inputtextarea";
 import { FloatLabel } from "primereact/floatlabel";
