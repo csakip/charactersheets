@@ -80,3 +80,33 @@ export async function createCharacter(
   );
   return id;
 }
+
+export function findParentAttributeAndSkill(
+  attributes: {
+    name: string;
+    value: number;
+    skills?: {
+      name: string;
+      value: number;
+      specs?: { name: string; value: number }[];
+    }[];
+  }[],
+  specToFind: { name: string; value: number }
+): {
+  attribute: { name: string; value: number };
+  skill: { name: string; value: number; specs?: { name: string; value: number }[] };
+} | null {
+  for (const attribute of attributes) {
+    for (const skill of attribute.skills) {
+      if (skill.specs) {
+        for (const spec of skill.specs) {
+          if (spec.name === specToFind.name && spec.value === specToFind.value) {
+            return { attribute, skill };
+          }
+        }
+      }
+    }
+  }
+
+  return null; // Return null if spec not found
+}

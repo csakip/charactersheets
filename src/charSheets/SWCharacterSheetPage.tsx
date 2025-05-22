@@ -9,9 +9,13 @@ import D6Value from "../components/D6Value";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { ListBox } from "primereact/listbox";
-import { format, roll } from "../dice";
+import { format, parseDice, roll } from "../dice";
 import Dice from "../components/Dice";
 import { useHotkeys } from "react-hotkeys-hook";
+import InputDialog from "../components/InputDialog";
+import { findParentAttributeAndSkill } from "../utils";
+import { InputTextarea } from "primereact/inputtextarea";
+import { Checkbox } from "primereact/checkbox";
 
 export default function SWCharacterSheetPage({
   loadedCharsheet,
@@ -24,9 +28,10 @@ export default function SWCharacterSheetPage({
 }) {
   const [charsheet, setCharsheet] = useState<Charsheet>(loadedCharsheet);
   const [isDirty, setIsDirty] = useState(false);
-  const [improveMode, setImproveMode] = useState(true);
+  const [improveMode, setImproveMode] = useState(false);
   const [addSkillToAttribute, setAddSkillToAttribute] = useState<string | undefined>();
   const [newSkillName, setNewSkillName] = useState("");
+  const [addSpecFunction, setAddSpecFunction] = useState<(specName: string) => void | undefined>();
   const toast = useRef<Toast>(null);
 
   const charsheetData = charsheet.data as StarWarsData;
@@ -100,6 +105,18 @@ export default function SWCharacterSheetPage({
     }));
   }
 
+  function updateSpec(spec, value) {
+    if (value === 0) {
+      console.log(spec, value);
+      const { skill } = findParentAttributeAndSkill(charsheetData.attributes, spec);
+      skill.specs = skill.specs.filter((s) => s.name !== spec.name);
+    }
+    spec.value = value;
+    updateData((prev) => ({
+      ...prev,
+    }));
+  }
+
   const rollToast = useCallback((label, value) => {
     toast.current?.show({
       className: "toast-body",
@@ -135,8 +152,21 @@ export default function SWCharacterSheetPage({
         value={characterSkill?.value || 0}
         onChange={(value) => updateSkill(attribute, skill, value)}
         onClick={rollToast}
-        showArrows={improveMode}
-      />
+        showArrows={improveMode}>
+        {improveMode && (
+          <Button
+            severity='secondary'
+            text
+            size='small'
+            className='m-0 p-0 px-1 ml-2'
+            onClick={() =>
+              setAddSpecFunction(() => (newSpec) => addNewSpec(attribute, skill, newSpec))
+            }
+            title='Új specializáció hozzáadása'>
+            +S
+          </Button>
+        )}
+      </D6Value>
     );
   }
 
@@ -151,6 +181,44 @@ export default function SWCharacterSheetPage({
     setAddSkillToAttribute(undefined);
   }
 
+  function addNewSpec(attributeName: string, skillName: string, specName: string) {
+    if (!editable) return;
+    const attribute = charsheetData.attributes.find((a) => a.name === attributeName);
+    if (!attribute) return;
+    const skill = attribute.skills.find((s) => s.name === skillName);
+    if (!skill) return;
+    if (!skill.specs) skill.specs = [];
+    skill.specs?.push({ name: specName, value: 3 });
+    updateData((prev) => ({
+      ...prev,
+    }));
+    setAddSpecFunction(undefined);
+  }
+
+  function addNewWeapon() {
+    if (!editable) return;
+    charsheetData.weapons.push({ name: "", range: "", damage: "", notes: "" });
+    updateData((prev) => ({
+      ...prev,
+    }));
+  }
+
+  function deleteWeapon(idx: number) {
+    if (!editable) return;
+    charsheetData.weapons.splice(idx, 1);
+    updateData((prev) => ({
+      ...prev,
+    }));
+  }
+
+  function updateWeapon(idx: number, property: string, value: string) {
+    const weapon = charsheetData.weapons[idx];
+    weapon[property] = value;
+    updateData((prev) => ({
+      ...prev,
+    }));
+  }
+
   function getAttribtesSum() {
     return format(charsheetData.attributes.reduce((sum, a) => sum + a.value, 0));
   }
@@ -159,6 +227,21 @@ export default function SWCharacterSheetPage({
     return format(
       charsheetData.attributes.reduce(
         (sum, a) => sum + a.skills.reduce((sum, s) => sum + s.value, 0),
+        0
+      )
+    );
+  }
+
+  function getSpecsSum() {
+    return format(
+      charsheetData.attributes.reduce(
+        (sum, attribute) =>
+          sum +
+          attribute.skills.reduce(
+            (skillSum, skill) =>
+              skillSum + (skill.specs?.reduce((specSum, spec) => specSum + spec.value, 0) || 0),
+            0
+          ),
         0
       )
     );
@@ -191,9 +274,9 @@ export default function SWCharacterSheetPage({
             />
             <label>Faj</label>
           </FloatLabel>
-          <FloatLabel className='w-5rem'>
+          <FloatLabel className='w-4rem'>
             <InputText
-              className='w-full text-yellow-400'
+              className='w-full text-yellow-400 text-center'
               maxLength={5}
               value={charsheetData.gender}
               onChange={(e) => updateData((prev) => ({ ...prev, gender: e.target.value }))}
@@ -202,7 +285,7 @@ export default function SWCharacterSheetPage({
           </FloatLabel>
           <FloatLabel className='w-5rem'>
             <InputText
-              className='w-full text-yellow-400'
+              className='w-full text-yellow-400 text-center'
               maxLength={5}
               value={charsheetData.age}
               onChange={(e) => updateData((prev) => ({ ...prev, age: e.target.value }))}
@@ -220,10 +303,13 @@ export default function SWCharacterSheetPage({
           </FloatLabel>
         </div>
         <div className='flex gap-3'>
-          <FloatLabel className='flex-1'>
-            <InputText
-              className='w-full text-yellow-400'
-              maxLength={150}
+          <FloatLabel className='flex-1 flex'>
+            <InputTextarea
+              rows={1}
+              autoResize
+              spellCheck={false}
+              className='flex-1 text-yellow-400 thin-scrollbar'
+              maxLength={1000}
               value={charsheetData.physicalDescription}
               onChange={(e) =>
                 updateData((prev) => ({ ...prev, physicalDescription: e.target.value }))
@@ -233,14 +319,17 @@ export default function SWCharacterSheetPage({
           </FloatLabel>
         </div>
         <div className='flex gap-3'>
-          <FloatLabel className='flex-1'>
-            <InputText
-              className='w-full text-yellow-400'
-              maxLength={150}
+          <FloatLabel className='flex-1 flex'>
+            <InputTextarea
+              rows={1}
+              autoResize
+              spellCheck={false}
+              className='flex-1 text-yellow-400 thin-scrollbar'
+              maxLength={2000}
               value={charsheetData.personality}
               onChange={(e) => updateData((prev) => ({ ...prev, personality: e.target.value }))}
             />
-            <label>Személyiség</label>
+            <label>Személyiség, háttér, kapcsolatok, célkitűzések</label>
           </FloatLabel>
         </div>
 
@@ -253,13 +342,13 @@ export default function SWCharacterSheetPage({
               Jártasságok: <span className='text-yellow-400'>{getSkillsSum()}</span>
             </div>
             <div>
-              Specializációk: <span className='text-yellow-400'>{0}</span>
+              Specializációk: <span className='text-yellow-400'>{getSpecsSum()}</span>
             </div>
           </div>
         )}
 
         {/* Attributes */}
-        <div className='flex-1 flex flex-column'>
+        <div className='flex-1 flex flex-column border-1 border-50 border-round p-3'>
           <div className='flex gap-5 flex-wrap'>
             {starWarsAttributesAndSkills.map((a, idx) => (
               <div
@@ -277,11 +366,29 @@ export default function SWCharacterSheetPage({
                   onClick={rollToast}
                 />
                 {findAttribute(starWarsAttributesAndSkills[idx].name)?.skills.map((s) => (
-                  <Skill
-                    key={s.name}
-                    attribute={starWarsAttributesAndSkills[idx].name}
-                    skill={s.name}
-                  />
+                  <>
+                    <Skill
+                      key={s.name}
+                      attribute={starWarsAttributesAndSkills[idx].name}
+                      skill={s.name}
+                    />
+
+                    {s.specs?.map((sp) => (
+                      <D6Value
+                        key={sp.name}
+                        prefix='↳ '
+                        label={sp.name}
+                        parentValue={
+                          findAttribute(starWarsAttributesAndSkills[idx].name).value + s.value
+                        }
+                        value={sp.value}
+                        onChange={(value) => updateSpec(sp, value)}
+                        showArrows={improveMode}
+                        className='ml-3'
+                        onClick={rollToast}
+                      />
+                    ))}
+                  </>
                 ))}
                 {improveMode && (
                   <Button
@@ -291,12 +398,299 @@ export default function SWCharacterSheetPage({
                     size='small'
                     onClick={() => {
                       setAddSkillToAttribute(starWarsAttributesAndSkills[idx].name);
-                    }}>
+                    }}
+                    title='Új jártasság hozzáadása'>
                     Új jártasság
                   </Button>
                 )}
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Weapons, other stats */}
+        <div className='flex w-full gap-3'>
+          <div className='w-8 flex flex-column light-inputs border-1 border-50 border-round p-3'>
+            <div className='flex gap-1 mb-2 text-300 text-sm select-none'>
+              <div className='w-5'>Fegyver</div>
+              <div className='w-4 text-center'>Táv/Nehézség</div>
+              <div className='w-2 text-center'>Sebzés</div>
+              <div className='w-5 text-center'>Megjegzés</div>
+            </div>
+            {charsheetData.weapons.map((w, idx) => (
+              <div className='w-100 flex gap-2 relative mb-1' key={idx}>
+                <InputText
+                  className='w-5 text-yellow-400'
+                  maxLength={20}
+                  value={w.name}
+                  disabled={!improveMode}
+                  onChange={(e) => updateWeapon(idx, "name", e.target.value)}
+                />
+                <InputText
+                  className='w-4 text-yellow-400 text-center'
+                  maxLength={20}
+                  value={w.range}
+                  disabled={!improveMode}
+                  onChange={(e) => updateWeapon(idx, "range", e.target.value)}
+                />
+                {improveMode ? (
+                  <InputText
+                    className='w-2 text-yellow-400 text-center'
+                    maxLength={20}
+                    value={w.damage}
+                    disabled={!improveMode}
+                    onChange={(e) => updateWeapon(idx, "damage", e.target.value)}
+                  />
+                ) : (
+                  <div
+                    className='w-3 text-yellow-400 text-center cursor-pointer select-none fake-input'
+                    onClick={() => {
+                      if (parseDice(w.damage) !== 0) rollToast(w.name, parseDice(w.damage));
+                    }}>
+                    {w.damage}
+                  </div>
+                )}
+                <InputText
+                  className='w-5 text-yellow-400'
+                  maxLength={20}
+                  value={w.notes}
+                  onChange={(e) => updateWeapon(idx, "notes", e.target.value)}
+                />
+                {improveMode && (
+                  <Button
+                    severity='danger'
+                    className='px-1 py-1 mx-0 absolute top-0 right-0'
+                    text
+                    size='small'
+                    title='Fegyver törlése'
+                    onClick={() => {
+                      deleteWeapon(idx);
+                    }}>
+                    <i className='pi pi-times text-xs'></i>
+                  </Button>
+                )}
+              </div>
+            ))}
+            {improveMode && (
+              <Button
+                severity='secondary'
+                className='px-1 py-1 mt-2'
+                text
+                size='small'
+                onClick={() => {
+                  addNewWeapon();
+                }}>
+                Új fegyver hozzáadása
+              </Button>
+            )}
+          </div>
+          <div className='flex-1 flex flex-column border-1 border-50 border-round p-3'>
+            <div className='flex align-content-start mb-2'>
+              <span className='font-medium select-none'>Mozgás</span>
+              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                {improveMode ? (
+                  <InputText
+                    type='number'
+                    className='w-3rem text-right text-yellow-400'
+                    value={charsheetData.move?.toString() || ""}
+                    onChange={(e) =>
+                      updateData((prev) => ({
+                        ...prev,
+                        move: e.target.value
+                          ? Math.min(20, Math.max(1, parseInt(e.target.value)))
+                          : 10,
+                      }))
+                    }
+                  />
+                ) : (
+                  <span className='w-3rem text-yellow-400 mr-1'>{charsheetData.move}</span>
+                )}
+              </span>
+            </div>
+            <div className='flex align-content-start mb-2'>
+              <span className='font-medium select-none'>Erő pontok</span>
+              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                {improveMode ? (
+                  <InputText
+                    type='number'
+                    className='w-3rem text-right text-yellow-400'
+                    value={charsheetData.forcePoints?.toString() || ""}
+                    onChange={(e) =>
+                      updateData((prev) => ({
+                        ...prev,
+                        forcePoints: e.target.value
+                          ? Math.min(50, Math.max(0, parseInt(e.target.value)))
+                          : 1,
+                      }))
+                    }
+                  />
+                ) : (
+                  <span className='w-3rem text-yellow-400 mr-1'>{charsheetData.forcePoints}</span>
+                )}
+              </span>
+            </div>
+            <div className='flex align-content-start mb-2'>
+              <span className='font-medium select-none'>Erő érzékeny</span>
+              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                <Checkbox
+                  className='text-yellow-400'
+                  checked={charsheetData.forceSensitive}
+                  disabled={!improveMode}
+                  onChange={(e) =>
+                    updateData((prev) => ({
+                      ...prev,
+                      forceSensitive: e.checked,
+                    }))
+                  }
+                />
+              </span>
+            </div>
+            <div className='flex align-content-start mb-2'>
+              <span className='font-medium select-none'>Sötét oldal pontok</span>
+              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                {improveMode ? (
+                  <InputText
+                    type='number'
+                    className='w-3rem text-right text-yellow-400'
+                    value={charsheetData.darkSidePoints?.toString() || ""}
+                    onChange={(e) =>
+                      updateData((prev) => ({
+                        ...prev,
+                        move: e.target.value
+                          ? Math.min(6, Math.max(1, parseInt(e.target.value)))
+                          : 0,
+                      }))
+                    }
+                  />
+                ) : (
+                  <span className='w-3rem text-yellow-400 mr-1'>
+                    {charsheetData.darkSidePoints}
+                  </span>
+                )}
+              </span>
+            </div>
+            <div className='flex align-content-start mb-2'>
+              <span className='font-medium select-none'>Karakter pontok</span>
+              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                <InputText
+                  type='number'
+                  className='w-3rem text-right text-yellow-400'
+                  value={charsheetData.characterPoints?.toString() || ""}
+                  onChange={(e) =>
+                    updateData((prev) => ({
+                      ...prev,
+                      characterPoints: e.target.value ? Math.max(0, parseInt(e.target.value)) : 0,
+                    }))
+                  }
+                />
+              </span>
+            </div>
+            <div className='flex align-content-start mb-2'>
+              <span className='font-medium select-none'>Kábult</span>
+              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                <Checkbox
+                  className='text-yellow-400'
+                  checked={charsheetData.stunned}
+                  onChange={(e) =>
+                    updateData((prev) => ({
+                      ...prev,
+                      stunned: e.checked,
+                    }))
+                  }
+                />
+              </span>
+            </div>
+            <div className='flex align-content-start mb-2'>
+              <span className='font-medium select-none'>Sebesült</span>
+              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                <Checkbox
+                  className='text-yellow-400'
+                  checked={charsheetData.wounded}
+                  onChange={(e) =>
+                    updateData((prev) => ({
+                      ...prev,
+                      wounded: e.checked,
+                    }))
+                  }
+                />
+              </span>
+            </div>
+            {/* <div className='flex align-content-start mb-2'>
+              <span className='font-medium select-none'>Súlyosan sebesült</span>
+              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                <Checkbox
+                  className='text-yellow-400'
+                  checked={charsheetData.wounded2}
+                  onChange={(e) =>
+                    updateData((prev) => ({
+                      ...prev,
+                      wounded2: e.checked,
+                    }))
+                  }
+                />
+              </span>
+            </div> */}
+            <div className='flex align-content-start mb-2'>
+              <span className='font-medium select-none'>Magatehetetlen</span>
+              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                <Checkbox
+                  className='text-yellow-400'
+                  checked={charsheetData.incapacitated}
+                  onChange={(e) =>
+                    updateData((prev) => ({
+                      ...prev,
+                      incapacitated: e.checked,
+                    }))
+                  }
+                />
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Notes */}
+        <div className='flex w-full gap-3'>
+          <div className='flex-1 flex flex-column gap-4 justify-content-start'>
+            <FloatLabel className='w-full'>
+              <InputTextarea
+                rows={5}
+                autoResize
+                spellCheck={false}
+                className='w-full text-yellow-400 thin-scrollbar text-sm'
+                maxLength={1000}
+                value={charsheetData.notes}
+                onChange={(e) => updateData((prev) => ({ ...prev, notes: e.target.value }))}
+              />
+              <label>Jegyzetek</label>
+            </FloatLabel>
+            <FloatLabel className='w-full'>
+              <InputTextarea
+                rows={2}
+                autoResize
+                spellCheck={false}
+                className='w-full text-yellow-400 thin-scrollbar text-sm'
+                maxLength={1000}
+                value={charsheetData.specialAbilities}
+                onChange={(e) =>
+                  updateData((prev) => ({ ...prev, specialAbilities: e.target.value }))
+                }
+              />
+              <label>Különleges képességek</label>
+            </FloatLabel>
+          </div>
+          <div className='flex-1 flex flex-column'>
+            <FloatLabel className='flex-1 flex'>
+              <InputTextarea
+                rows={5}
+                autoResize
+                spellCheck={false}
+                className='flex-1 text-yellow-400 thin-scrollbar text-sm'
+                maxLength={2000}
+                value={charsheetData.equipment}
+                onChange={(e) => updateData((prev) => ({ ...prev, equipment: e.target.value }))}
+              />
+              <label>Felszerelés</label>
+            </FloatLabel>
           </div>
         </div>
       </div>
@@ -355,6 +749,15 @@ export default function SWCharacterSheetPage({
           </span>
         </div>
       </Dialog>
+
+      <InputDialog
+        visible={!!addSpecFunction}
+        onHide={() => setAddSpecFunction(undefined)}
+        onSave={addSpecFunction}
+        title='Specializáció hozzáadása'
+        content='Új specializáció neve'
+        defaultValue={""}
+      />
     </>
   );
 }

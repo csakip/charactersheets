@@ -12,8 +12,8 @@ export function format(value) {
 export function parseDice(diceString) {
   try {
     diceString = diceString.toLowerCase();
-    if (diceString.indexOf("K") > -1) {
-      const splitted = diceString.replaceAll("+", "").split("K");
+    if (diceString.indexOf("k") > -1) {
+      const splitted = diceString.replaceAll("+", "").split("k");
       const parsed =
         parseInt(splitted[0]) * 3 +
         (splitted.length > 1 && splitted[1] ? parseInt(splitted[1]) : 0);

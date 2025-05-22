@@ -410,7 +410,7 @@ export default function BladesCharacterSheetPage({
             <div className='flex w-full'>
               <FloatLabel className='flex-1 flex'>
                 <InputTextarea
-                  rows={5}
+                  rows={8}
                   spellCheck={false}
                   className='flex-1 text-yellow-400 thin-scrollbar'
                   maxLength={1000}

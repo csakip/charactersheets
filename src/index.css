@@ -82,6 +82,12 @@ input[type="number"] {
   font-style: normal;
 }
 
+.charactersheet textarea {
+  line-height: 1.4rem;
+  padding-top: 0.4rem;
+  padding-bottom: 0.6rem;
+}
+
 .charactersheet .p-float-label:has(input:focus) label,
 .p-float-label:has(input.p-filled) label,
 .p-float-label:has(input:autofill) label,
@@ -91,6 +97,10 @@ input[type="number"] {
 .p-float-label:has(.p-inputwrapper-filled) label {
   top: -0.5rem;
   font-size: 12px;
+}
+
+.charactersheet.starwars .p-float-label:has(textarea:not(:focus):not(.p-filled)) label {
+  top: 1.3rem;
 }
 
 .blades.charactersheet textarea {
@@ -204,3 +214,24 @@ input[type="number"] {
 }
 
 /* End Dice display */
+
+.light-inputs .p-inputtext {
+  border: none !important;
+  border-bottom: 1px solid var(--surface-200) !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0;
+  padding: 3px;
+}
+
+.light-inputs .fake-input {
+  border-bottom: 1px solid var(--surface-200) !important;
+}
+
+.light-inputs .p-disabled {
+  opacity: 1;
+}
+
+.charactersheet.starwars .border-50 {
+  border-color: #424b57 !important;
+}

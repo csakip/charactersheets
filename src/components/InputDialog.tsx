@@ -21,7 +21,7 @@ export default function InputDialog({
   const [value, setValue] = useState(defaultValue);
 
   useEffect(() => {
-    if (defaultValue && visible) {
+    if (defaultValue !== undefined && visible) {
       setValue(defaultValue);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
