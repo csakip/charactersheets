@@ -118,12 +118,14 @@ export default function SWCharacterSheetPage({
   }
 
   const rollToast = useCallback((label, value) => {
+    const rolled = roll(value, label);
+
     toast.current?.show({
       className: "toast-body",
       severity: "warn",
       summary: label + ": " + format(value),
       icon: " ",
-      detail: <Dice roll={roll(value, label)} />,
+      detail: <Dice roll={rolled} />,
       life: 10000,
       closable: false,
     });
@@ -412,22 +414,22 @@ export default function SWCharacterSheetPage({
         <div className='flex w-full gap-3'>
           <div className='w-8 flex flex-column light-inputs border-1 border-50 border-round p-3'>
             <div className='flex gap-1 mb-2 text-300 text-sm select-none'>
-              <div className='w-5'>Fegyver</div>
-              <div className='w-4 text-center'>Táv/Nehézség</div>
-              <div className='w-2 text-center'>Sebzés</div>
-              <div className='w-5 text-center'>Megjegzés</div>
+              <div className='w-4'>Fegyver</div>
+              <div className='w-3 text-center'>Táv/Nehézség</div>
+              <div className='w-1 text-center'>Sebzés</div>
+              <div className='w-4 text-center'>Megjegzés</div>
             </div>
             {charsheetData.weapons.map((w, idx) => (
               <div className='w-100 flex gap-2 relative mb-1' key={idx}>
                 <InputText
-                  className='w-5 text-yellow-400'
+                  className='w-4 text-yellow-400'
                   maxLength={20}
                   value={w.name}
                   disabled={!improveMode}
                   onChange={(e) => updateWeapon(idx, "name", e.target.value)}
                 />
                 <InputText
-                  className='w-4 text-yellow-400 text-center'
+                  className='w-3 text-yellow-400 text-center'
                   maxLength={20}
                   value={w.range}
                   disabled={!improveMode}
@@ -435,7 +437,7 @@ export default function SWCharacterSheetPage({
                 />
                 {improveMode ? (
                   <InputText
-                    className='w-2 text-yellow-400 text-center'
+                    className='w-1 text-yellow-400 text-center'
                     maxLength={20}
                     value={w.damage}
                     disabled={!improveMode}
@@ -443,7 +445,7 @@ export default function SWCharacterSheetPage({
                   />
                 ) : (
                   <div
-                    className='w-3 text-yellow-400 text-center cursor-pointer select-none fake-input'
+                    className='w-1 text-yellow-400 text-center cursor-pointer select-none fake-input'
                     onClick={() => {
                       if (parseDice(w.damage) !== 0) rollToast(w.name, parseDice(w.damage));
                     }}>
@@ -451,7 +453,7 @@ export default function SWCharacterSheetPage({
                   </div>
                 )}
                 <InputText
-                  className='w-5 text-yellow-400'
+                  className='w-4 text-yellow-400'
                   maxLength={20}
                   value={w.notes}
                   onChange={(e) => updateWeapon(idx, "notes", e.target.value)}
