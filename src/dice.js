@@ -66,7 +66,7 @@ export function roll(value, label) {
   }
 
   console.log(
-    label || "Dobás",
+    (label || "Dobás") + ": " + format(value),
     result.sum,
     result.rolls[0] === 1 ? `levonással ${result.reduced}` : " "
   );

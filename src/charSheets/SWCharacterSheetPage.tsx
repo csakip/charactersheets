@@ -117,19 +117,23 @@ export default function SWCharacterSheetPage({
     }));
   }
 
-  const rollToast = useCallback((label, value) => {
-    const rolled = roll(value, label);
+  const rollToast = useCallback(
+    (label: string, value: number) => {
+      const rolled = roll(value, label);
+      const summary = label + ": " + format(value);
 
-    toast.current?.show({
-      className: "toast-body",
-      severity: "warn",
-      summary: label + ": " + format(value),
-      icon: " ",
-      detail: <Dice roll={rolled} />,
-      life: 10000,
-      closable: false,
-    });
-  }, []);
+      toast.current?.show({
+        className: "toast-body",
+        severity: charsheetData.stunned || charsheetData.wounded ? "error" : "warn",
+        summary,
+        icon: " ",
+        detail: <Dice roll={rolled} />,
+        life: 10000,
+        closable: false,
+      });
+    },
+    [charsheetData]
+  );
 
   const onHotkeys = useCallback(
     (e) => {
@@ -153,7 +157,7 @@ export default function SWCharacterSheetPage({
         parentValue={findAttribute(attribute)?.value || 0}
         value={characterSkill?.value || 0}
         onChange={(value) => updateSkill(attribute, skill, value)}
-        onClick={rollToast}
+        onClick={(l, v) => rollToast(l, v - woundModifier)}
         showArrows={improveMode}>
         {improveMode && (
           <Button
@@ -250,6 +254,7 @@ export default function SWCharacterSheetPage({
   }
 
   const characterSkillNames = charsheetData.attributes.flatMap((a) => a.skills.map((s) => s.name));
+  const woundModifier = (charsheetData.stunned ? 3 : 0) + (charsheetData.wounded ? 3 : 0);
 
   return (
     <>
@@ -365,7 +370,7 @@ export default function SWCharacterSheetPage({
                   }
                   minValue={3}
                   showArrows={improveMode}
-                  onClick={rollToast}
+                  onClick={(l, v) => rollToast(l, v - woundModifier)}
                 />
                 {findAttribute(starWarsAttributesAndSkills[idx].name)?.skills.map((s) => (
                   <>
@@ -387,7 +392,7 @@ export default function SWCharacterSheetPage({
                         onChange={(value) => updateSpec(sp, value)}
                         showArrows={improveMode}
                         className='ml-3'
-                        onClick={rollToast}
+                        onClick={(l, v) => rollToast(l, v - woundModifier)}
                       />
                     ))}
                   </>
