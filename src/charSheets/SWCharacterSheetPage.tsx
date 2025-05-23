@@ -119,6 +119,19 @@ export default function SWCharacterSheetPage({
 
   const rollToast = useCallback(
     (label: string, value: number) => {
+      if (value < 3) {
+        toast.current?.show({
+          className: "toast-body",
+          severity: "error",
+          summary: "Oh!",
+          icon: " ",
+          detail: "Nincs dobható kocka.",
+          life: 10000,
+          closable: false,
+        });
+        return;
+      }
+
       const rolled = roll(value, label);
       const summary = label + ": " + format(value);
 
@@ -254,7 +267,10 @@ export default function SWCharacterSheetPage({
   }
 
   const characterSkillNames = charsheetData.attributes.flatMap((a) => a.skills.map((s) => s.name));
-  const woundModifier = (charsheetData.stunned ? 3 : 0) + (charsheetData.wounded ? 3 : 0);
+  const woundModifier =
+    (charsheetData.stunned ? 3 : 0) +
+    (charsheetData.wounded ? 3 : 0) +
+    (charsheetData.wounded2 ? 3 : 0);
 
   return (
     <>
