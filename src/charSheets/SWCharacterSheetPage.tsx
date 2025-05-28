@@ -107,7 +107,6 @@ export default function SWCharacterSheetPage({
 
   function updateSpec(spec, value) {
     if (value === 0) {
-      console.log(spec, value);
       const { skill } = findParentAttributeAndSkill(charsheetData.attributes, spec);
       skill.specs = skill.specs.filter((s) => s.name !== spec.name);
     }

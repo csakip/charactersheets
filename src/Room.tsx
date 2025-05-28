@@ -16,6 +16,7 @@ import { attributes, Charsheet, Room, systems } from "./constants";
 import { useStore } from "./store";
 import { deleteRoom, logout, supabase } from "./supabase";
 import { createCharacter, shortenName } from "./utils";
+import RoomNotesPage from "./charSheets/RoomNotesPage";
 
 function RoomPage() {
   const [charsheets, setCharsheets] = useState<Charsheet[]>([]);
@@ -88,6 +89,19 @@ function RoomPage() {
             } else if (payload.eventType === "DELETE") {
               setCharsheets([...charsheetsRef.current.filter((p) => p.id !== payload.old.id)]);
             }
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "rooms",
+        },
+        (payload) => {
+          if (payload.eventType === "UPDATE") {
+            fetchRoom();
           }
         }
       )
@@ -197,6 +211,17 @@ function RoomPage() {
       });
   }
 
+  function updateRoomNotes(text: string) {
+    if (text === room.notes) return;
+    supabase
+      .from("rooms")
+      .update({ notes: text })
+      .eq("id", roomId)
+      .then(() => {
+        fetchRoom();
+      });
+  }
+
   const selectedCharacter = charsheets.find((c) => c.id === selectedCharsheetId);
   const system = systems.find((s) => s.value === room?.system);
 
@@ -279,14 +304,15 @@ function RoomPage() {
               </a>
             )}
 
-            <div className='flex-grow-1 flex flex-column justify-content-between pb-0 mt-3'>
+            <div className='flex-grow-1 flex flex-column justify-content-start pb-0 mt-3'>
               <CharacterSheetList
-                charsheets={charsheets}
+                charsheets={[...charsheets, { id: -1, data: { name: "Jegyzetek" } }]}
                 selectedCharsheetId={selectedCharsheetId}
                 setSelectedCharsheetId={setSelectedCharsheetId}
                 sidebarOpen={sidebarOpen}
               />
-              <Button text className='p-0 align-self-start' size='small' onClick={logout}>
+
+              <Button text className='p-0 align-self-start mt-auto' size='small' onClick={logout}>
                 Kijelentkezés
               </Button>
             </div>
@@ -318,6 +344,8 @@ function RoomPage() {
                   />
                 )}
               </>
+            ) : selectedCharsheetId === -1 ? (
+              <RoomNotesPage text={room.notes} setText={updateRoomNotes} />
             ) : (
               <div className='flex align-items-center justify-content-center h-full'>
                 <Button onClick={() => setShowNewCharacterDialog(true)}>
@@ -353,7 +381,7 @@ function RoomPage() {
             <br />A karakterek megmaradnak.
           </>
         }
-        header='Szoba törölése'
+        header='Szoba törlése'
         icon='pi pi-exclamation-circle text-red-500'
         acceptClassName='p-button-danger'
         acceptLabel='Törlés'

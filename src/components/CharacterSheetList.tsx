@@ -14,7 +14,7 @@ export default function CharacterSheetList({
     if (showSystem) {
       parts.push(systems.find((s) => s.value === p.system)?.shortLabel);
     }
-    if (showPlayerName) {
+    if (showPlayerName && p.data?.playerName) {
       parts.push(p.data?.playerName);
     }
     if (p.data?.name && sidebarOpen) {

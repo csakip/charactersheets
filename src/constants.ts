@@ -100,6 +100,7 @@ export type Room = {
   user_id: string;
   name: string;
   system: string;
+  notes?: string;
   private: boolean;
 };
 
