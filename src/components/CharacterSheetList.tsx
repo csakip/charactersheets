@@ -20,6 +20,10 @@ export default function CharacterSheetList({
     if (p.data?.name && sidebarOpen) {
       parts.push(p.data?.name);
     }
+    if (!sidebarOpen && p.data?.name && !p.data?.playerName) {
+      parts.push(p.data?.name);
+    }
+
     const icon = p.rooms_charsheets?.length ? (
       <i className='pi pi-check-circle text-300' style={{ float: "right" }} title='Játékban van' />
     ) : (
