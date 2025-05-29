@@ -1,6 +1,6 @@
 import { InputText } from "primereact/inputtext";
 import { Toast } from "primereact/toast";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import CharacterSheetBottom from "../components/CharacterSheetBottom";
 import { Charsheet, starWarsAttributesAndSkills, StarWarsData } from "../constants";
 import { saveCharsheet } from "../supabase";
@@ -388,12 +388,8 @@ export default function SWCharacterSheetPage({
                   onClick={(l, v) => rollToast(l, v - woundModifier)}
                 />
                 {findAttribute(starWarsAttributesAndSkills[idx].name)?.skills.map((s) => (
-                  <>
-                    <Skill
-                      key={s.name}
-                      attribute={starWarsAttributesAndSkills[idx].name}
-                      skill={s.name}
-                    />
+                  <Fragment key={s.name}>
+                    <Skill attribute={starWarsAttributesAndSkills[idx].name} skill={s.name} />
 
                     {s.specs?.map((sp) => (
                       <D6Value
@@ -410,7 +406,7 @@ export default function SWCharacterSheetPage({
                         onClick={(l, v) => rollToast(l, v - woundModifier)}
                       />
                     ))}
-                  </>
+                  </Fragment>
                 ))}
                 {improveMode && (
                   <Button

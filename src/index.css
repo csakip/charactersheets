@@ -235,3 +235,12 @@ input[type="number"] {
 .charactersheet.starwars .border-50 {
   border-color: #424b57 !important;
 }
+
+.tiptap.ProseMirror ul {
+  padding-left: 1rem;
+}
+
+.tiptap.ProseMirror li p {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}

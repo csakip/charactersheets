@@ -92,19 +92,6 @@ function RoomPage() {
           }
         }
       )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "rooms",
-        },
-        (payload) => {
-          if (payload.eventType === "UPDATE") {
-            fetchRoom();
-          }
-        }
-      )
       .subscribe();
 
     return () => {
@@ -208,17 +195,6 @@ function RoomPage() {
           summary: "Szoba beállítások frissítve",
           detail: `A szoba most ${room.private ? "nyilvános." : "privát."}`,
         });
-      });
-  }
-
-  function updateRoomNotes(text: string) {
-    if (text === room.notes) return;
-    supabase
-      .from("rooms")
-      .update({ notes: text })
-      .eq("id", roomId)
-      .then(() => {
-        fetchRoom();
       });
   }
 
@@ -345,7 +321,7 @@ function RoomPage() {
                 )}
               </>
             ) : selectedCharsheetId === -1 ? (
-              <RoomNotesPage text={room.notes} setText={updateRoomNotes} />
+              <RoomNotesPage roomId={roomId} user={user} />
             ) : (
               <div className='flex align-items-center justify-content-center h-full'>
                 <Button onClick={() => setShowNewCharacterDialog(true)}>
