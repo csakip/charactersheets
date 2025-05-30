@@ -117,7 +117,7 @@ export default function SWCharacterSheetPage({
   }
 
   const rollToast = useCallback(
-    (label: string, value: number) => {
+    (label: string, value: number, severityOverride?: "success" | "info" | "warn" | "error") => {
       if (value < 3) {
         toast.current?.show({
           className: "toast-body",
@@ -136,7 +136,8 @@ export default function SWCharacterSheetPage({
 
       toast.current?.show({
         className: "toast-body",
-        severity: charsheetData.stunned || charsheetData.wounded ? "error" : "warn",
+        severity:
+          severityOverride ?? (charsheetData.stunned || charsheetData.wounded ? "error" : "warn"),
         summary,
         icon: " ",
         detail: <Dice roll={rolled} />,
@@ -423,6 +424,43 @@ export default function SWCharacterSheetPage({
                 )}
               </div>
             ))}
+            {charsheetData.forceSensitive && (
+              <>
+                <div
+                  className='flex gap-1 flex-column justify-content-start'
+                  style={{ width: "calc(33.3% - 1.4rem)" }}>
+                  <D6Value
+                    label='Kontrol'
+                    value={charsheetData.control || 0}
+                    onChange={(value) => updateData((prev) => ({ ...prev, control: value }))}
+                    showArrows={improveMode}
+                    onClick={(l, v) => rollToast(l, v - woundModifier)}
+                  />
+                </div>
+                <div
+                  className='flex gap-1 flex-column justify-content-start'
+                  style={{ width: "calc(33.3% - 1.4rem)" }}>
+                  <D6Value
+                    label='Észlelés'
+                    value={charsheetData.sense || 0}
+                    onChange={(value) => updateData((prev) => ({ ...prev, sense: value }))}
+                    showArrows={improveMode}
+                    onClick={(l, v) => rollToast(l, v - woundModifier)}
+                  />
+                </div>
+                <div
+                  className='flex gap-1 flex-column justify-content-start'
+                  style={{ width: "calc(33.3% - 1.4rem)" }}>
+                  <D6Value
+                    label='Változtatás'
+                    value={charsheetData.alter || 0}
+                    onChange={(value) => updateData((prev) => ({ ...prev, alter: value }))}
+                    showArrows={improveMode}
+                    onClick={(l, v) => rollToast(l, v - woundModifier)}
+                  />
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -463,7 +501,7 @@ export default function SWCharacterSheetPage({
                   <div
                     className='w-1 text-yellow-400 text-center cursor-pointer select-none fake-input'
                     onClick={() => {
-                      if (parseDice(w.damage) !== 0) rollToast(w.name, parseDice(w.damage));
+                      if (parseDice(w.damage) !== 0) rollToast(w.name, parseDice(w.damage), "warn");
                     }}>
                     {w.damage}
                   </div>
@@ -550,17 +588,23 @@ export default function SWCharacterSheetPage({
             <div className='flex align-content-start mb-2'>
               <span className='font-medium select-none'>Erő érzékeny</span>
               <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
-                <Checkbox
-                  className='text-yellow-400'
-                  checked={charsheetData.forceSensitive}
-                  disabled={!improveMode}
-                  onChange={(e) =>
-                    updateData((prev) => ({
-                      ...prev,
-                      forceSensitive: e.checked,
-                    }))
-                  }
-                />
+                {improveMode ? (
+                  <Checkbox
+                    className='text-yellow-400'
+                    checked={charsheetData.forceSensitive}
+                    disabled={!improveMode}
+                    onChange={(e) =>
+                      updateData((prev) => ({
+                        ...prev,
+                        forceSensitive: e.checked,
+                      }))
+                    }
+                  />
+                ) : charsheetData.forceSensitive ? (
+                  "Igen"
+                ) : (
+                  "Nem"
+                )}
               </span>
             </div>
             <div className='flex align-content-start mb-2'>
@@ -589,7 +633,7 @@ export default function SWCharacterSheetPage({
             </div>
             <div className='flex align-content-start mb-2'>
               <span className='font-medium select-none'>Karakter pontok</span>
-              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs flex`}>
                 <InputText
                   type='number'
                   className='w-3rem text-right text-yellow-400'
@@ -600,7 +644,86 @@ export default function SWCharacterSheetPage({
                       characterPoints: e.target.value ? Math.max(0, parseInt(e.target.value)) : 0,
                     }))
                   }
+                  onFocus={(e) => e.target.select()}
                 />
+                <div className='flex flex-column justify-items-start'>
+                  <i
+                    className='pi pi-chevron-up arrowButton'
+                    onClick={() =>
+                      updateData((prev) => ({
+                        ...prev,
+                        characterPoints: charsheetData.characterPoints + 1,
+                      }))
+                    }
+                  />
+                  <i
+                    className='pi pi-chevron-down arrowButton'
+                    onClick={() =>
+                      updateData((prev) => ({
+                        ...prev,
+                        characterPoints: charsheetData.characterPoints - 1,
+                      }))
+                    }
+                  />
+                </div>
+              </span>
+            </div>
+            <div className='flex align-content-start mb-2'>
+              <span className='font-medium select-none'>Erő dobás energia ellen</span>
+              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                {improveMode ? (
+                  <InputText
+                    className='w-3rem text-right text-yellow-400'
+                    value={charsheetData.saveAgainstEnergy || ""}
+                    onChange={(e) =>
+                      updateData((prev) => ({
+                        ...prev,
+                        saveAgainstEnergy: e.target.value,
+                      }))
+                    }
+                  />
+                ) : (
+                  <span
+                    className='w-3rem text-yellow-400 mr-1 cursor-pointer'
+                    onClick={() =>
+                      rollToast(
+                        "Erő dobás energia ellen",
+                        parseDice(charsheetData.saveAgainstEnergy),
+                        "warn"
+                      )
+                    }>
+                    {charsheetData.saveAgainstEnergy}
+                  </span>
+                )}
+              </span>
+            </div>
+            <div className='flex align-content-start mb-2'>
+              <span className='font-medium select-none'>Erő dobás fizikai ellen</span>
+              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                {improveMode ? (
+                  <InputText
+                    className='w-3rem text-right text-yellow-400'
+                    value={charsheetData.saveAgainstPhysical || ""}
+                    onChange={(e) =>
+                      updateData((prev) => ({
+                        ...prev,
+                        saveAgainstPhysical: e.target.value,
+                      }))
+                    }
+                  />
+                ) : (
+                  <span
+                    className='w-3rem text-yellow-400 mr-1 cursor-pointer'
+                    onClick={() =>
+                      rollToast(
+                        "Erő dobás fizikai ellen",
+                        parseDice(charsheetData.saveAgainstPhysical),
+                        "warn"
+                      )
+                    }>
+                    {charsheetData.saveAgainstPhysical}
+                  </span>
+                )}
               </span>
             </div>
             <div className='flex align-content-start mb-2'>

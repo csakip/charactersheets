@@ -385,6 +385,8 @@ export type StarWarsData = {
   wounded2: boolean;
   incapacitated: boolean;
   mortallyWounded: boolean;
+  saveAgainstEnergy: string;
+  saveAgainstPhysical: string;
 };
 
 export const starWarsAttributesAndSkills = [
@@ -528,6 +530,8 @@ export function emptyStarWarsData(newPlayerName): StarWarsData {
     wounded2: false,
     incapacitated: false,
     mortallyWounded: false,
+    saveAgainstEnergy: "",
+    saveAgainstPhysical: "",
   };
 }
 
