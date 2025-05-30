@@ -387,6 +387,9 @@ export type StarWarsData = {
   mortallyWounded: boolean;
   saveAgainstEnergy: string;
   saveAgainstPhysical: string;
+  block: number;
+  dodge: number;
+  parry: number;
 };
 
 export const starWarsAttributesAndSkills = [
@@ -532,6 +535,9 @@ export function emptyStarWarsData(newPlayerName): StarWarsData {
     mortallyWounded: false,
     saveAgainstEnergy: "",
     saveAgainstPhysical: "",
+    block: 0,
+    dodge: 0,
+    parry: 0,
   };
 }
 

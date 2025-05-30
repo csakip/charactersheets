@@ -137,7 +137,10 @@ export default function SWCharacterSheetPage({
       toast.current?.show({
         className: "toast-body",
         severity:
-          severityOverride ?? (charsheetData.stunned || charsheetData.wounded ? "error" : "warn"),
+          severityOverride ??
+          (charsheetData.stunned || charsheetData.wounded || charsheetData.wounded2
+            ? "error"
+            : "warn"),
         summary,
         icon: " ",
         detail: <Dice roll={rolled} />,
@@ -466,325 +469,378 @@ export default function SWCharacterSheetPage({
 
         {/* Weapons, other stats */}
         <div className='flex w-full gap-3'>
-          <div className='w-8 flex flex-column light-inputs border-1 border-50 border-round p-3'>
-            <div className='flex gap-1 mb-2 text-300 text-sm select-none'>
-              <div className='w-4'>Fegyver</div>
-              <div className='w-3 text-center'>Táv/Nehézség</div>
-              <div className='w-1 text-center'>Sebzés</div>
-              <div className='w-4 text-center'>Megjegzés</div>
-            </div>
-            {charsheetData.weapons.map((w, idx) => (
-              <div className='w-100 flex gap-2 relative mb-1' key={idx}>
-                <InputText
-                  className='w-4 text-yellow-400'
-                  maxLength={20}
-                  value={w.name}
-                  disabled={!improveMode}
-                  onChange={(e) => updateWeapon(idx, "name", e.target.value)}
-                />
-                <InputText
-                  className='w-3 text-yellow-400 text-center'
-                  maxLength={20}
-                  value={w.range}
-                  disabled={!improveMode}
-                  onChange={(e) => updateWeapon(idx, "range", e.target.value)}
-                />
-                {improveMode ? (
+          <div className='w-8 flex flex-column gap-3'>
+            <div className='w-full flex flex-column light-inputs'>
+              <div className='w-full flex gap-3'>
+                <div className='w-4 flex justify-content-between border-1 border-50 border-round p-3 align-items-center'>
+                  <label>BLOKK</label>
                   <InputText
-                    className='w-1 text-yellow-400 text-center'
+                    type='number'
+                    className='w-2rem text-yellow-400 text-center'
                     maxLength={20}
-                    value={w.damage}
-                    disabled={!improveMode}
-                    onChange={(e) => updateWeapon(idx, "damage", e.target.value)}
-                  />
-                ) : (
-                  <div
-                    className='w-1 text-yellow-400 text-center cursor-pointer select-none fake-input'
-                    onClick={() => {
-                      if (parseDice(w.damage) !== 0) rollToast(w.name, parseDice(w.damage), "warn");
-                    }}>
-                    {w.damage}
-                  </div>
-                )}
-                <InputText
-                  className='w-4 text-yellow-400'
-                  maxLength={20}
-                  value={w.notes}
-                  onChange={(e) => updateWeapon(idx, "notes", e.target.value)}
-                />
-                {improveMode && (
-                  <Button
-                    severity='danger'
-                    className='px-1 py-1 mx-0 absolute top-0 right-0'
-                    text
-                    size='small'
-                    title='Fegyver törlése'
-                    onClick={() => {
-                      deleteWeapon(idx);
-                    }}>
-                    <i className='pi pi-times text-xs'></i>
-                  </Button>
-                )}
-              </div>
-            ))}
-            {improveMode && (
-              <Button
-                severity='secondary'
-                className='px-1 py-1 mt-2'
-                text
-                size='small'
-                onClick={() => {
-                  addNewWeapon();
-                }}>
-                Új fegyver hozzáadása
-              </Button>
-            )}
-          </div>
-          <div className='flex-1 flex flex-column border-1 border-50 border-round p-3'>
-            <div className='flex align-content-start mb-2'>
-              <span className='font-medium select-none'>Mozgás</span>
-              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
-                {improveMode ? (
-                  <InputText
-                    type='number'
-                    className='w-3rem text-right text-yellow-400'
-                    value={charsheetData.move?.toString() || ""}
-                    onChange={(e) =>
-                      updateData((prev) => ({
-                        ...prev,
-                        move: e.target.value
-                          ? Math.min(20, Math.max(1, parseInt(e.target.value)))
-                          : 10,
-                      }))
-                    }
-                  />
-                ) : (
-                  <span className='w-3rem text-yellow-400 mr-1'>{charsheetData.move}</span>
-                )}
-              </span>
-            </div>
-            <div className='flex align-content-start mb-2'>
-              <span className='font-medium select-none'>Erő pontok</span>
-              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
-                {improveMode ? (
-                  <InputText
-                    type='number'
-                    className='w-3rem text-right text-yellow-400'
-                    value={charsheetData.forcePoints?.toString() || ""}
-                    onChange={(e) =>
-                      updateData((prev) => ({
-                        ...prev,
-                        forcePoints: e.target.value
-                          ? Math.min(50, Math.max(0, parseInt(e.target.value)))
-                          : 1,
-                      }))
-                    }
-                  />
-                ) : (
-                  <span className='w-3rem text-yellow-400 mr-1'>{charsheetData.forcePoints}</span>
-                )}
-              </span>
-            </div>
-            <div className='flex align-content-start mb-2'>
-              <span className='font-medium select-none'>Erő érzékeny</span>
-              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
-                {improveMode ? (
-                  <Checkbox
-                    className='text-yellow-400'
-                    checked={charsheetData.forceSensitive}
+                    value={charsheetData.block?.toString() || ""}
                     disabled={!improveMode}
                     onChange={(e) =>
-                      updateData((prev) => ({
-                        ...prev,
-                        forceSensitive: e.checked,
-                      }))
-                    }
-                  />
-                ) : charsheetData.forceSensitive ? (
-                  "Igen"
-                ) : (
-                  "Nem"
-                )}
-              </span>
-            </div>
-            <div className='flex align-content-start mb-2'>
-              <span className='font-medium select-none'>Sötét oldal pontok</span>
-              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
-                {improveMode ? (
-                  <InputText
-                    type='number'
-                    className='w-3rem text-right text-yellow-400'
-                    value={charsheetData.darkSidePoints?.toString() || ""}
-                    onChange={(e) =>
-                      updateData((prev) => ({
-                        ...prev,
-                        move: e.target.value
-                          ? Math.min(6, Math.max(1, parseInt(e.target.value)))
-                          : 0,
-                      }))
-                    }
-                  />
-                ) : (
-                  <span className='w-3rem text-yellow-400 mr-1'>
-                    {charsheetData.darkSidePoints}
-                  </span>
-                )}
-              </span>
-            </div>
-            <div className='flex align-content-start mb-2'>
-              <span className='font-medium select-none'>Karakter pontok</span>
-              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs flex`}>
-                <InputText
-                  type='number'
-                  className='w-3rem text-right text-yellow-400'
-                  value={charsheetData.characterPoints?.toString() || ""}
-                  onChange={(e) =>
-                    updateData((prev) => ({
-                      ...prev,
-                      characterPoints: e.target.value ? Math.max(0, parseInt(e.target.value)) : 0,
-                    }))
-                  }
-                  onFocus={(e) => e.target.select()}
-                />
-                <div className='flex flex-column justify-items-start'>
-                  <i
-                    className='pi pi-chevron-up arrowButton'
-                    onClick={() =>
-                      updateData((prev) => ({
-                        ...prev,
-                        characterPoints: charsheetData.characterPoints + 1,
-                      }))
-                    }
-                  />
-                  <i
-                    className='pi pi-chevron-down arrowButton'
-                    onClick={() =>
-                      updateData((prev) => ({
-                        ...prev,
-                        characterPoints: charsheetData.characterPoints - 1,
-                      }))
+                      updateData((prev) => ({ ...prev, block: parseInt(e.target.value) }))
                     }
                   />
                 </div>
-              </span>
-            </div>
-            <div className='flex align-content-start mb-2'>
-              <span className='font-medium select-none'>Erő dobás energia ellen</span>
-              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
-                {improveMode ? (
+                <div className='w-4 flex justify-content-between border-1 border-50 border-round p-3 align-items-center'>
+                  <label>KITÉRÉS</label>
                   <InputText
+                    type='number'
+                    className='w-2rem  text-yellow-400 text-center'
+                    maxLength={20}
+                    value={charsheetData.dodge?.toString() || ""}
+                    disabled={!improveMode}
+                    onChange={(e) =>
+                      updateData((prev) => ({ ...prev, dodge: parseInt(e.target.value) }))
+                    }
+                  />
+                </div>
+                <div className='w-4 flex justify-content-between border-1 border-50 border-round p-3 align-items-center'>
+                  <label>HÁRÍTÁS</label>
+                  <InputText
+                    type='number'
+                    className='w-2rem  text-yellow-400 text-center'
+                    maxLength={20}
+                    value={charsheetData.parry?.toString() || ""}
+                    disabled={!improveMode}
+                    onChange={(e) =>
+                      updateData((prev) => ({ ...prev, parry: parseInt(e.target.value) }))
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+            <div className='flex-1 flex flex-column light-inputs border-1 border-50 border-round p-3'>
+              <div className='flex gap-1 mb-2 text-300 text-sm select-none'>
+                <div className='w-4'>Fegyver</div>
+                <div className='w-3 text-center'>Táv/Nehézség</div>
+                <div className='w-1 text-center'>Sebzés</div>
+                <div className='w-4 text-center'>Megjegzés</div>
+              </div>
+              {charsheetData.weapons.map((w, idx) => (
+                <div className='w-100 flex gap-2 relative mb-1' key={idx}>
+                  <InputText
+                    className='w-4 text-yellow-400'
+                    maxLength={20}
+                    value={w.name}
+                    disabled={!improveMode}
+                    onChange={(e) => updateWeapon(idx, "name", e.target.value)}
+                  />
+                  <InputText
+                    className='w-3 text-yellow-400 text-center'
+                    maxLength={20}
+                    value={w.range}
+                    disabled={!improveMode}
+                    onChange={(e) => updateWeapon(idx, "range", e.target.value)}
+                  />
+                  {improveMode ? (
+                    <InputText
+                      className='w-1 text-yellow-400 text-center'
+                      maxLength={20}
+                      value={w.damage}
+                      disabled={!improveMode}
+                      onChange={(e) => updateWeapon(idx, "damage", e.target.value)}
+                    />
+                  ) : (
+                    <div
+                      className='w-1 text-yellow-400 text-center cursor-pointer select-none fake-input'
+                      onClick={() => {
+                        if (parseDice(w.damage) !== 0)
+                          rollToast(w.name, parseDice(w.damage), "warn");
+                      }}>
+                      {w.damage}
+                    </div>
+                  )}
+                  <InputText
+                    className='w-4 text-yellow-400'
+                    maxLength={20}
+                    value={w.notes}
+                    onChange={(e) => updateWeapon(idx, "notes", e.target.value)}
+                  />
+                  {improveMode && (
+                    <Button
+                      severity='danger'
+                      className='px-1 py-1 mx-0 absolute top-0 right-0'
+                      text
+                      size='small'
+                      title='Fegyver törlése'
+                      onClick={() => {
+                        deleteWeapon(idx);
+                      }}>
+                      <i className='pi pi-times text-xs'></i>
+                    </Button>
+                  )}
+                </div>
+              ))}
+              {improveMode && (
+                <Button
+                  severity='secondary'
+                  className='px-1 py-1 mt-2'
+                  text
+                  size='small'
+                  onClick={() => {
+                    addNewWeapon();
+                  }}>
+                  Új fegyver hozzáadása
+                </Button>
+              )}
+            </div>
+          </div>
+          <div className='flex-1 flex flex-column gap-3'>
+            <div className='flex-1 flex flex-column border-1 border-50 border-round p-3'>
+              <div className='flex align-content-start mb-2'>
+                <span className='font-medium select-none'>Mozgás</span>
+                <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                  {improveMode ? (
+                    <InputText
+                      type='number'
+                      className='w-3rem text-right text-yellow-400'
+                      value={charsheetData.move?.toString() || ""}
+                      onChange={(e) =>
+                        updateData((prev) => ({
+                          ...prev,
+                          move: e.target.value
+                            ? Math.min(20, Math.max(1, parseInt(e.target.value)))
+                            : 10,
+                        }))
+                      }
+                    />
+                  ) : (
+                    <span className='w-3rem text-yellow-400 mr-1'>{charsheetData.move}</span>
+                  )}
+                </span>
+              </div>
+              <div className='flex align-content-start mb-2'>
+                <span className='font-medium select-none'>Erő pontok</span>
+                <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                  {improveMode ? (
+                    <InputText
+                      type='number'
+                      className='w-3rem text-right text-yellow-400'
+                      value={charsheetData.forcePoints?.toString() || ""}
+                      onChange={(e) =>
+                        updateData((prev) => ({
+                          ...prev,
+                          forcePoints: e.target.value
+                            ? Math.min(50, Math.max(0, parseInt(e.target.value)))
+                            : 1,
+                        }))
+                      }
+                    />
+                  ) : (
+                    <span className='w-3rem text-yellow-400 mr-1'>{charsheetData.forcePoints}</span>
+                  )}
+                </span>
+              </div>
+              <div className='flex align-content-start mb-2'>
+                <span className='font-medium select-none'>Erő érzékeny</span>
+                <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                  {improveMode ? (
+                    <Checkbox
+                      className='text-yellow-400'
+                      checked={charsheetData.forceSensitive}
+                      disabled={!improveMode}
+                      onChange={(e) =>
+                        updateData((prev) => ({
+                          ...prev,
+                          forceSensitive: e.checked,
+                        }))
+                      }
+                    />
+                  ) : charsheetData.forceSensitive ? (
+                    "Igen"
+                  ) : (
+                    "Nem"
+                  )}
+                </span>
+              </div>
+              <div className='flex align-content-start mb-2'>
+                <span className='font-medium select-none'>Sötét oldal pontok</span>
+                <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                  {improveMode ? (
+                    <InputText
+                      type='number'
+                      className='w-3rem text-right text-yellow-400'
+                      value={charsheetData.darkSidePoints?.toString() || ""}
+                      onChange={(e) =>
+                        updateData((prev) => ({
+                          ...prev,
+                          move: e.target.value
+                            ? Math.min(6, Math.max(1, parseInt(e.target.value)))
+                            : 0,
+                        }))
+                      }
+                    />
+                  ) : (
+                    <span className='w-3rem text-yellow-400 mr-1'>
+                      {charsheetData.darkSidePoints}
+                    </span>
+                  )}
+                </span>
+              </div>
+              <div className='flex align-content-start mb-2'>
+                <span className='font-medium select-none'>Karakter pontok</span>
+                <span
+                  className={`font-medium text-yellow-400 ml-auto select-none light-inputs flex`}>
+                  <InputText
+                    type='number'
                     className='w-3rem text-right text-yellow-400'
-                    value={charsheetData.saveAgainstEnergy || ""}
+                    value={charsheetData.characterPoints?.toString() || ""}
                     onChange={(e) =>
                       updateData((prev) => ({
                         ...prev,
-                        saveAgainstEnergy: e.target.value,
+                        characterPoints: e.target.value ? Math.max(0, parseInt(e.target.value)) : 0,
                       }))
                     }
+                    onFocus={(e) => e.target.select()}
                   />
-                ) : (
-                  <span
-                    className='w-3rem text-yellow-400 mr-1 cursor-pointer'
-                    onClick={() =>
-                      rollToast(
-                        "Erő dobás energia ellen",
-                        parseDice(charsheetData.saveAgainstEnergy),
-                        "warn"
-                      )
-                    }>
-                    {charsheetData.saveAgainstEnergy}
-                  </span>
-                )}
-              </span>
+                  <div className='flex flex-column justify-items-start'>
+                    <i
+                      className='pi pi-chevron-up arrowButton'
+                      onClick={() =>
+                        updateData((prev) => ({
+                          ...prev,
+                          characterPoints: charsheetData.characterPoints + 1,
+                        }))
+                      }
+                    />
+                    <i
+                      className='pi pi-chevron-down arrowButton'
+                      onClick={() =>
+                        updateData((prev) => ({
+                          ...prev,
+                          characterPoints: charsheetData.characterPoints - 1,
+                        }))
+                      }
+                    />
+                  </div>
+                </span>
+              </div>
             </div>
-            <div className='flex align-content-start mb-2'>
-              <span className='font-medium select-none'>Erő dobás fizikai ellen</span>
-              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
-                {improveMode ? (
-                  <InputText
-                    className='w-3rem text-right text-yellow-400'
-                    value={charsheetData.saveAgainstPhysical || ""}
+            <div className='flex-1 flex flex-column border-1 border-50 border-round p-3'>
+              <div className='flex align-content-start mb-2'>
+                <span className='font-medium select-none'>Erő energia ellen</span>
+                <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                  {improveMode ? (
+                    <InputText
+                      className='w-3rem text-right text-yellow-400'
+                      value={charsheetData.saveAgainstEnergy || ""}
+                      onChange={(e) =>
+                        updateData((prev) => ({
+                          ...prev,
+                          saveAgainstEnergy: e.target.value,
+                        }))
+                      }
+                    />
+                  ) : (
+                    <span
+                      className='w-3rem text-yellow-400 mr-1 cursor-pointer'
+                      onClick={() => {
+                        if (!charsheetData.saveAgainstEnergy?.toLowerCase().includes("k")) return;
+                        rollToast(
+                          "Erő dobás energia ellen",
+                          parseDice(charsheetData.saveAgainstEnergy),
+                          "warn"
+                        );
+                      }}>
+                      {charsheetData.saveAgainstEnergy}
+                    </span>
+                  )}
+                </span>
+              </div>
+              <div className='flex align-content-start mb-2'>
+                <span className='font-medium select-none'>Erő fizikai ellen</span>
+                <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                  {improveMode ? (
+                    <InputText
+                      className='w-3rem text-right text-yellow-400'
+                      value={charsheetData.saveAgainstPhysical || ""}
+                      onChange={(e) =>
+                        updateData((prev) => ({
+                          ...prev,
+                          saveAgainstPhysical: e.target.value,
+                        }))
+                      }
+                    />
+                  ) : (
+                    <span
+                      className='w-3rem text-yellow-400 mr-1 cursor-pointer'
+                      onClick={() => {
+                        if (!charsheetData.saveAgainstPhysical?.toLowerCase().includes("k")) return;
+                        rollToast(
+                          "Erő dobás fizikai ellen",
+                          parseDice(charsheetData.saveAgainstPhysical),
+                          "warn"
+                        );
+                      }}>
+                      {charsheetData.saveAgainstPhysical}
+                    </span>
+                  )}
+                </span>
+              </div>
+              <div className='flex align-content-start mb-2'>
+                <span className='font-medium select-none'>Kábult</span>
+                <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                  <Checkbox
+                    className='text-yellow-400'
+                    checked={charsheetData.stunned}
                     onChange={(e) =>
                       updateData((prev) => ({
                         ...prev,
-                        saveAgainstPhysical: e.target.value,
+                        stunned: e.checked,
                       }))
                     }
                   />
-                ) : (
-                  <span
-                    className='w-3rem text-yellow-400 mr-1 cursor-pointer'
-                    onClick={() =>
-                      rollToast(
-                        "Erő dobás fizikai ellen",
-                        parseDice(charsheetData.saveAgainstPhysical),
-                        "warn"
-                      )
-                    }>
-                    {charsheetData.saveAgainstPhysical}
-                  </span>
-                )}
-              </span>
-            </div>
-            <div className='flex align-content-start mb-2'>
-              <span className='font-medium select-none'>Kábult</span>
-              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
-                <Checkbox
-                  className='text-yellow-400'
-                  checked={charsheetData.stunned}
-                  onChange={(e) =>
-                    updateData((prev) => ({
-                      ...prev,
-                      stunned: e.checked,
-                    }))
-                  }
-                />
-              </span>
-            </div>
-            <div className='flex align-content-start mb-2'>
-              <span className='font-medium select-none'>Sebesült</span>
-              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
-                <Checkbox
-                  className='text-yellow-400'
-                  checked={charsheetData.wounded}
-                  onChange={(e) =>
-                    updateData((prev) => ({
-                      ...prev,
-                      wounded: e.checked,
-                    }))
-                  }
-                />
-              </span>
-            </div>
-            {/* <div className='flex align-content-start mb-2'>
-              <span className='font-medium select-none'>Súlyosan sebesült</span>
-              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
-                <Checkbox
-                  className='text-yellow-400'
-                  checked={charsheetData.wounded2}
-                  onChange={(e) =>
-                    updateData((prev) => ({
-                      ...prev,
-                      wounded2: e.checked,
-                    }))
-                  }
-                />
-              </span>
-            </div> */}
-            <div className='flex align-content-start mb-2'>
-              <span className='font-medium select-none'>Magatehetetlen</span>
-              <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
-                <Checkbox
-                  className='text-yellow-400'
-                  checked={charsheetData.incapacitated}
-                  onChange={(e) =>
-                    updateData((prev) => ({
-                      ...prev,
-                      incapacitated: e.checked,
-                    }))
-                  }
-                />
-              </span>
+                </span>
+              </div>
+              <div className='flex align-content-start mb-2'>
+                <span className='font-medium select-none'>Sebesült</span>
+                <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                  <Checkbox
+                    className='text-yellow-400'
+                    checked={charsheetData.wounded}
+                    onChange={(e) =>
+                      updateData((prev) => ({
+                        ...prev,
+                        wounded: e.checked,
+                      }))
+                    }
+                  />
+                </span>
+              </div>
+              <div className='flex align-content-start mb-2'>
+                <span className='font-medium select-none'>Súlyosan sebesült</span>
+                <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                  <Checkbox
+                    className='text-yellow-400'
+                    checked={charsheetData.wounded2}
+                    onChange={(e) =>
+                      updateData((prev) => ({
+                        ...prev,
+                        wounded2: e.checked,
+                      }))
+                    }
+                  />
+                </span>
+              </div>
+              <div className='flex align-content-start mb-2'>
+                <span className='font-medium select-none'>Magatehetetlen</span>
+                <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                  <Checkbox
+                    className='text-yellow-400'
+                    checked={charsheetData.incapacitated}
+                    onChange={(e) =>
+                      updateData((prev) => ({
+                        ...prev,
+                        incapacitated: e.checked,
+                      }))
+                    }
+                  />
+                </span>
+              </div>
             </div>
           </div>
         </div>
