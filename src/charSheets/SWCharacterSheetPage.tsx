@@ -1,21 +1,23 @@
+import { Button } from "primereact/button";
+import { Checkbox } from "primereact/checkbox";
+import { Dialog } from "primereact/dialog";
+import { FloatLabel } from "primereact/floatlabel";
 import { InputText } from "primereact/inputtext";
+import { InputTextarea } from "primereact/inputtextarea";
+import { ListBox } from "primereact/listbox";
+import { Panel } from "primereact/panel";
 import { Toast } from "primereact/toast";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
-import CharacterSheetBottom from "../components/CharacterSheetBottom";
-import { Charsheet, starWarsAttributesAndSkills, StarWarsData } from "../constants";
-import { saveCharsheet } from "../supabase";
-import { FloatLabel } from "primereact/floatlabel";
-import D6Value from "../components/D6Value";
-import { Button } from "primereact/button";
-import { Dialog } from "primereact/dialog";
-import { ListBox } from "primereact/listbox";
-import { format, parseDice, roll } from "../dice";
-import Dice from "../components/Dice";
 import { useHotkeys } from "react-hotkeys-hook";
+import CharacterSheetBottom from "../components/CharacterSheetBottom";
+import D6Value from "../components/D6Value";
+import Dice from "../components/Dice";
 import InputDialog from "../components/InputDialog";
+import { Charsheet, starWarsAttributesAndSkills, StarWarsData } from "../constants";
+import { format, parseDice, roll } from "../dice";
+import { saveCharsheet } from "../supabase";
 import { findParentAttributeAndSkill } from "../utils";
-import { InputTextarea } from "primereact/inputtextarea";
-import { Checkbox } from "primereact/checkbox";
+import useLocalStorageState from "use-local-storage-state";
 
 export default function SWCharacterSheetPage({
   loadedCharsheet,
@@ -33,6 +35,9 @@ export default function SWCharacterSheetPage({
   const [newSkillName, setNewSkillName] = useState("");
   const [addSpecFunction, setAddSpecFunction] = useState<(specName: string) => void | undefined>();
   const toast = useRef<Toast>(null);
+  const [topTextPanelOpen, setTopTextPanelOpen] = useLocalStorageState("topTextPanelOpen", {
+    defaultValue: false,
+  });
 
   const charsheetData = charsheet.data as StarWarsData;
 
@@ -328,36 +333,48 @@ export default function SWCharacterSheetPage({
             <label>Játékos</label>
           </FloatLabel>
         </div>
-        <div className='flex gap-3'>
-          <FloatLabel className='flex-1 flex'>
-            <InputTextarea
-              rows={1}
-              autoResize
-              spellCheck={false}
-              className='flex-1 text-yellow-400 thin-scrollbar'
-              maxLength={1000}
-              value={charsheetData.physicalDescription}
-              onChange={(e) =>
-                updateData((prev) => ({ ...prev, physicalDescription: e.target.value }))
-              }
-            />
-            <label>Külső megjelenés</label>
-          </FloatLabel>
-        </div>
-        <div className='flex gap-3'>
-          <FloatLabel className='flex-1 flex'>
-            <InputTextarea
-              rows={1}
-              autoResize
-              spellCheck={false}
-              className='flex-1 text-yellow-400 thin-scrollbar'
-              maxLength={2000}
-              value={charsheetData.personality}
-              onChange={(e) => updateData((prev) => ({ ...prev, personality: e.target.value }))}
-            />
-            <label>Személyiség, háttér, kapcsolatok, célkitűzések</label>
-          </FloatLabel>
-        </div>
+        <Panel
+          toggleable
+          collapsed={!topTextPanelOpen}
+          className={`${topTextPanelOpen ? "open" : ""}`}
+          header='Külső megjelenés, személyiség, háttér, kapcsolatok, célkitűzések'
+          pt={{
+            content: { className: "flex flex-column gap-4" },
+            header: { className: "py-1" },
+            title: { className: "font-normal opacity-80" },
+          }}
+          onToggle={() => setTopTextPanelOpen(!topTextPanelOpen)}>
+          <div className='flex gap-3 mt-2'>
+            <FloatLabel className='flex-1 flex'>
+              <InputTextarea
+                rows={1}
+                autoResize
+                spellCheck={false}
+                className='flex-1 text-yellow-400 thin-scrollbar'
+                maxLength={1000}
+                value={charsheetData.physicalDescription}
+                onChange={(e) =>
+                  updateData((prev) => ({ ...prev, physicalDescription: e.target.value }))
+                }
+              />
+              <label>Külső megjelenés</label>
+            </FloatLabel>
+          </div>
+          <div className='flex gap-3'>
+            <FloatLabel className='flex-1 flex'>
+              <InputTextarea
+                rows={1}
+                autoResize
+                spellCheck={false}
+                className='flex-1 text-yellow-400 thin-scrollbar'
+                maxLength={2000}
+                value={charsheetData.personality}
+                onChange={(e) => updateData((prev) => ({ ...prev, personality: e.target.value }))}
+              />
+              <label>Személyiség, háttér, kapcsolatok, célkitűzések</label>
+            </FloatLabel>
+          </div>
+        </Panel>
 
         {improveMode && (
           <div className='flex w-full gap-5 text-xl'>
