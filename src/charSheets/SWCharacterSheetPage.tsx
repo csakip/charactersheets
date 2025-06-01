@@ -668,7 +668,7 @@ export default function SWCharacterSheetPage({
                       onChange={(e) =>
                         updateData((prev) => ({
                           ...prev,
-                          move: e.target.value
+                          darkSidePoints: e.target.value
                             ? Math.min(6, Math.max(1, parseInt(e.target.value)))
                             : 0,
                         }))
