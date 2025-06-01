@@ -493,7 +493,9 @@ export default function SWCharacterSheetPage({
                   <label>BLOKK</label>
                   <InputText
                     type='number'
-                    className='w-2rem text-yellow-400 text-center'
+                    className={`w-2rem text-yellow-400 text-center ${
+                      improveMode ? "editing" : "viewing"
+                    }`}
                     maxLength={20}
                     value={charsheetData.block?.toString() || ""}
                     disabled={!improveMode}
@@ -506,7 +508,9 @@ export default function SWCharacterSheetPage({
                   <label>KITÉRÉS</label>
                   <InputText
                     type='number'
-                    className='w-2rem  text-yellow-400 text-center'
+                    className={`w-2rem text-yellow-400 text-center ${
+                      improveMode ? "editing" : "viewing"
+                    }`}
                     maxLength={20}
                     value={charsheetData.dodge?.toString() || ""}
                     disabled={!improveMode}
@@ -519,7 +523,9 @@ export default function SWCharacterSheetPage({
                   <label>HÁRÍTÁS</label>
                   <InputText
                     type='number'
-                    className='w-2rem  text-yellow-400 text-center'
+                    className={`w-2rem text-yellow-400 text-center ${
+                      improveMode ? "editing" : "viewing"
+                    }`}
                     maxLength={20}
                     value={charsheetData.parry?.toString() || ""}
                     disabled={!improveMode}

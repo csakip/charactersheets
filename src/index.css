@@ -232,6 +232,10 @@ input[type="number"] {
   opacity: 1;
 }
 
+.light-inputs input.viewing {
+  border: none !important;
+}
+
 .charactersheet.starwars .border-50 {
   border-color: #424b57 !important;
 }
