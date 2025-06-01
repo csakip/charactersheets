@@ -699,12 +699,36 @@ export default function SWCharacterSheetPage({
                 </span>
               </div>
               <div className='flex align-content-start mb-2'>
+                <span className='font-medium select-none'>Összes karakter pont</span>
+                <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                  {improveMode ? (
+                    <InputText
+                      type='number'
+                      className='w-3rem text-right text-yellow-400'
+                      value={charsheetData.totalCharacterPoints?.toString() || "0"}
+                      onChange={(e) =>
+                        updateData((prev) => ({
+                          ...prev,
+                          totalCharacterPoints: e.target.value
+                            ? Math.max(0, parseInt(e.target.value))
+                            : 1,
+                        }))
+                      }
+                    />
+                  ) : (
+                    <span className='w-3rem text-yellow-400 mr-1'>
+                      {charsheetData.totalCharacterPoints}
+                    </span>
+                  )}
+                </span>
+              </div>
+              <div className='flex align-content-start mb-2'>
                 <span className='font-medium select-none'>Karakter pontok</span>
                 <span
                   className={`font-medium text-yellow-400 ml-auto select-none light-inputs flex`}>
                   <InputText
                     type='number'
-                    className='w-3rem text-right text-yellow-400'
+                    className='w-2rem text-right text-yellow-400'
                     value={charsheetData.characterPoints?.toString() || ""}
                     onChange={(e) =>
                       updateData((prev) => ({
