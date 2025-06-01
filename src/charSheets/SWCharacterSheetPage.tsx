@@ -669,7 +669,7 @@ export default function SWCharacterSheetPage({
                         updateData((prev) => ({
                           ...prev,
                           darkSidePoints: e.target.value
-                            ? Math.min(6, Math.max(1, parseInt(e.target.value)))
+                            ? Math.min(6, Math.max(0, parseInt(e.target.value)))
                             : 0,
                         }))
                       }
