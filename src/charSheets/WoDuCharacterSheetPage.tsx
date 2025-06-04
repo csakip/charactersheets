@@ -429,7 +429,13 @@ export default function WoDuCharacterSheetPage({
           </div>
         </div>
       </div>
-      {editable && <CharacterSheetBottom charsheet={charsheet} setCharsheet={setCharsheet} />}
+      {editable && (
+        <CharacterSheetBottom
+          charsheet={charsheet}
+          setCharsheet={setCharsheet}
+          style={{ maxWidth: "1000px", margin: "auto" }}
+        />
+      )}
     </>
   );
 }

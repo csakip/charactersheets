@@ -14,12 +14,28 @@ export default function NewCharacterDialog({
 }: {
   visible: boolean;
   onHide: () => void;
-  onSave: (value: string, rollChecked?: boolean, system?: string) => void;
+  onSave: ({
+    playerName,
+    rollChecked,
+    system,
+    type,
+  }: {
+    playerName: string;
+    rollChecked?: boolean;
+    system?: string;
+    type?: string;
+  }) => void;
   system?: string;
 }) {
   const [value, setValue] = useState("");
   const [rollChecked, setRollChecked] = useState(false);
   const [selectedSystem, setSelectedSystem] = useState(system || "");
+  const [type, setType] = useState("character");
+
+  const types = [
+    { label: "Karakterlap", value: "character" },
+    { label: "Jármű", value: "vehicle" },
+  ];
 
   useEffect(() => {
     if (visible) {
@@ -28,14 +44,23 @@ export default function NewCharacterDialog({
     }
   }, [visible]);
 
+  function handleSave() {
+    onSave({
+      playerName: value,
+      rollChecked,
+      system: selectedSystem || undefined,
+      type,
+    });
+  }
+
   return (
     <Dialog
       visible={visible}
       onHide={onHide}
-      header='Új karakter'
+      header='Új karakterlap'
       style={{ width: 600 }}
       onShow={() => {
-        document.getElementById("value").focus();
+        document.getElementById("value")?.focus();
       }}
       modal
       footer={
@@ -44,7 +69,7 @@ export default function NewCharacterDialog({
           <Button
             label='Létrehozás'
             icon='pi pi-check'
-            onClick={() => onSave(value, rollChecked, selectedSystem)}
+            onClick={handleSave}
             disabled={!value.trim()}
           />
         </div>
@@ -67,7 +92,7 @@ export default function NewCharacterDialog({
             id='value'
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && onSave(value, rollChecked, selectedSystem)}
+            onKeyDown={(e) => e.key === "Enter" && handleSave()}
           />
           {selectedSystem === "wodu" && (
             <div className='mt-1'>
@@ -76,10 +101,21 @@ export default function NewCharacterDialog({
                 checked={rollChecked}
                 inputId='rollChecked'
               />
-
-              <label htmlFor='rollChecked' className='ml-2 '>
+              <label htmlFor='rollChecked' className='ml-2'>
                 Kidobott tulajdonságokkal?
               </label>
+            </div>
+          )}
+          {selectedSystem === "hidestarwars" && (
+            <div className='flex flex-column gap-2'>
+              <label>Karakterlap tipus</label>
+              <Dropdown
+                className='w-full'
+                value={type}
+                options={types}
+                onChange={(e) => setType(e.value)}
+                placeholder='Karakterlap tipus'
+              />
             </div>
           )}
         </div>

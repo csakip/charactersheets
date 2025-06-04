@@ -11,10 +11,12 @@ export default function CharacterSheetBottom({
   charsheet,
   setCharsheet,
   children,
+  style,
 }: {
   charsheet: Charsheet;
   setCharsheet: (charsheet: Charsheet) => void;
   children?: React.ReactNode;
+  style?: React.CSSProperties;
 }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showExitRoomConfirm, setShowExitRoomConfirm] = useState(false);
@@ -68,7 +70,7 @@ export default function CharacterSheetBottom({
 
   return (
     <>
-      <div className='flex mb-3 mt-1 justify-content-end'>
+      <div className='flex mb-3 mt-1 justify-content-end' style={style}>
         {children}
         {charsheet.room_id && (
           <Button severity='warning' size='small' text onClick={() => setShowExitRoomConfirm(true)}>

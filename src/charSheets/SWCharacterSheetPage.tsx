@@ -336,7 +336,7 @@ export default function SWCharacterSheetPage({
         <Panel
           toggleable
           collapsed={!topTextPanelOpen}
-          className={`${topTextPanelOpen ? "open" : ""}`}
+          className={`select-none ${topTextPanelOpen ? "open" : ""}`}
           header='Külső megjelenés, személyiség, háttér, kapcsolatok, célkitűzések'
           pt={{
             content: { className: "flex flex-column gap-4" },
@@ -488,7 +488,7 @@ export default function SWCharacterSheetPage({
         <div className='flex w-full gap-3'>
           <div className='w-8 flex flex-column gap-3'>
             <div className='w-full flex flex-column light-inputs'>
-              <div className='w-full flex gap-3'>
+              <div className='w-full flex gap-3 select-none'>
                 <div className='w-4 flex justify-content-between border-1 border-50 border-round p-3 align-items-center'>
                   <label>BLOKK</label>
                   <InputText
@@ -940,7 +940,10 @@ export default function SWCharacterSheetPage({
       </div>
 
       {editable && (
-        <CharacterSheetBottom charsheet={charsheet} setCharsheet={setCharsheet}>
+        <CharacterSheetBottom
+          charsheet={charsheet}
+          setCharsheet={setCharsheet}
+          style={{ maxWidth: "1000px", margin: "auto" }}>
           <Button size='small' text onClick={() => setImproveMode(!improveMode)}>
             {improveMode ? "Váltás játék módba" : "Karakter fejlesztése"}
           </Button>
