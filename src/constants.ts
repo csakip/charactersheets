@@ -390,6 +390,7 @@ export type StarWarsData = {
   block: number;
   dodge: number;
   parry: number;
+  profileImageUrl?: string;
 };
 
 export const starWarsAttributesAndSkills = [
@@ -538,6 +539,7 @@ export function emptyStarWarsData(newPlayerName): StarWarsData {
     block: 0,
     dodge: 0,
     parry: 0,
+    profileImageUrl: "",
   };
 }
 

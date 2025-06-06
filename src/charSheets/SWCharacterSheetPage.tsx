@@ -18,6 +18,7 @@ import { format, parseDice, roll } from "../dice";
 import { saveCharsheet } from "../supabase";
 import { findParentAttributeAndSkill } from "../utils";
 import useLocalStorageState from "use-local-storage-state";
+import { FileDropUpload } from "../components/FileDropUpload";
 
 export default function SWCharacterSheetPage({
   loadedCharsheet,
@@ -286,95 +287,121 @@ export default function SWCharacterSheetPage({
       <div
         className='charactersheet starwars flex flex-column gap-4 p-4 mt-3 border-round-md'
         style={{ maxWidth: "1000px", margin: "auto", backgroundColor: "#1f2937" }}>
-        <div className='flex gap-3'>
-          <FloatLabel className='flex-1'>
-            <InputText
-              className='w-full text-yellow-400'
-              maxLength={50}
-              value={charsheetData.name}
-              onChange={(e) => updateData((prev) => ({ ...prev, name: e.target.value }))}
+        <div className='flex gap-3 flex-row'>
+          <div className='flex gap-4 flex-column w-9'>
+            <div className='flex gap-3'>
+              <FloatLabel className='flex-1'>
+                <InputText
+                  className='w-full text-yellow-400 text-center'
+                  maxLength={50}
+                  value={charsheetData.name}
+                  onChange={(e) => updateData((prev) => ({ ...prev, name: e.target.value }))}
+                />
+                <label>Név</label>
+              </FloatLabel>
+            </div>
+            <div className='flex gap-3'>
+              <FloatLabel className='flex-grow-1'>
+                <InputText
+                  className='w-full text-yellow-400'
+                  maxLength={20}
+                  value={charsheetData.species}
+                  onChange={(e) => updateData((prev) => ({ ...prev, species: e.target.value }))}
+                />
+                <label>Faj</label>
+              </FloatLabel>
+              <FloatLabel className='w-4rem'>
+                <InputText
+                  className='w-full text-yellow-400 text-center'
+                  maxLength={5}
+                  value={charsheetData.gender}
+                  onChange={(e) => updateData((prev) => ({ ...prev, gender: e.target.value }))}
+                />
+                <label>Nem</label>
+              </FloatLabel>
+              <FloatLabel className='w-5rem'>
+                <InputText
+                  className='w-full text-yellow-400 text-center'
+                  maxLength={5}
+                  value={charsheetData.age}
+                  onChange={(e) => updateData((prev) => ({ ...prev, age: e.target.value }))}
+                />
+                <label>Kor</label>
+              </FloatLabel>
+              <FloatLabel className='flex-grow-1'>
+                <InputText
+                  className='w-full text-yellow-400'
+                  maxLength={20}
+                  value={charsheetData.playerName}
+                  onChange={(e) => updateData((prev) => ({ ...prev, playerName: e.target.value }))}
+                />
+                <label>Játékos</label>
+              </FloatLabel>
+            </div>
+            <div className='flex gap-3 w-full'>
+              <Panel
+                toggleable
+                collapsed={!topTextPanelOpen}
+                className={`w-full select-none ${topTextPanelOpen ? "open" : ""}`}
+                header='Külső megjelenés, személyiség, háttér, kapcsolatok, célkitűzések'
+                pt={{
+                  content: { className: "flex flex-column gap-4" },
+                  header: { className: "py-1" },
+                  title: { className: "font-normal opacity-80" },
+                }}
+                onToggle={() => setTopTextPanelOpen(!topTextPanelOpen)}>
+                <div className='flex gap-3 mt-2'>
+                  <FloatLabel className='flex-1 flex'>
+                    <InputTextarea
+                      rows={1}
+                      autoResize
+                      spellCheck={false}
+                      className='flex-1 text-yellow-400 thin-scrollbar'
+                      maxLength={1000}
+                      value={charsheetData.physicalDescription}
+                      onChange={(e) =>
+                        updateData((prev) => ({ ...prev, physicalDescription: e.target.value }))
+                      }
+                    />
+                    <label>Külső megjelenés</label>
+                  </FloatLabel>
+                </div>
+                <div className='flex gap-3'>
+                  <FloatLabel className='flex-1 flex'>
+                    <InputTextarea
+                      rows={1}
+                      autoResize
+                      spellCheck={false}
+                      className='flex-1 text-yellow-400 thin-scrollbar'
+                      maxLength={2000}
+                      value={charsheetData.personality}
+                      onChange={(e) =>
+                        updateData((prev) => ({ ...prev, personality: e.target.value }))
+                      }
+                    />
+                    <label>Személyiség, háttér, kapcsolatok, célkitűzések</label>
+                  </FloatLabel>
+                </div>
+              </Panel>
+            </div>
+          </div>
+          <div className='flex gap-3 flex-column w-3'>
+            <FileDropUpload
+              editable={improveMode}
+              charsheet_id={charsheet.id}
+              imageUrl={charsheetData.profileImageUrl}
+              bucket='character-image'
+              onUploadSuccess={(path, url) => {
+                console.log("File uploaded:", { path, url });
+                updateData((prev) => ({ ...prev, profileImageUrl: url }));
+              }}
+              onUploadError={(error) => {
+                console.error("Upload failed:", error);
+              }}
+              className='w-full'
             />
-            <label>Név</label>
-          </FloatLabel>
-          <FloatLabel className='w-10rem'>
-            <InputText
-              className='w-full text-yellow-400'
-              maxLength={20}
-              value={charsheetData.species}
-              onChange={(e) => updateData((prev) => ({ ...prev, species: e.target.value }))}
-            />
-            <label>Faj</label>
-          </FloatLabel>
-          <FloatLabel className='w-4rem'>
-            <InputText
-              className='w-full text-yellow-400 text-center'
-              maxLength={5}
-              value={charsheetData.gender}
-              onChange={(e) => updateData((prev) => ({ ...prev, gender: e.target.value }))}
-            />
-            <label>Nem</label>
-          </FloatLabel>
-          <FloatLabel className='w-5rem'>
-            <InputText
-              className='w-full text-yellow-400 text-center'
-              maxLength={5}
-              value={charsheetData.age}
-              onChange={(e) => updateData((prev) => ({ ...prev, age: e.target.value }))}
-            />
-            <label>Kor</label>
-          </FloatLabel>
-          <FloatLabel className='w-10rem'>
-            <InputText
-              className='w-full text-yellow-400'
-              maxLength={20}
-              value={charsheetData.playerName}
-              onChange={(e) => updateData((prev) => ({ ...prev, playerName: e.target.value }))}
-            />
-            <label>Játékos</label>
-          </FloatLabel>
+          </div>
         </div>
-        <Panel
-          toggleable
-          collapsed={!topTextPanelOpen}
-          className={`select-none ${topTextPanelOpen ? "open" : ""}`}
-          header='Külső megjelenés, személyiség, háttér, kapcsolatok, célkitűzések'
-          pt={{
-            content: { className: "flex flex-column gap-4" },
-            header: { className: "py-1" },
-            title: { className: "font-normal opacity-80" },
-          }}
-          onToggle={() => setTopTextPanelOpen(!topTextPanelOpen)}>
-          <div className='flex gap-3 mt-2'>
-            <FloatLabel className='flex-1 flex'>
-              <InputTextarea
-                rows={1}
-                autoResize
-                spellCheck={false}
-                className='flex-1 text-yellow-400 thin-scrollbar'
-                maxLength={1000}
-                value={charsheetData.physicalDescription}
-                onChange={(e) =>
-                  updateData((prev) => ({ ...prev, physicalDescription: e.target.value }))
-                }
-              />
-              <label>Külső megjelenés</label>
-            </FloatLabel>
-          </div>
-          <div className='flex gap-3'>
-            <FloatLabel className='flex-1 flex'>
-              <InputTextarea
-                rows={1}
-                autoResize
-                spellCheck={false}
-                className='flex-1 text-yellow-400 thin-scrollbar'
-                maxLength={2000}
-                value={charsheetData.personality}
-                onChange={(e) => updateData((prev) => ({ ...prev, personality: e.target.value }))}
-              />
-              <label>Személyiség, háttér, kapcsolatok, célkitűzések</label>
-            </FloatLabel>
-          </div>
-        </Panel>
 
         {improveMode && (
           <div className='flex w-full gap-5 text-xl'>
