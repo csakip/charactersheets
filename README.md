@@ -1,3 +1,3 @@
-# World of Dungeons karakterlap
+# [Online](https://csakip.github.io/charactersheets) karakterlapok különböző rendszerekhez
 
-Supabase-zel online karakterlap.
+Supabase-zel online karakterlapok.
