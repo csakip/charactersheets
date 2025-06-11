@@ -485,6 +485,7 @@ export const starWarsAttributesAndSkills = [
       "Számítógép programozás / javítás",
       "Robbantás",
       "Robotprogramozás",
+      "Robotjavítás",
       "Elsősegély",
       "Szárazföldi járművek javítása",
       "Légpárnás járművek javítása",
