@@ -24,10 +24,12 @@ export default function SWCharacterSheetPage({
   loadedCharsheet,
   editable,
   updateCharacterDisplay,
+  roomSettings,
 }: {
   loadedCharsheet: Charsheet;
   editable: boolean;
   updateCharacterDisplay: (charsheet: Charsheet) => void;
+  roomSettings: { [key: string]: string };
 }) {
   const [charsheet, setCharsheet] = useState<Charsheet>(loadedCharsheet);
   const [isDirty, setIsDirty] = useState(false);
@@ -144,7 +146,9 @@ export default function SWCharacterSheetPage({
         className: "toast-body",
         severity:
           severityOverride ??
-          (charsheetData.stunned || charsheetData.wounded || charsheetData.wounded2
+          (charsheetData.stunned ||
+          charsheetData.wounded ||
+          (roomSettings.wounded2 && charsheetData.wounded2)
             ? "error"
             : "warn"),
         summary,
@@ -279,7 +283,7 @@ export default function SWCharacterSheetPage({
   const woundModifier =
     (charsheetData.stunned ? 3 : 0) +
     (charsheetData.wounded ? 3 : 0) +
-    (charsheetData.wounded2 ? 3 : 0);
+    (roomSettings.wounded2 && charsheetData.wounded2 ? 3 : 0);
 
   return (
     <>
@@ -514,55 +518,57 @@ export default function SWCharacterSheetPage({
         {/* Weapons, other stats */}
         <div className='flex w-full gap-3'>
           <div className='w-8 flex flex-column gap-3'>
-            <div className='w-full flex flex-column light-inputs'>
-              <div className='w-full flex gap-3 select-none'>
-                <div className='w-4 flex justify-content-between border-1 border-50 border-round p-3 align-items-center'>
-                  <label>BLOKK</label>
-                  <InputText
-                    type='number'
-                    className={`w-2rem text-yellow-400 text-center ${
-                      improveMode ? "editing" : "viewing"
-                    }`}
-                    maxLength={20}
-                    value={charsheetData.block?.toString() || ""}
-                    disabled={!improveMode}
-                    onChange={(e) =>
-                      updateData((prev) => ({ ...prev, block: parseInt(e.target.value) }))
-                    }
-                  />
-                </div>
-                <div className='w-4 flex justify-content-between border-1 border-50 border-round p-3 align-items-center'>
-                  <label>KITÉRÉS</label>
-                  <InputText
-                    type='number'
-                    className={`w-2rem text-yellow-400 text-center ${
-                      improveMode ? "editing" : "viewing"
-                    }`}
-                    maxLength={20}
-                    value={charsheetData.dodge?.toString() || ""}
-                    disabled={!improveMode}
-                    onChange={(e) =>
-                      updateData((prev) => ({ ...prev, dodge: parseInt(e.target.value) }))
-                    }
-                  />
-                </div>
-                <div className='w-4 flex justify-content-between border-1 border-50 border-round p-3 align-items-center'>
-                  <label>HÁRÍTÁS</label>
-                  <InputText
-                    type='number'
-                    className={`w-2rem text-yellow-400 text-center ${
-                      improveMode ? "editing" : "viewing"
-                    }`}
-                    maxLength={20}
-                    value={charsheetData.parry?.toString() || ""}
-                    disabled={!improveMode}
-                    onChange={(e) =>
-                      updateData((prev) => ({ ...prev, parry: parseInt(e.target.value) }))
-                    }
-                  />
+            {roomSettings.staticDefense && (
+              <div className='w-full flex flex-column light-inputs'>
+                <div className='w-full flex gap-3 select-none'>
+                  <div className='w-4 flex justify-content-between border-1 border-50 border-round p-3 align-items-center'>
+                    <label>BLOKK</label>
+                    <InputText
+                      type='number'
+                      className={`w-2rem text-yellow-400 text-center ${
+                        improveMode ? "editing" : "viewing"
+                      }`}
+                      maxLength={20}
+                      value={charsheetData.block?.toString() || ""}
+                      disabled={!improveMode}
+                      onChange={(e) =>
+                        updateData((prev) => ({ ...prev, block: parseInt(e.target.value) }))
+                      }
+                    />
+                  </div>
+                  <div className='w-4 flex justify-content-between border-1 border-50 border-round p-3 align-items-center'>
+                    <label>KITÉRÉS</label>
+                    <InputText
+                      type='number'
+                      className={`w-2rem text-yellow-400 text-center ${
+                        improveMode ? "editing" : "viewing"
+                      }`}
+                      maxLength={20}
+                      value={charsheetData.dodge?.toString() || ""}
+                      disabled={!improveMode}
+                      onChange={(e) =>
+                        updateData((prev) => ({ ...prev, dodge: parseInt(e.target.value) }))
+                      }
+                    />
+                  </div>
+                  <div className='w-4 flex justify-content-between border-1 border-50 border-round p-3 align-items-center'>
+                    <label>HÁRÍTÁS</label>
+                    <InputText
+                      type='number'
+                      className={`w-2rem text-yellow-400 text-center ${
+                        improveMode ? "editing" : "viewing"
+                      }`}
+                      maxLength={20}
+                      value={charsheetData.parry?.toString() || ""}
+                      disabled={!improveMode}
+                      onChange={(e) =>
+                        updateData((prev) => ({ ...prev, parry: parseInt(e.target.value) }))
+                      }
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
             <div className='flex-1 flex flex-column light-inputs border-1 border-50 border-round p-3'>
               <div className='flex gap-1 mb-2 text-300 text-sm select-none'>
                 <div className='w-4'>Fegyver</div>
@@ -885,21 +891,23 @@ export default function SWCharacterSheetPage({
                   />
                 </span>
               </div>
-              <div className='flex align-content-start mb-2'>
-                <span className='font-medium select-none'>Súlyosan sebesült</span>
-                <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
-                  <Checkbox
-                    className='text-yellow-400'
-                    checked={charsheetData.wounded2}
-                    onChange={(e) =>
-                      updateData((prev) => ({
-                        ...prev,
-                        wounded2: e.checked,
-                      }))
-                    }
-                  />
-                </span>
-              </div>
+              {roomSettings.wounded2 && (
+                <div className='flex align-content-start mb-2'>
+                  <span className='font-medium select-none'>Súlyosan sebesült</span>
+                  <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>
+                    <Checkbox
+                      className='text-yellow-400'
+                      checked={charsheetData.wounded2}
+                      onChange={(e) =>
+                        updateData((prev) => ({
+                          ...prev,
+                          wounded2: e.checked,
+                        }))
+                      }
+                    />
+                  </span>
+                </div>
+              )}
               <div className='flex align-content-start mb-2'>
                 <span className='font-medium select-none'>Magatehetetlen</span>
                 <span className={`font-medium text-yellow-400 ml-auto select-none light-inputs`}>

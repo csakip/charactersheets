@@ -185,16 +185,22 @@ function Rooms() {
     }
   };
 
-  const createCharacterWithName = async (
-    newPlayerName: string,
-    rollChecked: boolean,
-    selectedSystem: string
-  ) => {
-    if (newPlayerName.trim()) {
+  const createCharacterWithName = async ({
+    playerName,
+    rollChecked,
+    system,
+    type,
+  }: {
+    playerName: string;
+    rollChecked?: boolean;
+    system?: string;
+    type?: string;
+  }) => {
+    if (playerName.trim() && type === "character") {
       const id = await createCharacter(
         user.id,
-        selectedSystem,
-        newPlayerName.trim(),
+        system,
+        playerName.trim(),
         rollChecked,
         attributes,
         null
@@ -251,11 +257,11 @@ function Rooms() {
                           <Tooltip target={`#room-${idx}`} position='right' showDelay={300}>
                             {systems.find((s) => s.value === p.system)?.label}
                           </Tooltip>
-                          <span className='font-semibold'>{p.name}</span>
-                          <span className='text-sm text-300 ml-1'>
-                            -&nbsp;
+                          <span className='text-sm mr-1'>
                             {systems.find((s) => s.value === p.system)?.shortLabel}
+                            &nbsp;-
                           </span>
+                          <span className='font-semibold'>{p.name}</span>
                           {p.private && (
                             <i
                               className='pi pi-lock ml-1 text-300'
@@ -314,6 +320,7 @@ function Rooms() {
                 loadedCharsheet={selectedCharsheet}
                 editable={selectedCharsheet.user_id === user.id}
                 updateCharacterDisplay={updateCharacterDisplay}
+                roomSettings={{}}
               />
             )}
             {!selectedCharsheet && (

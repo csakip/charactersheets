@@ -17,6 +17,7 @@ import { useStore } from "./store";
 import { deleteRoom, logout, supabase } from "./supabase";
 import { createCharacter, shortenName } from "./utils";
 import RoomNotesPage from "./charSheets/RoomNotesPage";
+import { MenuItem } from "primereact/menuitem";
 
 function RoomPage() {
   const [charsheets, setCharsheets] = useState<Charsheet[]>([]);
@@ -135,22 +136,30 @@ function RoomPage() {
     }
   };
 
-  const createCharacterWithName = async (
-    newPlayerName: string,
-    rollChecked: boolean,
-    selectedSystem = system.value
-  ) => {
-    if (newPlayerName.trim()) {
-      const id = await createCharacter(
-        user.id,
-        selectedSystem,
-        newPlayerName.trim(),
-        rollChecked,
-        attributes,
-        roomId
-      );
+  const createCharacterWithName = async ({
+    playerName,
+    rollChecked,
+    system,
+    type,
+  }: {
+    playerName: string;
+    rollChecked?: boolean;
+    system?: string;
+    type?: string;
+  }) => {
+    if (playerName.trim()) {
+      if (type === "character") {
+        const id = await createCharacter(
+          user.id,
+          system,
+          playerName.trim(),
+          rollChecked,
+          attributes,
+          roomId
+        );
+        setSelectedCharsheetId(id);
+      }
       fetchCharsheets();
-      setSelectedCharsheetId(id);
       setShowNewCharacterDialog(false);
     }
   };
@@ -198,31 +207,62 @@ function RoomPage() {
       });
   }
 
+  function toggleRoomSetting(setting: string) {
+    const newSettings = { ...room.settings, [setting]: !room.settings[setting] };
+    supabase
+      .from("rooms")
+      .update({ settings: newSettings })
+      .eq("id", roomId)
+      .then(() => {
+        fetchRoom();
+        toast.current?.show({
+          severity: "success",
+          summary: "Szoba beállítások frissítve",
+          detail: `${setting} ${newSettings[setting] ? "bekapcsolva." : "kikapcsolva."}`,
+        });
+      });
+  }
+
   const selectedCharacter = charsheets.find((c) => c.id === selectedCharsheetId);
   const system = systems.find((s) => s.value === room?.system);
 
   if (!room) return <></>;
 
-  const menuItems = [
+  const menuItems: MenuItem[] = [
     {
       label: `${room.private ? "Nyilvánossá tesz" : "Priváttá tesz"}`,
       icon: `pi ${room.private ? "pi-lock" : "pi-lock-open"}`,
-      value: "private",
       command: toggleRoomPrivate,
     },
     {
       label: "Szoba átnevezése",
       icon: "pi pi-pencil",
-      value: "rename",
       command: () => setRenameDialogOpen(true),
     },
     {
       label: "Szoba törlése",
       icon: "pi pi-trash",
-      value: "delete",
       command: () => setShowDeleteConfirm(true),
     },
   ];
+
+  if (system.value === "starwars") {
+    menuItems.push({
+      label: "Beállítások",
+      items: [
+        {
+          label: "Két sebesült szint",
+          icon: room.settings.wounded2 ? "pi pi-check" : undefined,
+          command: () => toggleRoomSetting("wounded2"),
+        } as unknown as MenuItem,
+        {
+          label: "Statikus védelem",
+          icon: room.settings.staticDefense ? "pi pi-check" : undefined,
+          command: () => toggleRoomSetting("staticDefense"),
+        } as unknown as MenuItem,
+      ],
+    });
+  }
 
   return (
     <>
@@ -317,6 +357,7 @@ function RoomPage() {
                     loadedCharsheet={charsheets.find((c) => c.id === selectedCharsheetId)}
                     editable={user.id === selectedCharacter.user_id}
                     updateCharacterDisplay={updateCharacterDisplay}
+                    roomSettings={room.settings}
                   />
                 )}
               </>

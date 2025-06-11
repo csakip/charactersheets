@@ -102,6 +102,7 @@ export type Room = {
   system: string;
   notes?: string;
   private: boolean;
+  settings: { [key: string]: any };
 };
 
 export type Charsheet = {
