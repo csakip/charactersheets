@@ -13,7 +13,7 @@ export default function RoomNotesPage({ roomId, user }: { roomId: string; user: 
   const firstLoad = useRef(true);
 
   const editor = useEditor({
-    extensions: [StarterKit.configure({ history: false })],
+    extensions: [StarterKit],
     editorProps: { attributes: { class: "flex-1 outline-none my-0" } },
     onUpdate: () => {
       setTriggerSave(!triggerSave);
@@ -41,6 +41,7 @@ export default function RoomNotesPage({ roomId, user }: { roomId: string; user: 
     return () => {
       editor?.destroy();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor]);
 
   useEffect(() => {
@@ -91,6 +92,7 @@ export default function RoomNotesPage({ roomId, user }: { roomId: string; user: 
       setSaving(false);
       clearTimeout(timeout.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [triggerSave]);
 
   return (

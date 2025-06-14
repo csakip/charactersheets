@@ -19,6 +19,7 @@ import { saveCharsheet } from "../supabase";
 import { findParentAttributeAndSkill } from "../utils";
 import useLocalStorageState from "use-local-storage-state";
 import { FileDropUpload } from "../components/FileDropUpload";
+import { Editor } from "primereact/editor";
 
 export default function SWCharacterSheetPage({
   loadedCharsheet,
@@ -42,10 +43,26 @@ export default function SWCharacterSheetPage({
     defaultValue: false,
   });
 
+  const editorNotesRef = useRef(null);
+  const editorSpecialAbilitiesRef = useRef(null);
+  const editorEquipmentRef = useRef(null);
+  const dontSaveEditorContent = useRef(true);
+
   const charsheetData = charsheet.data as StarWarsData;
 
+  const modules = {
+    toolbar: [
+      [{ header: 1 }, { header: 2 }, { header: 3 }, "bold", "italic", "underline"],
+      [{ list: "ordered" }, { list: "bullet" }, { list: "check" }, { align: [] }],
+    ],
+  };
+
   useEffect(() => {
+    dontSaveEditorContent.current = true;
     setCharsheet(loadedCharsheet);
+    setTimeout(() => {
+      dontSaveEditorContent.current = false;
+    }, 200);
     return () => {
       if (isDirty) {
         setIsDirty(false);
@@ -70,7 +87,7 @@ export default function SWCharacterSheetPage({
   }, [charsheet, isDirty]);
 
   function updateData(value: (prev: any) => any) {
-    if (!editable) return;
+    if (!editable || dontSaveEditorContent.current) return;
     const newCharsheet = {
       ...charsheet,
       data: value(charsheetData),
@@ -158,6 +175,7 @@ export default function SWCharacterSheetPage({
         closable: false,
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [charsheetData]
   );
 
@@ -277,6 +295,14 @@ export default function SWCharacterSheetPage({
         0
       )
     );
+  }
+
+  function editorSelectionChange(e, editorRef) {
+    if (e.range && e.range.length > 0) {
+      editorRef.current.getElement().classList.add("has-selection");
+    } else {
+      editorRef.current.getElement().classList.remove("has-selection");
+    }
   }
 
   const characterSkillNames = charsheetData.attributes.flatMap((a) => a.skills.map((s) => s.name));
@@ -928,48 +954,84 @@ export default function SWCharacterSheetPage({
         </div>
 
         {/* Notes */}
-        <div className='flex w-full gap-3'>
+        <div className='flex w-full gap-3 editor-container'>
           <div className='flex-1 flex flex-column gap-4 justify-content-start'>
-            <FloatLabel className='w-full'>
-              <InputTextarea
-                rows={5}
-                autoResize
-                spellCheck={false}
-                className='w-full text-yellow-400 thin-scrollbar text-sm'
-                maxLength={1000}
-                value={charsheetData.notes}
-                onChange={(e) => updateData((prev) => ({ ...prev, notes: e.target.value }))}
-              />
-              <label>Jegyzetek</label>
-            </FloatLabel>
-            <FloatLabel className='w-full'>
-              <InputTextarea
-                rows={2}
-                autoResize
-                spellCheck={false}
-                className='w-full text-yellow-400 thin-scrollbar text-sm'
-                maxLength={1000}
-                value={charsheetData.specialAbilities}
-                onChange={(e) =>
-                  updateData((prev) => ({ ...prev, specialAbilities: e.target.value }))
-                }
-              />
-              <label>Különleges képességek</label>
-            </FloatLabel>
+            <div className='flex-1 flex relative'>
+              <label className='custom-label'>Jegyzetek</label>
+              {editable ? (
+                <Editor
+                  ref={editorNotesRef}
+                  showHeader={false}
+                  spellCheck={false}
+                  className='w-full text-yellow-400 relative'
+                  pt={{
+                    content: { className: "text-md border-1 border-50 border-round flex-1" },
+                    toolbar: { style: { position: "absolute" } },
+                  }}
+                  maxLength={1000}
+                  value={charsheetData.notes}
+                  onTextChange={(e) => updateData((prev) => ({ ...prev, notes: e.htmlValue }))}
+                  modules={modules}
+                  onSelectionChange={(e) => editorSelectionChange(e, editorNotesRef)}
+                />
+              ) : (
+                <div
+                  className='editor-static text-yellow-400 text-md flex-1 p-3 border-1 border-50 border-round'
+                  dangerouslySetInnerHTML={{ __html: charsheetData.notes }}></div>
+              )}
+            </div>
+            <div className='flex-1 flex relative'>
+              <label className='custom-label'>Különleges képességek</label>
+              {editable ? (
+                <Editor
+                  ref={editorSpecialAbilitiesRef}
+                  showHeader={false}
+                  spellCheck={false}
+                  className='w-full text-yellow-400 relative'
+                  pt={{
+                    content: { className: "text-md border-1 border-50 border-round flex-1" },
+                    toolbar: { style: { position: "absolute" } },
+                  }}
+                  maxLength={1000}
+                  value={charsheetData.specialAbilities}
+                  onTextChange={(e) =>
+                    updateData((prev) => ({ ...prev, specialAbilities: e.htmlValue }))
+                  }
+                  modules={modules}
+                  onSelectionChange={(e) => editorSelectionChange(e, editorSpecialAbilitiesRef)}
+                />
+              ) : (
+                <div
+                  className='editor-static text-yellow-400 text-md flex-1 p-3 border-1 border-50 border-round'
+                  dangerouslySetInnerHTML={{ __html: charsheetData.specialAbilities }}></div>
+              )}
+            </div>
           </div>
           <div className='flex-1 flex flex-column'>
-            <FloatLabel className='flex-1 flex'>
-              <InputTextarea
-                rows={5}
-                autoResize
-                spellCheck={false}
-                className='flex-1 text-yellow-400 thin-scrollbar text-sm'
-                maxLength={2000}
-                value={charsheetData.equipment}
-                onChange={(e) => updateData((prev) => ({ ...prev, equipment: e.target.value }))}
-              />
-              <label>Felszerelés</label>
-            </FloatLabel>
+            <div className='flex-1 flex relative flex'>
+              <label className='custom-label'>Felszerelés</label>
+              {editable ? (
+                <Editor
+                  ref={editorEquipmentRef}
+                  showHeader={false}
+                  spellCheck={false}
+                  className='flex-1 text-yellow-400 relative'
+                  pt={{
+                    content: { className: "text-md border-1 border-50 border-round flex-1" },
+                    toolbar: { style: { position: "absolute" } },
+                  }}
+                  maxLength={2000}
+                  value={charsheetData.equipment}
+                  onTextChange={(e) => updateData((prev) => ({ ...prev, equipment: e.htmlValue }))}
+                  modules={modules}
+                  onSelectionChange={(e) => editorSelectionChange(e, editorEquipmentRef)}
+                />
+              ) : (
+                <div
+                  className='editor-static text-yellow-400 text-md flex-1 p-3 border-1 border-50 border-round'
+                  dangerouslySetInnerHTML={{ __html: charsheetData.equipment }}></div>
+              )}
+            </div>
           </div>
         </div>
       </div>
