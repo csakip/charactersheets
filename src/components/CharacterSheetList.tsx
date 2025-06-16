@@ -44,7 +44,7 @@ export default function CharacterSheetList({
           value={selectedCharsheetId}
           options={charsheets
             .toSorted((a, b) =>
-              (showPlayerName ? a.data.playerName < b.data.playerName : a.created_at < b.created_at)
+              (showPlayerName ? a.data.playerName > b.data.playerName : a.created_at < b.created_at)
                 ? 1
                 : -1
             )
