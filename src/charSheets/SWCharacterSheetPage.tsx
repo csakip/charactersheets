@@ -976,7 +976,7 @@ export default function SWCharacterSheetPage({
                 />
               ) : (
                 <div
-                  className='editor-static text-yellow-400 text-md flex-1 p-3 border-1 border-50 border-round'
+                  className='editor-static text-yellow-400 text-md flex-1 px-3 py-2 border-1 border-50 border-round'
                   dangerouslySetInnerHTML={{ __html: charsheetData.notes }}></div>
               )}
             </div>
@@ -1002,7 +1002,7 @@ export default function SWCharacterSheetPage({
                 />
               ) : (
                 <div
-                  className='editor-static text-yellow-400 text-md flex-1 p-3 border-1 border-50 border-round'
+                  className='editor-static text-yellow-400 text-md flex-1 px-3 py-2 border-1 border-50 border-round'
                   dangerouslySetInnerHTML={{ __html: charsheetData.specialAbilities }}></div>
               )}
             </div>
@@ -1028,7 +1028,7 @@ export default function SWCharacterSheetPage({
                 />
               ) : (
                 <div
-                  className='editor-static text-yellow-400 text-md flex-1 p-3 border-1 border-50 border-round'
+                  className='editor-static text-yellow-400 text-md flex-1 px-3 py-2 border-1 border-50 border-round'
                   dangerouslySetInnerHTML={{ __html: charsheetData.equipment }}></div>
               )}
             </div>
