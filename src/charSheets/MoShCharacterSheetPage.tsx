@@ -123,7 +123,9 @@ export default function MoShCharacterSheetPage({
           <div className='flex gap-2 mt-3 flex-column'>
             {/* Attributes */}
             <div className='flex flex-column w-full'>
-              <div className='w-full text-center font-bold mb-3'>Tulajdonságok (2D10+25)</div>
+              <div className='w-full text-center font-bold mb-3'>
+                Tulajdonságok <span className='text-sm text-300'>(2D10+25)</span>
+              </div>
               <div className='flex'>
                 <div className='flex flex-column align-items-center w-3 mb-3'>
                   <InputText
@@ -169,7 +171,9 @@ export default function MoShCharacterSheetPage({
 
             {/* Saves */}
             <div className='flex flex-column w-full'>
-              <div className='w-full text-center font-bold mb-3'>Mentők (2D10+10)</div>
+              <div className='w-full text-center font-bold mb-3'>
+                Mentők <span className='text-sm text-300'>(2D10+10)</span>
+              </div>
               <div className='flex justify-content-center'>
                 <div className='flex flex-column align-items-center w-3 mb-3'>
                   <InputText
@@ -234,7 +238,7 @@ export default function MoShCharacterSheetPage({
           {/* Health */}
           <div className='flex flex-1 gap-4 mt-3 w-full'>
             <div className='flex flex-1 flex-column gap-1 justify-content-center align-items-center'>
-              <span className='text-lg font-bold text-yellow-400'>Életerő</span>
+              <span className='text-lg font-bold'>Életerő</span>
               <div className='flex w-full border-1 border-bluegray-700 border-round border-3 justify-content-around border-round-3xl w-8rem'>
                 <InputText
                   className='transparent text-yellow-400 text-xl'
@@ -256,7 +260,7 @@ export default function MoShCharacterSheetPage({
             </div>
 
             <div className='flex flex-1 flex-column gap-1 justify-content-center align-items-center'>
-              <span className='text-lg font-bold text-yellow-400'>Sebek</span>
+              <span className='text-lg font-bold'>Sebek</span>
               <div className='flex w-full border-1 border-bluegray-700 border-round border-3 justify-content-around border-round-3xl w-8rem'>
                 <InputText
                   className='transparent text-yellow-400 text-xl'
@@ -278,7 +282,7 @@ export default function MoShCharacterSheetPage({
             </div>
 
             <div className='flex flex-1 flex-column gap-1 justify-content-center align-items-center'>
-              <span className='text-lg font-bold text-yellow-400'>Stressz</span>
+              <span className='text-lg font-bold'>Stressz</span>
               <div className='flex w-full border-1 border-bluegray-700 border-round border-3 justify-content-around border-round-3xl w-8rem'>
                 <InputText
                   className='transparent text-yellow-400 text-xl'
@@ -348,7 +352,7 @@ export default function MoShCharacterSheetPage({
 
           <div className='mt-3 flex flex-1 justify-content-between'>
             <div className='flex justify-content-center flex-column gap-1 align-items-center'>
-              <span className='text-lg font-bold text-yellow-400'>Páncél pontok</span>
+              <span className='text-lg font-bold'>Páncél pontok</span>
               <div className='flex w-full border-1 border-bluegray-700 border-round border-3 justify-content-around border-round-3xl w-6rem'>
                 <InputText
                   className='transparent text-yellow-400 text-xl'
@@ -361,7 +365,7 @@ export default function MoShCharacterSheetPage({
 
             <div className='mt-3 flex justify-content-center flex-column gap-1 align-items-center'>
               <div>
-                <span className='text-lg font-bold text-yellow-400'>Kredit </span>
+                <span className='text-lg font-bold'>Kredit </span>
                 <span className='text-sm text-300'>(2D10x10)</span>
               </div>
               <div className='flex w-full border-1 border-bluegray-700 border-round border-3 justify-content-around border-round-3xl w-6rem'>
