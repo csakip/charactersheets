@@ -1,39 +1,19 @@
-export const attributes = [
-  { label: "ERŐ" },
-  { label: "INT" },
-  { label: "ÜGY" },
-  { label: "BÖL" },
-  { label: "EGS" },
-  { label: "KAR" },
-];
+export const woduAttributes = [{ label: "ERŐ" }, { label: "INT" }, { label: "ÜGY" }, { label: "BÖL" }, { label: "EGS" }, { label: "KAR" }];
 
-export const skills = [
-  "Atlétika",
-  "Éberség",
-  "Megtévesztés",
-  "Rejtélyfejtés",
-  "Gyógyítás",
-  "Parancsnoklás",
-  "Mágiaismeret",
-  "Lopakodás",
-  "Túlélés",
-];
+export const woduSkills = ["Atlétika", "Éberség", "Megtévesztés", "Rejtélyfejtés", "Gyógyítás", "Parancsnoklás", "Mágiaismeret", "Lopakodás", "Túlélés"];
 
-export const abilities = [
+export const woduAbilities = [
   {
     name: "Áldás",
-    description:
-      "Szentelt vízzel felkenhetsz tárgyakat,\nhogy szentnek és mágikusnak számítsanak.\n+3 sebzés a gonosz ellen, rövid ideig.",
+    description: "Szentelt vízzel felkenhetsz tárgyakat,\nhogy szentnek és mágikusnak számítsanak.\n+3 sebzés a gonosz ellen, rövid ideig.",
   },
   {
     name: "Gyógyítás",
-    description:
-      "Megpróbálhatod semlegesíteni a mérgeket,\nátkokat, vagy sebeket gyógyíthatsz érintéssel.",
+    description: "Megpróbálhatod semlegesíteni a mérgeket,\nátkokat, vagy sebeket gyógyíthatsz érintéssel.",
   },
   {
     name: "Elűzés",
-    description:
-      "Megpróbálhatsz élőhalottakat visszatartani\nszent hatalmaddal és szent szimbólumoddal.",
+    description: "Megpróbálhatsz élőhalottakat visszatartani\nszent hatalmaddal és szent szimbólumoddal.",
   },
   {
     name: "Látomás",
@@ -54,8 +34,7 @@ export const abilities = [
   { name: "Reflexek", description: "Mindig először cselekedhetsz\nés reagálhatsz, ha megleptek." },
   {
     name: "Bűtykölés",
-    description:
-      "Gyorsan megpróbálhatsz zsebet metszeni,\nzárat nyitni vagy csapdát hatástalanítani.",
+    description: "Gyorsan megpróbálhatsz zsebet metszeni,\nzárat nyitni vagy csapdát hatástalanítani.",
   },
   {
     name: "Trükkök",
@@ -67,8 +46,7 @@ export const abilities = [
   },
   {
     name: "Rituálé",
-    description:
-      "Ősi könyvekből és tekercsekből okkult rituálékat\nvégezhetsz - két ismert rituáléval kezdesz.",
+    description: "Ősi könyvekből és tekercsekből okkult rituálékat\nvégezhetsz - két ismert rituáléval kezdesz.",
   },
   {
     name: "Idézés",
@@ -109,7 +87,7 @@ export type Charsheet = {
   id?: number;
   user_id: string;
   system: string;
-  data: WoduData | BladesData | StarWarsData;
+  data: WoduData | BladesData | StarWarsData | MothershipData;
   created_at?: string;
   updated_at?: string;
   rooms_charsheets?: { room_id: number }[];
@@ -265,10 +243,10 @@ export function emptyBladesData(newPlayerName: string): BladesData {
   };
 }
 
-export type mothershipData = {
+export type MothershipData = {
   id?: string;
   playerName: string;
-  characterName: string;
+  name: string;
   pronouns: string;
   personalNotes: string;
   highScore: number;
@@ -283,14 +261,14 @@ export type mothershipData = {
   fear: number;
   body: number;
 
-  class: "Melós" | "Android" | "Tudós" | "Katona" | string;
+  class: "Melós" | "Android" | "Tudós" | "Katona" | "";
 
   health: number;
-  currentHEalth: number;
+  currentHealth: number;
   wounds: number;
   currentWounds: number;
   currentStress: number;
-  miniumStress: number;
+  minimumStress: number;
 
   trinket: string;
   patch: string;
@@ -305,10 +283,81 @@ export type mothershipData = {
   conditions: string;
 };
 
-export function emptyMothershipData(newPlayerName): mothershipData {
+export const mothershipClasses = ["", "Katona", "Android", "Tudós", "Melós"];
+export const mothershipTraumaReactions = {
+  Katona: "Ha pánikolsz, minden közeli baráti játékosnak félelem mentőt kell dobni.",
+  Android: "A közeli baráti játékosok a félelem mentőt hátránnyal dobják.",
+  Tudós: "Ha sikertelen egy épelme mentőd, minden közeli baráti játékos 1 stresszt kap.",
+  Melós: "Egy játékalkalom során egyszer előnnyel dobhatsz egy pánik dobást.",
+};
+export const mothershipClassTexts = [
+  ["+10 harc", "+10 test mentő", "+20 félelem mentő", "+1 max seb"],
+  ["+20 elme", "-10 1 tulajdonság", "+60 félelem mentő", "+1 max seb"],
+  ["+10 elme", "+5 egy tulajdonság", "+30 épelme mentő"],
+  ["+5 minden tul.", "+10 minden mentő"],
+];
+
+export const mothershipSkills = [
+  [
+    "Nyelvész",
+    "Állattan",
+    "",
+    "Növénytan",
+    "Földrajz",
+    "Munkagépek",
+    "Tákolás",
+    "Kémia",
+    "Computerek",
+    "Zero-g",
+    "Matematika",
+    "Művészet",
+    "Régészet",
+    "Vallásismeret",
+    "Katonai képzés",
+    "Utcaismeret",
+    "Atlétika",
+  ],
+  [
+    "Pszichológia",
+    "Kórtan",
+    "Elsősegély",
+    "Ökológia",
+    "Aszteroida bányászat",
+    "Szerelés",
+    "Robbantás",
+    "Gyógyszerészet",
+    "Hackelés",
+    "Pilóta",
+    "Fizika",
+    "Misztikum",
+    "",
+    "Túlélés",
+    "Tűzfegyverek",
+    "Közelharc",
+  ],
+  [
+    "Értelmes élet kutatás",
+    "Exobiológia",
+    "Sebészet",
+    "Bolygóismeret",
+    "Robotika",
+    "Tervezőmérnök",
+    "Kibernetika",
+    "",
+    "Mesterséges intelligencia",
+    "",
+    "Hipertér",
+    "Xenoezoterika",
+    "",
+    "",
+    "Parancsnoklás",
+  ],
+];
+
+export function emptyMothershipData(newPlayerName): MothershipData {
   return {
     playerName: newPlayerName,
-    characterName: "",
+    name: "",
     pronouns: "",
     personalNotes: "",
     highScore: 0,
@@ -326,11 +375,11 @@ export function emptyMothershipData(newPlayerName): mothershipData {
     class: "",
 
     health: 0,
-    currentHEalth: 0,
+    currentHealth: 0,
     wounds: 0,
     currentWounds: 0,
     currentStress: 0,
-    miniumStress: 0,
+    minimumStress: 2,
 
     trinket: "",
     patch: "",
@@ -459,18 +508,7 @@ export const starWarsAttributesAndSkills = [
   },
   {
     name: "ÉRZÉKELÉS",
-    skills: [
-      "Alkudozás",
-      "Parancsnoklás",
-      "Szélhámosság",
-      "Hamisítás",
-      "Szerencsejáték",
-      "Rejtőzés",
-      "Adatgyűjtés",
-      "Meggyőzés",
-      "Fürkészés",
-      "Lopakodás",
-    ],
+    skills: ["Alkudozás", "Parancsnoklás", "Szélhámosság", "Hamisítás", "Szerencsejáték", "Rejtőzés", "Adatgyűjtés", "Meggyőzés", "Fürkészés", "Lopakodás"],
   },
   {
     name: "ERŐ",
@@ -549,4 +587,5 @@ export const systems = [
   { label: "World of Dungeons", value: "wodu", shortLabel: "WoDu" },
   { label: "Kések az Éjben", value: "blades", shortLabel: "KaÉ" },
   { label: "Star Wars", value: "starwars", shortLabel: "SW" },
+  { label: "Mothership", value: "mosh", shortLabel: "MoSh" },
 ];

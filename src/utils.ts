@@ -1,11 +1,4 @@
-import {
-  BladesData,
-  emptyBladesData,
-  emptyStarWarsData,
-  emptyWoduData,
-  StarWarsData,
-  WoduData,
-} from "./constants";
+import { BladesData, emptyBladesData, emptyMothershipData, emptyStarWarsData, emptyWoduData, MothershipData, StarWarsData, WoduData } from "./constants";
 import { saveCharsheet } from "./supabase";
 
 export function rollD6() {
@@ -35,15 +28,8 @@ export function isMobile() {
   return window.matchMedia("(max-width: 768px)");
 }
 
-export async function createCharacter(
-  userId: string,
-  selectedSystem: string,
-  newPlayerName: string,
-  rollChecked: boolean,
-  attributes: any,
-  roomId: string | null
-) {
-  let char: WoduData | BladesData | StarWarsData = null;
+export async function createCharacter(userId: string, selectedSystem: string, newPlayerName: string, rollChecked: boolean, attributes: any, roomId: string | null) {
+  let char: WoduData | BladesData | StarWarsData | MothershipData = null;
 
   switch (selectedSystem) {
     case "wodu": {
@@ -67,6 +53,10 @@ export async function createCharacter(
     }
     case "starwars": {
       char = emptyStarWarsData(newPlayerName.trim());
+      break;
+    }
+    case "mosh": {
+      char = emptyMothershipData(newPlayerName.trim());
       break;
     }
   }

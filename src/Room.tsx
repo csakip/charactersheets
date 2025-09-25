@@ -12,21 +12,19 @@ import WoDuCharacterSheetPage from "./charSheets/WoDuCharacterSheetPage";
 import CharacterSheetList from "./components/CharacterSheetList";
 import InputDialog from "./components/InputDialog";
 import NewCharacterDialog from "./components/NewCharacterDialog";
-import { attributes, Charsheet, Room, systems } from "./constants";
+import { woduAttributes, Charsheet, Room, systems } from "./constants";
 import { useStore } from "./store";
 import { deleteRoom, logout, supabase } from "./supabase";
 import { createCharacter, shortenName } from "./utils";
 import RoomNotesPage from "./charSheets/RoomNotesPage";
 import { MenuItem } from "primereact/menuitem";
+import MoShCharacterSheetPage from "./charSheets/MoShCharacterSheetPage";
 
 function RoomPage() {
   const [charsheets, setCharsheets] = useState<Charsheet[]>([]);
-  const [selectedCharsheetId, setSelectedCharsheetId] = useLocalStorageState<number>(
-    "wodu-selected-charsheet",
-    {
-      defaultValue: null,
-    }
-  );
+  const [selectedCharsheetId, setSelectedCharsheetId] = useLocalStorageState<number>("wodu-selected-charsheet", {
+    defaultValue: null,
+  });
   const [showNewCharacterDialog, setShowNewCharacterDialog] = useState(false);
   const [room, setRoom] = useState<Room>();
   const [sidebarOpen, setSidebarOpen] = useLocalStorageState("wodu-sidebar", {
@@ -71,21 +69,14 @@ function RoomPage() {
           table: "charsheets",
         },
         (payload) => {
-          if (
-            payload.eventType === "INSERT" ||
-            payload.eventType === "UPDATE" ||
-            payload.eventType === "DELETE"
-          ) {
+          if (payload.eventType === "INSERT" || payload.eventType === "UPDATE" || payload.eventType === "DELETE") {
             if (payload.eventType === "UPDATE" || payload.eventType === "INSERT") {
               const newCharsheet = payload.new as Charsheet;
 
               // Don't update my own character
               if (newCharsheet.user_id === user.id && payload.eventType === "UPDATE") return;
 
-              const newCharsheets = [
-                ...charsheetsRef.current.filter((p) => p.id !== newCharsheet.id),
-                newCharsheet,
-              ];
+              const newCharsheets = [...charsheetsRef.current.filter((p) => p.id !== newCharsheet.id), newCharsheet];
               setCharsheets(newCharsheets);
             } else if (payload.eventType === "DELETE") {
               setCharsheets([...charsheetsRef.current.filter((p) => p.id !== payload.old.id)]);
@@ -136,27 +127,10 @@ function RoomPage() {
     }
   };
 
-  const createCharacterWithName = async ({
-    playerName,
-    rollChecked,
-    system,
-    type,
-  }: {
-    playerName: string;
-    rollChecked?: boolean;
-    system?: string;
-    type?: string;
-  }) => {
+  const createCharacterWithName = async ({ playerName, rollChecked, system, type }: { playerName: string; rollChecked?: boolean; system?: string; type?: string }) => {
     if (playerName.trim()) {
       if (type === "character") {
-        const id = await createCharacter(
-          user.id,
-          system,
-          playerName.trim(),
-          rollChecked,
-          attributes,
-          roomId
-        );
+        const id = await createCharacter(user.id, system, playerName.trim(), rollChecked, woduAttributes, roomId);
         setSelectedCharsheetId(id);
       }
       fetchCharsheets();
@@ -275,28 +249,18 @@ function RoomPage() {
             rounded
             size='small'
             onClick={() => setSidebarOpen(!sidebarOpen)}></Button>
-          <div
-            className='flex flex-column flex-1 p-3 pt-4 thin-scrollbar overflow-y-auto  w-full'
-            style={{ backgroundColor: "#1f2937" }}>
+          <div className='flex flex-column flex-1 p-3 pt-4 thin-scrollbar overflow-y-auto  w-full' style={{ backgroundColor: "#1f2937" }}>
             <div>
               <Link to='/' className='text-base text-yellow-400'>
                 <i className='pi pi-arrow-left mr-1 mb-4'></i> Szobák
               </Link>
             </div>
             <div className='flex gap-1 justify-content-start align-items-center'>
-              <div className='hidden-nowrap text-2xl font-bold opacity-90'>
-                {sidebarOpen ? room.name : shortenName(room.name)}
-              </div>
+              <div className='hidden-nowrap text-2xl font-bold opacity-90'>{sidebarOpen ? room.name : shortenName(room.name)}</div>
 
               {sidebarOpen && user.id === room.user_id && (
                 <>
-                  <Menu
-                    model={menuItems}
-                    popup
-                    ref={roomMenu}
-                    id='popup_menu_left'
-                    pt={{ root: { className: "w-14rem" } }}
-                  />
+                  <Menu model={menuItems} popup ref={roomMenu} id='popup_menu_left' pt={{ root: { className: "w-14rem" } }} />
                   <Button
                     icon='pi pi-bars'
                     className='ml-auto'
@@ -307,15 +271,9 @@ function RoomPage() {
                 </>
               )}
             </div>
-            <div className='hidden-nowrap text-base text-400 mt-1 font-normal'>
-              {sidebarOpen ? system.label : system.shortLabel}
-            </div>
+            <div className='hidden-nowrap text-base text-400 mt-1 font-normal'>{sidebarOpen ? system.label : system.shortLabel}</div>
             {system.value === "wodu" && (
-              <a
-                href='https://csokav.notion.site/World-of-Dungeons-1ca0f93292ad80db9f5dccfbfede8180'
-                target='_blank'
-                rel='noopener noreferrer'
-                className='text-300 text-sm'>
+              <a href='https://csokav.notion.site/World-of-Dungeons-1ca0f93292ad80db9f5dccfbfede8180' target='_blank' rel='noopener noreferrer' className='text-300 text-sm'>
                 Ismertető <i className='pi pi-external-link text-xs ml-1'></i>
               </a>
             )}
@@ -360,34 +318,27 @@ function RoomPage() {
                     roomSettings={room.settings}
                   />
                 )}
+                {system.value === "mosh" && (
+                  <MoShCharacterSheetPage
+                    loadedCharsheet={charsheets.find((c) => c.id === selectedCharsheetId)}
+                    editable={user.id === selectedCharacter.user_id}
+                    updateCharacterDisplay={updateCharacterDisplay}
+                  />
+                )}
               </>
             ) : selectedCharsheetId === -1 ? (
               <RoomNotesPage roomId={roomId} user={user} />
             ) : (
               <div className='flex align-items-center justify-content-center h-full'>
-                <Button onClick={() => setShowNewCharacterDialog(true)}>
-                  Új karakter létrehozása
-                </Button>
+                <Button onClick={() => setShowNewCharacterDialog(true)}>Új karakter létrehozása</Button>
               </div>
             )}
           </div>
         </div>
       </div>
-      <NewCharacterDialog
-        visible={showNewCharacterDialog}
-        onHide={() => setShowNewCharacterDialog(false)}
-        onSave={createCharacterWithName}
-        system={system.value}
-      />
+      <NewCharacterDialog visible={showNewCharacterDialog} onHide={() => setShowNewCharacterDialog(false)} onSave={createCharacterWithName} system={system.value} />
 
-      <InputDialog
-        visible={renameDialogOpen}
-        onHide={() => setRenameDialogOpen(false)}
-        onSave={renameRoom}
-        title='Szoba átnevezése'
-        content='Új név'
-        defaultValue={room.name}
-      />
+      <InputDialog visible={renameDialogOpen} onHide={() => setRenameDialogOpen(false)} onSave={renameRoom} title='Szoba átnevezése' content='Új név' defaultValue={room.name} />
 
       <ConfirmDialog
         visible={showDeleteConfirm}

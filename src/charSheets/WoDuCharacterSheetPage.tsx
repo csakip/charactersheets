@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { Fragment } from "react/jsx-runtime";
 import CharacterSheetBottom from "../components/CharacterSheetBottom";
 import { saveCharsheet } from "../supabase";
-import { abilities, attributes, Charsheet, skills, WoduData } from "../constants";
+import { woduAbilities, woduAttributes, Charsheet, woduSkills, WoduData } from "../constants";
 
 export default function WoDuCharacterSheetPage({
   loadedCharsheet,
@@ -74,9 +74,7 @@ export default function WoDuCharacterSheetPage({
   const toggleSkill = (skill: string) => {
     updateData((prev) => ({
       ...prev,
-      skills: prev.skills.includes(skill)
-        ? prev.skills.filter((s) => s !== skill)
-        : [...prev.skills, skill],
+      skills: prev.skills.includes(skill) ? prev.skills.filter((s) => s !== skill) : [...prev.skills, skill],
     }));
   };
 
@@ -90,9 +88,7 @@ export default function WoDuCharacterSheetPage({
     updateData((prev) => ({
       ...prev,
       sumArmor: currentArmor,
-      abilities: prev.abilities.includes(ability)
-        ? prev.abilities.filter((a) => a !== ability)
-        : [...prev.abilities, ability],
+      abilities: prev.abilities.includes(ability) ? prev.abilities.filter((a) => a !== ability) : [...prev.abilities, ability],
     }));
   };
 
@@ -102,10 +98,7 @@ export default function WoDuCharacterSheetPage({
     const shield = type === "Pajzs" && checked ? 1 : type !== "Pajzs" ? prevShield : 0;
     const abilityArmor = charsheetData.abilities.includes("Kemény") ? 1 : 0;
 
-    const armor =
-      type !== "Pajzs" && checked
-        ? ["Nincs", "Könnyű", "Teljes"].indexOf(type)
-        : ["Nincs", "Könnyű", "Teljes"].indexOf(charsheetData.armor);
+    const armor = type !== "Pajzs" && checked ? ["Nincs", "Könnyű", "Teljes"].indexOf(type) : ["Nincs", "Könnyű", "Teljes"].indexOf(charsheetData.armor);
 
     if (type === "Pajzs") {
       updateData((prev) => ({
@@ -144,9 +137,7 @@ export default function WoDuCharacterSheetPage({
   return (
     <>
       <Toast ref={toast} />
-      <div
-        className='charactersheet wodu flex flex-column gap-4 p-4 mt-3 border-round-md'
-        style={{ maxWidth: "1000px", margin: "auto", backgroundColor: "#1f2937" }}>
+      <div className='charactersheet wodu flex flex-column gap-4 p-4 mt-3 border-round-md' style={{ maxWidth: "1000px", margin: "auto", backgroundColor: "#1f2937" }}>
         {/* Top Fields */}
         <div className='flex gap-4'>
           <InputText
@@ -194,16 +185,12 @@ export default function WoDuCharacterSheetPage({
           <div className='flex justify-content-between flex-row w-4 flex-wrap align-content-start'>
             <div className='w-full text-center font-bold mb-3'>Tulajdonságok</div>
 
-            {attributes.map((attr) => (
+            {woduAttributes.map((attr) => (
               <div key={attr.label} className='flex flex-row align-items-center w-6 mb-3'>
                 <InputText
                   type='number'
                   className='w-4rem text-center p-inputtext-lg p-2 text-4xl text-yellow-400 font-bold'
-                  value={
-                    charsheetData.attributes[
-                      attr.label.toLowerCase() as keyof typeof charsheetData.attributes
-                    ]?.toString() || "0"
-                  }
+                  value={charsheetData.attributes[attr.label.toLowerCase() as keyof typeof charsheetData.attributes]?.toString() || "0"}
                   onChange={(e) => handleAttributeChange(attr.label.slice(0, 3), e.target.value)}
                 />
                 <span className='font-bold ml-2 text-3xl'>{attr.label}</span>
@@ -215,17 +202,10 @@ export default function WoDuCharacterSheetPage({
           <div className='flex w-3 flex-column'>
             <div className='w-full text-center font-bold mb-3'>Képzettségek</div>
             <div className='flex-1 border-1 border-round border-bluegray-700 p-3 justify-content-between flex flex-column'>
-              {skills.map((skill) => (
-                <div
-                  key={skill}
-                  className={`flex justify-content-between align-items-center ${
-                    charsheetData.skills.includes(skill) ? "text-900" : "text-200"
-                  }`}>
+              {woduSkills.map((skill) => (
+                <div key={skill} className={`flex justify-content-between align-items-center ${charsheetData.skills.includes(skill) ? "text-900" : "text-200"}`}>
                   <span>{skill}</span>
-                  <Checkbox
-                    checked={charsheetData.skills.includes(skill)}
-                    onChange={() => toggleSkill(skill)}
-                  />
+                  <Checkbox checked={charsheetData.skills.includes(skill)} onChange={() => toggleSkill(skill)} />
                 </div>
               ))}
             </div>
@@ -234,29 +214,18 @@ export default function WoDuCharacterSheetPage({
             <div className='w-full text-center font-bold mb-3'>Különleges képességek</div>
             <div className='flex-1 border-1 border-round border-bluegray-700 p-3'>
               <div className='grid'>
-                {abilities.map((ab, idx) => (
+                {woduAbilities.map((ab, idx) => (
                   <Fragment key={ab.name}>
                     <div
                       id={`abaility-div-${idx}`}
-                      className={`col-6 flex justify-content-between align-items-center p-1 ${
-                        charsheetData.abilities.includes(ab.name) ? "text-900" : "text-200"
-                      }`}>
+                      className={`col-6 flex justify-content-between align-items-center p-1 ${charsheetData.abilities.includes(ab.name) ? "text-900" : "text-200"}`}>
                       <span>{ab.name}</span>
-                      <Checkbox
-                        checked={charsheetData.abilities.includes(ab.name)}
-                        onChange={() => toggleAbility(ab.name)}
-                      />
+                      <Checkbox checked={charsheetData.abilities.includes(ab.name)} onChange={() => toggleAbility(ab.name)} />
                     </div>
-                    <Tooltip
-                      target={`#abaility-div-${idx}`}
-                      mouseTrack
-                      position='bottom'
-                      mouseTrackTop={20}>
+                    <Tooltip target={`#abaility-div-${idx}`} mouseTrack position='bottom' mouseTrackTop={20}>
                       {ab.description}
                     </Tooltip>
-                    {(idx + 1) % 4 === 0 && idx !== abilities.length - 1 && (
-                      <hr className='w-full text-bluegray-700' />
-                    )}
+                    {(idx + 1) % 4 === 0 && idx !== woduAbilities.length - 1 && <hr className='w-full text-bluegray-700' />}
                   </Fragment>
                 ))}
               </div>
@@ -297,9 +266,7 @@ export default function WoDuCharacterSheetPage({
                 <div key={label} className='flex align-items-center gap-2'>
                   <Checkbox
                     inputId={`arm_${idx}`}
-                    checked={
-                      label === "Pajzs" ? charsheetData.shield : charsheetData.armor === label
-                    }
+                    checked={label === "Pajzs" ? charsheetData.shield : charsheetData.armor === label}
                     onChange={(e) => handleArmorTypeChange(label, e.checked)}
                   />
                   <label htmlFor={`arm_${idx}`}>{label}</label>
@@ -315,9 +282,7 @@ export default function WoDuCharacterSheetPage({
                   onChange={(e) =>
                     updateData((prev) => ({
                       ...prev,
-                      sumArmor: e.target.value
-                        ? Math.max(0, Math.min(10, parseInt(e.target.value)))
-                        : 0,
+                      sumArmor: e.target.value ? Math.max(0, Math.min(10, parseInt(e.target.value))) : 0,
                     }))
                   }
                 />
@@ -338,9 +303,7 @@ export default function WoDuCharacterSheetPage({
                   onChange={(e) =>
                     updateData((prev) => ({
                       ...prev,
-                      hpDice: e.target.value
-                        ? Math.max(1, Math.min(10, parseInt(e.target.value)))
-                        : 0,
+                      hpDice: e.target.value ? Math.max(1, Math.min(10, parseInt(e.target.value))) : 0,
                     }))
                   }
                 />
@@ -429,13 +392,7 @@ export default function WoDuCharacterSheetPage({
           </div>
         </div>
       </div>
-      {editable && (
-        <CharacterSheetBottom
-          charsheet={charsheet}
-          setCharsheet={setCharsheet}
-          style={{ maxWidth: "1000px", margin: "auto" }}
-        />
-      )}
+      {editable && <CharacterSheetBottom charsheet={charsheet} setCharsheet={setCharsheet} style={{ maxWidth: "1000px", margin: "auto" }} />}
     </>
   );
 }
