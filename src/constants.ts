@@ -272,6 +272,7 @@ export type MothershipData = {
 
   trinket: string;
   patch: string;
+  gear: string;
   notes: string;
 
   armorPoints: number;
@@ -296,6 +297,12 @@ export const mothershipClassTexts = [
   ["+10 elme", "+5 egy tulajdonság", "+30 épelme mentő"],
   ["+5 minden tul.", "+10 minden mentő"],
 ];
+export const mothershipClassSkills = {
+  Katona: "Katonai képzés, Atlétika és 1 szakértő VAGY: 2 képzett képzettség.",
+  Android: "Nyelvész, Computerek, Matematika és 1 szakértő VAGY: 2 képzett képzettség.",
+  Tudós: "1 Mester képzettség, egy szakértő és képzett előfeltétel. 1 képzett képzettség.",
+  Melós: "Munkagépek, Zero-G, 1 szakértő és egy képzett képzettség.",
+};
 
 export const mothershipSkills = [
   [
@@ -354,6 +361,57 @@ export const mothershipSkills = [
   ],
 ];
 
+export const mothershipSkillConnections = [
+  [
+    [0, 0],
+    [1, 0],
+    [1, 1],
+    [1, 2],
+    [3, 1],
+    [3, 3],
+    [3, 13],
+    [4, 4],
+    [4, 3],
+    [5, 5],
+    [5, 4],
+    [6, 6],
+    [6, 5],
+    [7, 6],
+    [7, 7],
+    [8, 8],
+    [9, 9],
+    [10, 10],
+    [11, 11],
+    [12, 11],
+    [13, 11],
+    [14, 14],
+    [14, 13],
+    [14, 15],
+    [14, 6],
+    [15, 15],
+    [15, 14],
+    [16, 15],
+  ],
+  [
+    [0, 0],
+    [1, 1],
+    [1, 2],
+    [2, 2],
+    [3, 3],
+    [4, 3],
+    [5, 4],
+    [5, 5],
+    [5, 6],
+    [8, 8],
+    [9, 10],
+    [10, 10],
+    [11, 10],
+    [11, 11],
+    [9, 14],
+    [14, 14],
+  ],
+];
+
 export function emptyMothershipData(newPlayerName): MothershipData {
   return {
     playerName: newPlayerName,
@@ -384,6 +442,7 @@ export function emptyMothershipData(newPlayerName): MothershipData {
     trinket: "",
     patch: "",
     notes: "",
+    gear: "",
 
     armorPoints: 0,
     credits: 0,

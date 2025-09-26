@@ -307,6 +307,10 @@ input[type="number"] {
   .ql-container {
     font-size: 15px;
   }
+
+  .ql-editor-hover:hover {
+    border-color: var(--p-yellow-400) !important;
+  }
 }
 
 .text-md {
@@ -368,4 +372,18 @@ input[type="number"] {
     text-align: center;
     width: 3rem;
   }
+}
+
+.arrow {
+  pointer-events: none;
+}
+
+.arrow__path {
+  stroke: var(--surface-200);
+  fill: transparent;
+}
+
+.arrow__head {
+  stroke: var(--surface-200);
+  fill: var(--surface-200);
 }

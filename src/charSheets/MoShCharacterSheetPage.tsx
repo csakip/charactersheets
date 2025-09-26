@@ -4,8 +4,18 @@ import { InputText } from "primereact/inputtext";
 import { Toast } from "primereact/toast";
 import { useEffect, useRef, useState } from "react";
 import CharacterSheetBottom from "../components/CharacterSheetBottom";
-import { Charsheet, mothershipClasses, mothershipClassTexts, MothershipData, mothershipSkills, mothershipTraumaReactions } from "../constants";
+import {
+  Charsheet,
+  mothershipClasses,
+  mothershipClassSkills,
+  mothershipClassTexts,
+  MothershipData,
+  mothershipSkillConnections,
+  mothershipSkills,
+  mothershipTraumaReactions,
+} from "../constants";
 import { saveCharsheet } from "../supabase";
+import arrowCreate, { DIRECTION } from "arrows-svg";
 
 export default function MoShCharacterSheetPage({
   loadedCharsheet,
@@ -20,6 +30,7 @@ export default function MoShCharacterSheetPage({
   const [isDirty, setIsDirty] = useState(false);
   const toast = useRef<Toast>(null);
   const editorNotesRef = useRef(null);
+  const editorGearRef = useRef(null);
 
   const charsheetData = charsheet.data as MothershipData;
 
@@ -32,11 +43,13 @@ export default function MoShCharacterSheetPage({
 
   useEffect(() => {
     setCharsheet(loadedCharsheet);
+    makeArrows();
     return () => {
       if (isDirty) {
         setIsDirty(false);
         saveCharsheet(charsheet);
       }
+      document.querySelectorAll("svg.arrow").forEach((el) => el.remove());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadedCharsheet]);
@@ -81,6 +94,35 @@ export default function MoShCharacterSheetPage({
       editorRef.current.getElement().classList.add("has-selection");
     } else {
       editorRef.current.getElement().classList.remove("has-selection");
+    }
+  }
+
+  function makeArrows() {
+    try {
+      [0, 1].forEach((col) =>
+        mothershipSkillConnections[col].forEach((skill) => {
+          const [fromId, toId] = skill;
+          const from = document.getElementById(`skillnode_${col}_${fromId}`).querySelector("label");
+          const to = document.getElementById(`skillnode_${col + 1}_${toId}`);
+
+          const arrow = arrowCreate({
+            from: {
+              node: from,
+              direction: DIRECTION.RIGHT,
+              translation: [0.7, 0],
+            },
+            to: {
+              node: to,
+              direction: DIRECTION.LEFT,
+              translation: [-0.7, 0],
+            },
+            head: { func: "normal", size: 4 },
+          });
+          document.body.appendChild(arrow.node);
+        })
+      );
+    } catch (e) {
+      console.error(e);
     }
   }
 
@@ -238,7 +280,11 @@ export default function MoShCharacterSheetPage({
           {/* Health */}
           <div className='flex flex-1 gap-4 mt-3 w-full'>
             <div className='flex flex-1 flex-column gap-1 justify-content-center align-items-center'>
-              <span className='text-lg font-bold'>Életerő</span>
+              <span className='text-lg font-bold text-center'>
+                Életerő
+                <br />
+                <span className='text-sm text-300'>(1D10+10)</span>
+              </span>
               <div className='flex w-full border-1 border-bluegray-700 border-round border-3 justify-content-around border-round-3xl w-8rem'>
                 <InputText
                   className='transparent text-yellow-400 text-xl'
@@ -264,20 +310,20 @@ export default function MoShCharacterSheetPage({
               <div className='flex w-full border-1 border-bluegray-700 border-round border-3 justify-content-around border-round-3xl w-8rem'>
                 <InputText
                   className='transparent text-yellow-400 text-xl'
-                  maxLength={2}
+                  maxLength={1}
                   value={charsheetData.currentWounds.toString() || ""}
                   onChange={(e) => updateData((prev) => ({ ...prev, currentWounds: e.target.value }))}
                 />
                 <div className='text-300 align-self-center'>/</div>
                 <InputText
                   className='transparent text-yellow-400 text-xl'
-                  maxLength={2}
+                  maxLength={1}
                   value={charsheetData.wounds.toString() || ""}
                   onChange={(e) => updateData((prev) => ({ ...prev, wounds: e.target.value }))}
                 />
               </div>
               <div className='w-full text-sm text-300 text-center'>
-                <span>Jelenlegi / Maximum</span>
+                <span>Jelenlegi / Maximum (2)</span>
               </div>
             </div>
 
@@ -299,7 +345,7 @@ export default function MoShCharacterSheetPage({
                 />
               </div>
               <div className='w-full text-sm text-300 text-center'>
-                <span>Jelenlegi / Minimum</span>
+                <span>Jelenlegi / Minimum (2)</span>
               </div>
             </div>
           </div>
@@ -323,30 +369,58 @@ export default function MoShCharacterSheetPage({
           </div>
 
           {/* Gear and notes */}
-          <div className='flex gap-4 editor-container mt-5'>
-            <div className='flex-1 flex relative'>
-              <label className='custom-label'>Felszerelés / Jegyzetek</label>
-              {editable ? (
-                <Editor
-                  ref={editorNotesRef}
-                  showHeader={false}
-                  spellCheck={false}
-                  className='w-full text-yellow-400 relative'
-                  pt={{
-                    content: { className: "text-md border-1 border-50 border-round flex-1" },
-                    toolbar: { style: { position: "absolute" } },
-                  }}
-                  maxLength={1000}
-                  value={charsheetData.notes}
-                  onTextChange={(e) => updateData((prev) => ({ ...prev, notes: e.htmlValue }))}
-                  modules={modules}
-                  onSelectionChange={(e) => editorSelectionChange(e, editorNotesRef)}
-                />
-              ) : (
-                <div
-                  className='editor-static text-yellow-400 text-md flex-1 px-3 py-2 border-1 border-50 border-round'
-                  dangerouslySetInnerHTML={{ __html: charsheetData.notes }}></div>
-              )}
+          <div className='flex gap-2 mt-5 w-full'>
+            <div className='flex flex-1 gap-4 editor-container'>
+              <div className='flex-1 flex relative'>
+                <label className='custom-label'>Felszerelés</label>
+                {editable ? (
+                  <Editor
+                    ref={editorGearRef}
+                    showHeader={false}
+                    spellCheck={false}
+                    className='w-full text-yellow-400 relative'
+                    pt={{
+                      content: { className: "ql-editor-hover text-md border-1 border-bluegray-700 border-round flex-1" },
+                      toolbar: { style: { position: "absolute" } },
+                    }}
+                    maxLength={1000}
+                    value={charsheetData.gear}
+                    onTextChange={(e) => updateData((prev) => ({ ...prev, gear: e.htmlValue }))}
+                    modules={modules}
+                    onSelectionChange={(e) => editorSelectionChange(e, editorGearRef)}
+                  />
+                ) : (
+                  <div
+                    className='editor-static text-yellow-400 text-md flex-1 px-3 py-2 border-1 border-bluegray-700 border-round'
+                    dangerouslySetInnerHTML={{ __html: charsheetData.gear || "&nbsp;" }}></div>
+                )}
+              </div>
+            </div>
+            <div className='flex flex-1 gap-4 editor-container'>
+              <div className='flex-1 flex relative'>
+                <label className='custom-label'>Jegyzetek</label>
+                {editable ? (
+                  <Editor
+                    ref={editorNotesRef}
+                    showHeader={false}
+                    spellCheck={false}
+                    className='w-full text-yellow-400 relative'
+                    pt={{
+                      content: { className: "ql-editor-hover text-md border-1 border-bluegray-700 border-round flex-1" },
+                      toolbar: { style: { position: "absolute" } },
+                    }}
+                    maxLength={1000}
+                    value={charsheetData.notes}
+                    onTextChange={(e) => updateData((prev) => ({ ...prev, notes: e.htmlValue }))}
+                    modules={modules}
+                    onSelectionChange={(e) => editorSelectionChange(e, editorNotesRef)}
+                  />
+                ) : (
+                  <div
+                    className='editor-static text-yellow-400 text-md flex-1 px-3 py-2 border-1 border-bluegray-700 border-round'
+                    dangerouslySetInnerHTML={{ __html: charsheetData.notes || "&nbsp;" }}></div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -371,7 +445,7 @@ export default function MoShCharacterSheetPage({
               <div className='flex w-full border-1 border-bluegray-700 border-round border-3 justify-content-around border-round-3xl w-6rem'>
                 <InputText
                   className='transparent text-yellow-400 text-xl'
-                  maxLength={2}
+                  maxLength={10}
                   value={charsheetData.credits.toString() || ""}
                   onChange={(e) => updateData((prev) => ({ ...prev, credits: e.target.value }))}
                 />
@@ -382,8 +456,13 @@ export default function MoShCharacterSheetPage({
 
         <div className='flex gap-3 flex-1 flex-column'>
           {/* Skills and Abilities */}
-
           <div className='flex-1 border-1 border-round border-bluegray-700 p-2 pt-3 flex flex-wrap align-content-start row-gap-2'>
+            {charsheetData.class && (
+              <div className='text-center w-full text-left text-300 mb-2'>
+                <span className='font-bold text-yellow-400'>Induló képzettségek: </span>
+                {mothershipClassSkills[charsheetData.class]}
+              </div>
+            )}
             <div className='text-center w-4 h-3rem'>
               Képzett
               <br />
@@ -402,7 +481,7 @@ export default function MoShCharacterSheetPage({
             {[0, 1, 2].map((colIdx) => (
               <div key={colIdx} className='flex flex-column flex-1 gap-3 w-4 skill-container'>
                 {mothershipSkills[colIdx].map((skill, idx) => (
-                  <div key={idx} className={`flex align-items-center gap-2 ${charsheetData.skills.includes(skill) ? "text-900" : "text-300"}`}>
+                  <div key={idx} id={`skillnode_${colIdx}_${idx}`} className={`flex align-items-center gap-2 ${charsheetData.skills.includes(skill) ? "text-900" : "text-300"}`}>
                     {skill !== "" ? (
                       <Checkbox inputId={`skill_${skill.replaceAll(" ", "_")}`} value={skill} checked={charsheetData.skills.includes(skill)} onChange={() => toggleSkill(skill)} />
                     ) : (
@@ -415,6 +494,34 @@ export default function MoShCharacterSheetPage({
                 ))}
               </div>
             ))}
+          </div>
+          <div className='flex flex-column gap-2'>
+            <div className='text-300 text-sm'>Képzés</div>
+            <div className='flex gap-2'>
+              <InputText
+                placeholder='Folyamatban'
+                className='flex-1 text-yellow-400 bg-transparent'
+                maxLength={50}
+                value={charsheetData.skillTraining}
+                onChange={(e) => updateData((prev) => ({ ...prev, skillTraining: e.target.value }))}
+              />
+              <InputText
+                placeholder='Hátralévő idő'
+                className='flex-1 text-yellow-400 bg-transparent'
+                value={charsheetData.skillTimeRemaining}
+                maxLength={50}
+                onChange={(e) => updateData((prev) => ({ ...prev, skillTimeRemaining: e.target.value }))}
+              />
+            </div>
+            <div className='text-300 text-sm'>Állapotok</div>
+            <div className='flex gap-2'>
+              <InputText
+                className='flex-1 text-yellow-400 bg-transparent'
+                maxLength={150}
+                value={charsheetData.conditions}
+                onChange={(e) => updateData((prev) => ({ ...prev, conditions: e.target.value }))}
+              />
+            </div>
           </div>
         </div>
       </div>
