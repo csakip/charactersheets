@@ -1,7 +1,8 @@
+import arrowCreate, { DIRECTION } from "arrows-svg";
+import { Button } from "primereact/button";
 import { Checkbox } from "primereact/checkbox";
 import { Editor } from "primereact/editor";
 import { InputText } from "primereact/inputtext";
-import { Toast } from "primereact/toast";
 import { useEffect, useRef, useState } from "react";
 import CharacterSheetBottom from "../components/CharacterSheetBottom";
 import {
@@ -15,7 +16,6 @@ import {
   mothershipTraumaReactions,
 } from "../constants";
 import { saveCharsheet } from "../supabase";
-import arrowCreate, { DIRECTION } from "arrows-svg";
 
 export default function MoShCharacterSheetPage({
   loadedCharsheet,
@@ -28,9 +28,9 @@ export default function MoShCharacterSheetPage({
 }) {
   const [charsheet, setCharsheet] = useState<Charsheet>(loadedCharsheet);
   const [isDirty, setIsDirty] = useState(false);
-  const toast = useRef<Toast>(null);
   const editorNotesRef = useRef(null);
   const editorGearRef = useRef(null);
+  const [improveMode, setImproveMode] = useState(false);
 
   const charsheetData = charsheet.data as MothershipData;
 
@@ -42,17 +42,35 @@ export default function MoShCharacterSheetPage({
   };
 
   useEffect(() => {
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setImproveMode(false);
+      }
+    };
+    document.addEventListener("keydown", handleEsc);
+    return () => {
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, []);
+
+  useEffect(() => {
+    setImproveMode(editable && (loadedCharsheet.data as MothershipData).strength === 0);
     setCharsheet(loadedCharsheet);
-    makeArrows();
     return () => {
       if (isDirty) {
         setIsDirty(false);
         saveCharsheet(charsheet);
       }
-      document.querySelectorAll("svg.arrow").forEach((el) => el.remove());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadedCharsheet]);
+
+  useEffect(() => {
+    if (improveMode) makeArrows();
+    return () => {
+      document.querySelectorAll("svg.arrow").forEach((el) => el.remove());
+    };
+  }, [improveMode]);
 
   useEffect(() => {
     if (!isDirty) return;
@@ -128,8 +146,9 @@ export default function MoShCharacterSheetPage({
 
   return (
     <>
-      <Toast ref={toast} />
-      <div className='charactersheet mosh flex gap-3 p-4 mt-3 mx-2 border-round-md align-items-stretch flex-row' style={{ backgroundColor: "#1f2937" }}>
+      <div
+        className='charactersheet mosh flex gap-3 p-4 mt-3 mx-2 border-round-md align-items-stretch flex-row'
+        style={{ backgroundColor: "#1f2937", border: improveMode ? "1px solid #fbbf24" : "transparent" }}>
         <div className='w-6'>
           {/* Top Fields */}
           <div className='flex gap-2'>
@@ -137,6 +156,7 @@ export default function MoShCharacterSheetPage({
               placeholder='Név'
               className='flex-1 text-yellow-400'
               maxLength={50}
+              disabled={!improveMode}
               value={charsheetData.name}
               onChange={(e) => updateData((prev) => ({ ...prev, name: e.target.value }))}
             />
@@ -145,6 +165,7 @@ export default function MoShCharacterSheetPage({
               className='w-10rem text-yellow-400'
               value={charsheetData.playerName}
               maxLength={50}
+              disabled={!improveMode}
               onChange={(e) => updateData((prev) => ({ ...prev, playerName: e.target.value }))}
             />
             <div className='flex align-items-center gap-2'>
@@ -152,7 +173,9 @@ export default function MoShCharacterSheetPage({
               <InputText
                 maxLength={2}
                 className='w-3rem text-center text-yellow-400'
+                disabled={!improveMode}
                 value={charsheetData.highScore?.toString() || ""}
+                onFocus={(e) => e.target.select()}
                 onChange={(e) =>
                   updateData((prev) => ({
                     ...prev,
@@ -173,8 +196,10 @@ export default function MoShCharacterSheetPage({
                   <InputText
                     maxLength={2}
                     className='w-4rem text-center p-inputtext-lg p-2 text-4xl text-yellow-400 font-bold border-circle border-3'
+                    disabled={!improveMode}
                     value={charsheetData.strength.toString() || ""}
-                    onChange={(e) => updateData((prev) => ({ ...prev, strength: e.target.value }))}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => updateData((prev) => ({ ...prev, strength: parseInt(e.target.value) }))}
                   />
                   <span className='font-bold mt-2 text-xl'>ERŐ</span>
                 </div>
@@ -183,8 +208,10 @@ export default function MoShCharacterSheetPage({
                   <InputText
                     maxLength={2}
                     className='w-4rem text-center p-inputtext-lg p-2 text-4xl text-yellow-400 font-bold border-circle border-3'
+                    disabled={!improveMode}
                     value={charsheetData.speed.toString() || ""}
-                    onChange={(e) => updateData((prev) => ({ ...prev, speed: e.target.value }))}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => updateData((prev) => ({ ...prev, speed: parseInt(e.target.value) }))}
                   />
                   <span className='font-bold mt-2 text-xl'>SEBESSÉG</span>
                 </div>
@@ -193,8 +220,10 @@ export default function MoShCharacterSheetPage({
                   <InputText
                     maxLength={2}
                     className='w-4rem text-center p-inputtext-lg p-2 text-4xl text-yellow-400 font-bold border-circle border-3'
+                    disabled={!improveMode}
                     value={charsheetData.intellect.toString() || ""}
-                    onChange={(e) => updateData((prev) => ({ ...prev, intellect: e.target.value }))}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => updateData((prev) => ({ ...prev, intellect: parseInt(e.target.value) }))}
                   />
                   <span className='font-bold mt-2 text-xl'>ELME</span>
                 </div>
@@ -203,8 +232,10 @@ export default function MoShCharacterSheetPage({
                   <InputText
                     maxLength={2}
                     className='w-4rem text-center p-inputtext-lg p-2 text-4xl text-yellow-400 font-bold border-circle border-3'
+                    disabled={!improveMode}
                     value={charsheetData.combat.toString() || ""}
-                    onChange={(e) => updateData((prev) => ({ ...prev, combat: e.target.value }))}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => updateData((prev) => ({ ...prev, combat: parseInt(e.target.value) }))}
                   />
                   <span className='font-bold mt-2 text-xl'>HARC</span>
                 </div>
@@ -221,8 +252,10 @@ export default function MoShCharacterSheetPage({
                   <InputText
                     maxLength={2}
                     className='w-4rem text-center p-inputtext-lg p-2 text-4xl text-yellow-400 font-bold border-circle border-3'
+                    disabled={!improveMode}
                     value={charsheetData.sanity.toString() || ""}
-                    onChange={(e) => updateData((prev) => ({ ...prev, sanity: e.target.value }))}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => updateData((prev) => ({ ...prev, sanity: parseInt(e.target.value) }))}
                   />
                   <span className='font-bold mt-2 text-xl'>ÉPELME</span>
                 </div>
@@ -231,8 +264,10 @@ export default function MoShCharacterSheetPage({
                   <InputText
                     maxLength={2}
                     className='w-4rem text-center p-inputtext-lg p-2 text-4xl text-yellow-400 font-bold border-circle border-3'
+                    disabled={!improveMode}
                     value={charsheetData.fear.toString() || ""}
-                    onChange={(e) => updateData((prev) => ({ ...prev, fear: e.target.value }))}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => updateData((prev) => ({ ...prev, fear: parseInt(e.target.value) }))}
                   />
                   <span className='font-bold mt-2 text-xl'>FÉLELEM</span>
                 </div>
@@ -241,8 +276,10 @@ export default function MoShCharacterSheetPage({
                   <InputText
                     maxLength={2}
                     className='w-4rem text-center p-inputtext-lg p-2 text-4xl text-yellow-400 font-bold border-circle border-3'
+                    disabled={!improveMode}
                     value={charsheetData.body.toString() || ""}
-                    onChange={(e) => updateData((prev) => ({ ...prev, body: e.target.value }))}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => updateData((prev) => ({ ...prev, body: parseInt(e.target.value) }))}
                   />
                   <span className='font-bold mt-2 text-xl'>TEST</span>
                 </div>
@@ -253,26 +290,32 @@ export default function MoShCharacterSheetPage({
           {/* Class */}
           <div className='flex gap-4 mt-3 w-full'>
             <div className='flex flex-1 gap-1 justify-content-between'>
-              {mothershipClasses.map(
-                (cls, idx) =>
-                  cls && (
-                    <div key={cls}>
-                      <div className='flex align-items-center w-3'>
-                        <Checkbox checked={charsheetData.class === cls} onChange={() => updateData((prev) => ({ ...prev, class: cls }))} />
-                        <span className='ml-2'>{cls}</span>
-                      </div>
-                      {mothershipClassTexts[idx - 1].map((text, idx) => (
-                        <div key={idx} className='text-300 text-sm ml-4'>
-                          {text}
+              {improveMode &&
+                mothershipClasses.map(
+                  (cls, idx) =>
+                    cls && (
+                      <div key={cls}>
+                        <div className='flex align-items-center w-3'>
+                          <Checkbox checked={charsheetData.class === cls} onChange={() => updateData((prev) => ({ ...prev, class: cls }))} />
+                          <span className='ml-2'>{cls}</span>
                         </div>
-                      ))}
-                    </div>
-                  )
+                        {mothershipClassTexts[idx - 1].map((text, idx) => (
+                          <div key={idx} className='text-300 text-sm ml-4'>
+                            {text}
+                          </div>
+                        ))}
+                      </div>
+                    )
+                )}
+              {!improveMode && charsheetData.class && (
+                <div className='mt-3'>
+                  <b className='text-yellow-400'>Karakter kaszt:</b> <b>{charsheetData.class || ""}</b>
+                </div>
               )}
             </div>
           </div>
           {mothershipTraumaReactions[charsheetData.class] && (
-            <div className='mt-3'>
+            <div className='mt-1'>
               <b className='text-yellow-400'>Trauma reakció:</b> {mothershipTraumaReactions[charsheetData.class] || ""}
             </div>
           )}
@@ -288,6 +331,7 @@ export default function MoShCharacterSheetPage({
               <div className='flex w-full border-1 border-bluegray-700 border-round border-3 justify-content-around border-round-3xl w-8rem dark-background'>
                 <InputText
                   className='transparent text-yellow-400 text-xl'
+                  onFocus={(e) => e.target.select()}
                   maxLength={2}
                   value={charsheetData.currentHealth.toString() || ""}
                   onChange={(e) => updateData((prev) => ({ ...prev, currentHealth: e.target.value }))}
@@ -295,7 +339,9 @@ export default function MoShCharacterSheetPage({
                 <div className='text-300 align-self-center'>/</div>
                 <InputText
                   className='transparent text-yellow-400 text-xl'
+                  onFocus={(e) => e.target.select()}
                   maxLength={2}
+                  disabled={!improveMode}
                   value={charsheetData.health.toString() || ""}
                   onChange={(e) => updateData((prev) => ({ ...prev, health: e.target.value }))}
                 />
@@ -310,6 +356,7 @@ export default function MoShCharacterSheetPage({
               <div className='flex w-full border-1 border-bluegray-700 border-round border-3 justify-content-around border-round-3xl w-8rem dark-background'>
                 <InputText
                   className='transparent text-yellow-400 text-xl'
+                  onFocus={(e) => e.target.select()}
                   maxLength={1}
                   value={charsheetData.currentWounds.toString() || ""}
                   onChange={(e) => updateData((prev) => ({ ...prev, currentWounds: e.target.value }))}
@@ -317,7 +364,9 @@ export default function MoShCharacterSheetPage({
                 <div className='text-300 align-self-center'>/</div>
                 <InputText
                   className='transparent text-yellow-400 text-xl'
+                  onFocus={(e) => e.target.select()}
                   maxLength={1}
+                  disabled={!improveMode}
                   value={charsheetData.wounds.toString() || ""}
                   onChange={(e) => updateData((prev) => ({ ...prev, wounds: e.target.value }))}
                 />
@@ -332,6 +381,7 @@ export default function MoShCharacterSheetPage({
               <div className='flex w-full border-1 border-bluegray-700 border-round border-3 justify-content-around border-round-3xl w-8rem dark-background'>
                 <InputText
                   className='transparent text-yellow-400 text-xl'
+                  onFocus={(e) => e.target.select()}
                   maxLength={2}
                   value={charsheetData.currentStress.toString() || ""}
                   onChange={(e) => updateData((prev) => ({ ...prev, currentStress: e.target.value }))}
@@ -339,7 +389,9 @@ export default function MoShCharacterSheetPage({
                 <div className='text-300 align-self-center'>/</div>
                 <InputText
                   className='transparent text-yellow-400 text-xl'
+                  onFocus={(e) => e.target.select()}
                   maxLength={2}
+                  disabled={!improveMode}
                   value={charsheetData.minimumStress.toString() || ""}
                   onChange={(e) => updateData((prev) => ({ ...prev, minimumStress: e.target.value }))}
                 />
@@ -356,6 +408,7 @@ export default function MoShCharacterSheetPage({
               placeholder='Kabala'
               className='w-6 text-yellow-400'
               maxLength={100}
+              disabled={!improveMode}
               value={charsheetData.trinket}
               onChange={(e) => updateData((prev) => ({ ...prev, trinket: e.target.value }))}
             />
@@ -363,6 +416,7 @@ export default function MoShCharacterSheetPage({
               placeholder='Felvarró'
               className='w-6 text-yellow-400'
               value={charsheetData.patch}
+              disabled={!improveMode}
               maxLength={100}
               onChange={(e) => updateData((prev) => ({ ...prev, patch: e.target.value }))}
             />
@@ -432,6 +486,7 @@ export default function MoShCharacterSheetPage({
                   maxLength={2}
                   className='w-4rem text-center p-2 text-xl text-yellow-400 border-round-3xl border-3'
                   value={charsheetData.armorPoints.toString() || ""}
+                  onFocus={(e) => e.target.select()}
                   onChange={(e) => updateData((prev) => ({ ...prev, armorPoints: e.target.value }))}
                 />
               </div>
@@ -447,6 +502,7 @@ export default function MoShCharacterSheetPage({
                   maxLength={10}
                   className='w-10rem text-center p-2 text-xl text-yellow-400 border-round-3xl border-3'
                   value={charsheetData.credits.toString() || ""}
+                  onFocus={(e) => e.target.select()}
                   onChange={(e) => updateData((prev) => ({ ...prev, credits: e.target.value }))}
                 />
               </div>
@@ -457,41 +513,47 @@ export default function MoShCharacterSheetPage({
         <div className='flex gap-3 flex-1 flex-column'>
           {/* Skills and Abilities */}
           <div className='flex-1 border-1 border-round border-bluegray-700 p-2 pt-3 flex flex-wrap align-content-start row-gap-2'>
-            {charsheetData.class && (
+            {improveMode && charsheetData.class && (
               <div className='text-center w-full text-left text-300 mb-2'>
                 <span className='font-bold text-yellow-400'>Induló képzettségek: </span>
                 {mothershipClassSkills[charsheetData.class]}
               </div>
             )}
-            <div className='text-center w-4 h-3rem'>
-              Képzett
-              <br />
+            <div className='flex flex-column w-4 h-3rem align-items-center my-1'>
+              <b className='text-xl'>Képzett</b>
               <span className='text-sm text-300'>(+10 Bónusz)</span>
             </div>
-            <div className='text-center w-4 h-3rem'>
-              Szakértő
-              <br />
+            <div className='flex flex-column w-4 h-3rem align-items-center my-1'>
+              <b className='text-xl'>Szakértő</b>
               <span className='text-sm text-300'>(+15 Bónusz)</span>
             </div>
-            <div className='text-center w-4 h-1rem'>
-              Mester
-              <br />
+            <div className='flex flex-column w-4 h-3rem align-items-center my-1'>
+              <b className='text-xl'>Mester</b>
               <span className='text-sm text-300'>(+20 Bónusz)</span>
             </div>
             {[0, 1, 2].map((colIdx) => (
               <div key={colIdx} className='flex flex-column flex-1 gap-3 w-4 skill-container'>
-                {mothershipSkills[colIdx].map((skill, idx) => (
-                  <div key={idx} id={`skillnode_${colIdx}_${idx}`} className={`flex align-items-center gap-2 ${charsheetData.skills.includes(skill) ? "text-900" : "text-300"}`}>
-                    {skill !== "" ? (
-                      <Checkbox inputId={`skill_${skill.replaceAll(" ", "_")}`} value={skill} checked={charsheetData.skills.includes(skill)} onChange={() => toggleSkill(skill)} />
-                    ) : (
-                      <span style={{ height: 22 }}></span>
-                    )}
-                    <label htmlFor={`skill_${skill.replaceAll(" ", "_")}`} className='cursor-pointer' title={skill}>
-                      {skill}
-                    </label>
-                  </div>
-                ))}
+                {mothershipSkills[colIdx]
+                  .filter((s) => improveMode || charsheetData.skills.includes(s))
+                  .map((skill, idx) => (
+                    <div key={idx} id={`skillnode_${colIdx}_${idx}`} className={`flex align-items-center gap-2 ${charsheetData.skills.includes(skill) ? "text-900" : "text-300"}`}>
+                      {skill !== "" ? (
+                        <Checkbox
+                          inputId={`skill_${skill.replaceAll(" ", "_")}`}
+                          value={skill}
+                          disabled={!improveMode}
+                          className={improveMode ? "" : "hidden"}
+                          checked={charsheetData.skills.includes(skill)}
+                          onChange={() => toggleSkill(skill)}
+                        />
+                      ) : (
+                        <span style={{ height: 22 }}></span>
+                      )}
+                      <label htmlFor={`skill_${skill.replaceAll(" ", "_")}`} className={improveMode ? "cursor-pointer" : "ml-1 text-yellow-400"} title={skill}>
+                        {skill}
+                      </label>
+                    </div>
+                  ))}
               </div>
             ))}
           </div>
@@ -502,6 +564,7 @@ export default function MoShCharacterSheetPage({
                 placeholder='Folyamatban'
                 className='flex-1 text-yellow-400'
                 maxLength={50}
+                disabled={!improveMode}
                 value={charsheetData.skillTraining}
                 onChange={(e) => updateData((prev) => ({ ...prev, skillTraining: e.target.value }))}
               />
@@ -509,6 +572,7 @@ export default function MoShCharacterSheetPage({
                 placeholder='Hátralévő idő'
                 className='flex-1 text-yellow-400'
                 value={charsheetData.skillTimeRemaining}
+                disabled={!improveMode}
                 maxLength={50}
                 onChange={(e) => updateData((prev) => ({ ...prev, skillTimeRemaining: e.target.value }))}
               />
@@ -525,7 +589,13 @@ export default function MoShCharacterSheetPage({
           </div>
         </div>
       </div>
-      {editable && <CharacterSheetBottom charsheet={charsheet} setCharsheet={setCharsheet} />}
+      {editable && (
+        <CharacterSheetBottom charsheet={charsheet} setCharsheet={setCharsheet}>
+          <Button size='small' text onClick={() => setImproveMode(!improveMode)}>
+            {improveMode ? "Váltás játék módba" : "Karakter fejlesztése"}
+          </Button>
+        </CharacterSheetBottom>
+      )}
     </>
   );
 }

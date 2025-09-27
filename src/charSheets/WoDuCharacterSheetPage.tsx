@@ -2,9 +2,8 @@ import { Checkbox } from "primereact/checkbox";
 import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
-import { Toast } from "primereact/toast";
 import { Tooltip } from "primereact/tooltip";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Fragment } from "react/jsx-runtime";
 import CharacterSheetBottom from "../components/CharacterSheetBottom";
 import { saveCharsheet } from "../supabase";
@@ -21,7 +20,6 @@ export default function WoDuCharacterSheetPage({
 }) {
   const [charsheet, setCharsheet] = useState<Charsheet>(loadedCharsheet);
   const [isDirty, setIsDirty] = useState(false);
-  const toast = useRef<Toast>(null);
 
   const charsheetData = charsheet.data as WoduData;
 
@@ -136,7 +134,6 @@ export default function WoDuCharacterSheetPage({
 
   return (
     <>
-      <Toast ref={toast} />
       <div className='charactersheet wodu flex flex-column gap-4 p-4 mt-3 border-round-md' style={{ maxWidth: "1000px", margin: "auto", backgroundColor: "#1f2937" }}>
         {/* Top Fields */}
         <div className='flex gap-4'>

@@ -20,6 +20,12 @@ input[type="number"] {
   appearance: textfield;
   -moz-appearance: textfield;
 }
+
+.p-disabled,
+.p-component:disabled {
+  opacity: 1;
+}
+
 .charactersheet {
   min-height: calc(100vh - 76px);
 }
@@ -32,6 +38,10 @@ input[type="number"] {
   overflow: hidden !important;
   white-space: nowrap;
   max-width: 100% !important;
+}
+
+.nowrap {
+  white-space: nowrap;
 }
 
 /* sidebar */
