@@ -372,6 +372,10 @@ input[type="number"] {
     text-align: center;
     width: 3rem;
   }
+
+  .dark-background {
+    background-color: var(--surface-0) !important;
+  }
 }
 
 .arrow {

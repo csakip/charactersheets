@@ -285,7 +285,7 @@ export default function MoShCharacterSheetPage({
                 <br />
                 <span className='text-sm text-300'>(1D10+10)</span>
               </span>
-              <div className='flex w-full border-1 border-bluegray-700 border-round border-3 justify-content-around border-round-3xl w-8rem'>
+              <div className='flex w-full border-1 border-bluegray-700 border-round border-3 justify-content-around border-round-3xl w-8rem dark-background'>
                 <InputText
                   className='transparent text-yellow-400 text-xl'
                   maxLength={2}
@@ -307,7 +307,7 @@ export default function MoShCharacterSheetPage({
 
             <div className='flex flex-1 flex-column gap-1 justify-content-center align-items-center'>
               <span className='text-lg font-bold'>Sebek</span>
-              <div className='flex w-full border-1 border-bluegray-700 border-round border-3 justify-content-around border-round-3xl w-8rem'>
+              <div className='flex w-full border-1 border-bluegray-700 border-round border-3 justify-content-around border-round-3xl w-8rem dark-background'>
                 <InputText
                   className='transparent text-yellow-400 text-xl'
                   maxLength={1}
@@ -329,7 +329,7 @@ export default function MoShCharacterSheetPage({
 
             <div className='flex flex-1 flex-column gap-1 justify-content-center align-items-center'>
               <span className='text-lg font-bold'>Stressz</span>
-              <div className='flex w-full border-1 border-bluegray-700 border-round border-3 justify-content-around border-round-3xl w-8rem'>
+              <div className='flex w-full border-1 border-bluegray-700 border-round border-3 justify-content-around border-round-3xl w-8rem dark-background'>
                 <InputText
                   className='transparent text-yellow-400 text-xl'
                   maxLength={2}
@@ -354,14 +354,14 @@ export default function MoShCharacterSheetPage({
           <div className='flex gap-2 mt-5'>
             <InputText
               placeholder='Kabala'
-              className='w-6 text-yellow-400 bg-transparent'
+              className='w-6 text-yellow-400'
               maxLength={100}
               value={charsheetData.trinket}
               onChange={(e) => updateData((prev) => ({ ...prev, trinket: e.target.value }))}
             />
             <InputText
               placeholder='Felvarró'
-              className='w-6 text-yellow-400 bg-transparent'
+              className='w-6 text-yellow-400'
               value={charsheetData.patch}
               maxLength={100}
               onChange={(e) => updateData((prev) => ({ ...prev, patch: e.target.value }))}
@@ -370,7 +370,7 @@ export default function MoShCharacterSheetPage({
 
           {/* Gear and notes */}
           <div className='flex gap-2 mt-5 w-full'>
-            <div className='flex flex-1 gap-4 editor-container'>
+            <div className='flex flex-1 gap-4 editor-container dark-background'>
               <div className='flex-1 flex relative'>
                 <label className='custom-label'>Felszerelés</label>
                 {editable ? (
@@ -391,12 +391,12 @@ export default function MoShCharacterSheetPage({
                   />
                 ) : (
                   <div
-                    className='editor-static text-yellow-400 text-md flex-1 px-3 py-2 border-1 border-bluegray-700 border-round'
+                    className='editor-static text-yellow-400 text-md flex-1 px-3 py-2 border-1 border-bluegray-700 border-round dark-background'
                     dangerouslySetInnerHTML={{ __html: charsheetData.gear || "&nbsp;" }}></div>
                 )}
               </div>
             </div>
-            <div className='flex flex-1 gap-4 editor-container'>
+            <div className='flex flex-1 gap-4 editor-container dark-background'>
               <div className='flex-1 flex relative'>
                 <label className='custom-label'>Jegyzetek</label>
                 {editable ? (
@@ -417,35 +417,35 @@ export default function MoShCharacterSheetPage({
                   />
                 ) : (
                   <div
-                    className='editor-static text-yellow-400 text-md flex-1 px-3 py-2 border-1 border-bluegray-700 border-round'
+                    className='editor-static text-yellow-400 text-md flex-1 px-3 py-2 border-1 border-bluegray-700 border-round dark-background'
                     dangerouslySetInnerHTML={{ __html: charsheetData.notes || "&nbsp;" }}></div>
                 )}
               </div>
             </div>
           </div>
 
-          <div className='mt-3 flex flex-1 justify-content-between'>
+          <div className='mt-3 flex flex-1 justify-content-around align-items-end'>
             <div className='flex justify-content-center flex-column gap-1 align-items-center'>
               <span className='text-lg font-bold'>Páncél pontok</span>
-              <div className='flex w-full border-1 border-bluegray-700 border-round border-3 justify-content-around border-round-3xl w-6rem'>
+              <div className='flex w-full justify-content-center'>
                 <InputText
-                  className='transparent text-yellow-400 text-xl'
                   maxLength={2}
+                  className='w-4rem text-center p-2 text-xl text-yellow-400 border-round-3xl border-3'
                   value={charsheetData.armorPoints.toString() || ""}
                   onChange={(e) => updateData((prev) => ({ ...prev, armorPoints: e.target.value }))}
                 />
               </div>
             </div>
 
-            <div className='mt-3 flex justify-content-center flex-column gap-1 align-items-center'>
+            <div className='flex justify-content-center flex-column gap-1 align-items-center'>
               <div>
                 <span className='text-lg font-bold'>Kredit </span>
                 <span className='text-sm text-300'>(2D10x10)</span>
               </div>
-              <div className='flex w-full border-1 border-bluegray-700 border-round border-3 justify-content-around border-round-3xl w-6rem'>
+              <div className='flex w-full justify-content-center'>
                 <InputText
-                  className='transparent text-yellow-400 text-xl'
                   maxLength={10}
+                  className='w-10rem text-center p-2 text-xl text-yellow-400 border-round-3xl border-3'
                   value={charsheetData.credits.toString() || ""}
                   onChange={(e) => updateData((prev) => ({ ...prev, credits: e.target.value }))}
                 />
@@ -500,14 +500,14 @@ export default function MoShCharacterSheetPage({
             <div className='flex gap-2'>
               <InputText
                 placeholder='Folyamatban'
-                className='flex-1 text-yellow-400 bg-transparent'
+                className='flex-1 text-yellow-400'
                 maxLength={50}
                 value={charsheetData.skillTraining}
                 onChange={(e) => updateData((prev) => ({ ...prev, skillTraining: e.target.value }))}
               />
               <InputText
                 placeholder='Hátralévő idő'
-                className='flex-1 text-yellow-400 bg-transparent'
+                className='flex-1 text-yellow-400'
                 value={charsheetData.skillTimeRemaining}
                 maxLength={50}
                 onChange={(e) => updateData((prev) => ({ ...prev, skillTimeRemaining: e.target.value }))}
@@ -516,7 +516,7 @@ export default function MoShCharacterSheetPage({
             <div className='text-300 text-sm'>Állapotok</div>
             <div className='flex gap-2'>
               <InputText
-                className='flex-1 text-yellow-400 bg-transparent'
+                className='flex-1 text-yellow-400'
                 maxLength={150}
                 value={charsheetData.conditions}
                 onChange={(e) => updateData((prev) => ({ ...prev, conditions: e.target.value }))}
