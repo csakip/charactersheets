@@ -103,10 +103,9 @@ export function findParentAttributeAndSkill(
 
 export function asNumber(value: string): number {
   try {
-    console.log("Parsing value:", value);
     const parsed = parseInt(value);
     return isNaN(parsed) ? null : parsed;
   } catch {
-    return 0;
+    return null;
   }
 }
