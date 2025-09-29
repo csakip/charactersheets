@@ -16,6 +16,7 @@ import {
   mothershipTraumaReactions,
 } from "../constants";
 import { saveCharsheet } from "../supabase";
+import { asNumber } from "../utils";
 
 export default function MoShCharacterSheetPage({
   loadedCharsheet,
@@ -179,7 +180,7 @@ export default function MoShCharacterSheetPage({
                 onChange={(e) =>
                   updateData((prev) => ({
                     ...prev,
-                    highScore: e.target.value ? Math.min(50, Math.max(0, parseInt(e.target.value))) : 1,
+                    highScore: e.target.value ? Math.min(50, Math.max(0, asNumber(e.target.value))) : 1,
                   }))
                 }
               />
@@ -197,9 +198,9 @@ export default function MoShCharacterSheetPage({
                     maxLength={2}
                     className='w-4rem text-center p-inputtext-lg p-2 text-4xl text-yellow-400 font-bold border-circle border-3'
                     disabled={!improveMode}
-                    value={charsheetData.strength.toString() || ""}
+                    value={charsheetData.strength?.toString() || ""}
                     onFocus={(e) => e.target.select()}
-                    onChange={(e) => updateData((prev) => ({ ...prev, strength: parseInt(e.target.value) }))}
+                    onChange={(e) => updateData((prev) => ({ ...prev, strength: asNumber(e.target.value) }))}
                   />
                   <span className='font-bold mt-2 text-xl'>ERŐ</span>
                 </div>
@@ -209,9 +210,9 @@ export default function MoShCharacterSheetPage({
                     maxLength={2}
                     className='w-4rem text-center p-inputtext-lg p-2 text-4xl text-yellow-400 font-bold border-circle border-3'
                     disabled={!improveMode}
-                    value={charsheetData.speed.toString() || ""}
+                    value={charsheetData.speed?.toString() || ""}
                     onFocus={(e) => e.target.select()}
-                    onChange={(e) => updateData((prev) => ({ ...prev, speed: parseInt(e.target.value) }))}
+                    onChange={(e) => updateData((prev) => ({ ...prev, speed: asNumber(e.target.value) }))}
                   />
                   <span className='font-bold mt-2 text-xl'>SEBESSÉG</span>
                 </div>
@@ -221,9 +222,9 @@ export default function MoShCharacterSheetPage({
                     maxLength={2}
                     className='w-4rem text-center p-inputtext-lg p-2 text-4xl text-yellow-400 font-bold border-circle border-3'
                     disabled={!improveMode}
-                    value={charsheetData.intellect.toString() || ""}
+                    value={charsheetData.intellect?.toString() || ""}
                     onFocus={(e) => e.target.select()}
-                    onChange={(e) => updateData((prev) => ({ ...prev, intellect: parseInt(e.target.value) }))}
+                    onChange={(e) => updateData((prev) => ({ ...prev, intellect: asNumber(e.target.value) }))}
                   />
                   <span className='font-bold mt-2 text-xl'>ELME</span>
                 </div>
@@ -233,9 +234,9 @@ export default function MoShCharacterSheetPage({
                     maxLength={2}
                     className='w-4rem text-center p-inputtext-lg p-2 text-4xl text-yellow-400 font-bold border-circle border-3'
                     disabled={!improveMode}
-                    value={charsheetData.combat.toString() || ""}
+                    value={charsheetData.combat?.toString() || ""}
                     onFocus={(e) => e.target.select()}
-                    onChange={(e) => updateData((prev) => ({ ...prev, combat: parseInt(e.target.value) }))}
+                    onChange={(e) => updateData((prev) => ({ ...prev, combat: asNumber(e.target.value) }))}
                   />
                   <span className='font-bold mt-2 text-xl'>HARC</span>
                 </div>
@@ -253,9 +254,9 @@ export default function MoShCharacterSheetPage({
                     maxLength={2}
                     className='w-4rem text-center p-inputtext-lg p-2 text-4xl text-yellow-400 font-bold border-circle border-3'
                     disabled={!improveMode}
-                    value={charsheetData.sanity.toString() || ""}
+                    value={charsheetData.sanity?.toString() || ""}
                     onFocus={(e) => e.target.select()}
-                    onChange={(e) => updateData((prev) => ({ ...prev, sanity: parseInt(e.target.value) }))}
+                    onChange={(e) => updateData((prev) => ({ ...prev, sanity: asNumber(e.target.value) }))}
                   />
                   <span className='font-bold mt-2 text-xl'>ÉPELME</span>
                 </div>
@@ -265,9 +266,9 @@ export default function MoShCharacterSheetPage({
                     maxLength={2}
                     className='w-4rem text-center p-inputtext-lg p-2 text-4xl text-yellow-400 font-bold border-circle border-3'
                     disabled={!improveMode}
-                    value={charsheetData.fear.toString() || ""}
+                    value={charsheetData.fear?.toString() || ""}
                     onFocus={(e) => e.target.select()}
-                    onChange={(e) => updateData((prev) => ({ ...prev, fear: parseInt(e.target.value) }))}
+                    onChange={(e) => updateData((prev) => ({ ...prev, fear: asNumber(e.target.value) }))}
                   />
                   <span className='font-bold mt-2 text-xl'>FÉLELEM</span>
                 </div>
@@ -277,9 +278,9 @@ export default function MoShCharacterSheetPage({
                     maxLength={2}
                     className='w-4rem text-center p-inputtext-lg p-2 text-4xl text-yellow-400 font-bold border-circle border-3'
                     disabled={!improveMode}
-                    value={charsheetData.body.toString() || ""}
+                    value={charsheetData.body?.toString() || ""}
                     onFocus={(e) => e.target.select()}
-                    onChange={(e) => updateData((prev) => ({ ...prev, body: parseInt(e.target.value) }))}
+                    onChange={(e) => updateData((prev) => ({ ...prev, body: asNumber(e.target.value) }))}
                   />
                   <span className='font-bold mt-2 text-xl'>TEST</span>
                 </div>
@@ -333,8 +334,8 @@ export default function MoShCharacterSheetPage({
                   className='transparent text-yellow-400 text-xl'
                   onFocus={(e) => e.target.select()}
                   maxLength={2}
-                  value={charsheetData.currentHealth.toString() || ""}
-                  onChange={(e) => updateData((prev) => ({ ...prev, currentHealth: e.target.value }))}
+                  value={charsheetData.currentHealth?.toString() || ""}
+                  onChange={(e) => updateData((prev) => ({ ...prev, currentHealth: asNumber(e.target.value) }))}
                 />
                 <div className='text-300 align-self-center'>/</div>
                 <InputText
@@ -342,8 +343,8 @@ export default function MoShCharacterSheetPage({
                   onFocus={(e) => e.target.select()}
                   maxLength={2}
                   disabled={!improveMode}
-                  value={charsheetData.health.toString() || ""}
-                  onChange={(e) => updateData((prev) => ({ ...prev, health: e.target.value }))}
+                  value={charsheetData.health?.toString() || ""}
+                  onChange={(e) => updateData((prev) => ({ ...prev, health: asNumber(e.target.value) }))}
                 />
               </div>
               <div className='w-full text-sm text-300 text-center'>
@@ -358,8 +359,8 @@ export default function MoShCharacterSheetPage({
                   className='transparent text-yellow-400 text-xl'
                   onFocus={(e) => e.target.select()}
                   maxLength={1}
-                  value={charsheetData.currentWounds.toString() || ""}
-                  onChange={(e) => updateData((prev) => ({ ...prev, currentWounds: e.target.value }))}
+                  value={charsheetData.currentWounds?.toString() || ""}
+                  onChange={(e) => updateData((prev) => ({ ...prev, currentWounds: asNumber(e.target.value) }))}
                 />
                 <div className='text-300 align-self-center'>/</div>
                 <InputText
@@ -367,8 +368,8 @@ export default function MoShCharacterSheetPage({
                   onFocus={(e) => e.target.select()}
                   maxLength={1}
                   disabled={!improveMode}
-                  value={charsheetData.wounds.toString() || ""}
-                  onChange={(e) => updateData((prev) => ({ ...prev, wounds: e.target.value }))}
+                  value={charsheetData.wounds?.toString() || ""}
+                  onChange={(e) => updateData((prev) => ({ ...prev, wounds: asNumber(e.target.value) }))}
                 />
               </div>
               <div className='w-full text-sm text-300 text-center'>
@@ -383,8 +384,8 @@ export default function MoShCharacterSheetPage({
                   className='transparent text-yellow-400 text-xl'
                   onFocus={(e) => e.target.select()}
                   maxLength={2}
-                  value={charsheetData.currentStress.toString() || ""}
-                  onChange={(e) => updateData((prev) => ({ ...prev, currentStress: e.target.value }))}
+                  value={charsheetData.currentStress?.toString() || ""}
+                  onChange={(e) => updateData((prev) => ({ ...prev, currentStress: asNumber(e.target.value) }))}
                 />
                 <div className='text-300 align-self-center'>/</div>
                 <InputText
@@ -392,8 +393,8 @@ export default function MoShCharacterSheetPage({
                   onFocus={(e) => e.target.select()}
                   maxLength={2}
                   disabled={!improveMode}
-                  value={charsheetData.minimumStress.toString() || ""}
-                  onChange={(e) => updateData((prev) => ({ ...prev, minimumStress: e.target.value }))}
+                  value={charsheetData.minimumStress?.toString() || ""}
+                  onChange={(e) => updateData((prev) => ({ ...prev, minimumStress: asNumber(e.target.value) }))}
                 />
               </div>
               <div className='w-full text-sm text-300 text-center'>
@@ -485,9 +486,9 @@ export default function MoShCharacterSheetPage({
                 <InputText
                   maxLength={2}
                   className='w-4rem text-center p-2 text-xl text-yellow-400 border-round-3xl border-3'
-                  value={charsheetData.armorPoints.toString() || ""}
+                  value={charsheetData.armorPoints?.toString() || ""}
                   onFocus={(e) => e.target.select()}
-                  onChange={(e) => updateData((prev) => ({ ...prev, armorPoints: e.target.value }))}
+                  onChange={(e) => updateData((prev) => ({ ...prev, armorPoints: asNumber(e.target.value) }))}
                 />
               </div>
             </div>
@@ -501,9 +502,9 @@ export default function MoShCharacterSheetPage({
                 <InputText
                   maxLength={10}
                   className='w-10rem text-center p-2 text-xl text-yellow-400 border-round-3xl border-3'
-                  value={charsheetData.credits.toString() || ""}
+                  value={charsheetData.credits?.toString() || ""}
                   onFocus={(e) => e.target.select()}
-                  onChange={(e) => updateData((prev) => ({ ...prev, credits: e.target.value }))}
+                  onChange={(e) => updateData((prev) => ({ ...prev, credits: asNumber(e.target.value) }))}
                 />
               </div>
             </div>

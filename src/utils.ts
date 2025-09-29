@@ -100,3 +100,13 @@ export function findParentAttributeAndSkill(
 
   return null; // Return null if spec not found
 }
+
+export function asNumber(value: string): number {
+  try {
+    console.log("Parsing value:", value);
+    const parsed = parseInt(value);
+    return isNaN(parsed) ? null : parsed;
+  } catch {
+    return 0;
+  }
+}
