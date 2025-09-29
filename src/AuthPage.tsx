@@ -37,26 +37,18 @@ function AuthPage() {
     if (!email.trim()) {
       setMessage("Email kötelező!");
     } else {
-      supabase.auth.signInWithOtp({ email });
+      supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin + window.location.pathname } });
       setMessage("Email küldés sikeres. Bezárhatod ezt a lapot.");
     }
   }
 
   return (
     <div className='flex align-items-center justify-content-center min-h-screen bg-black-alpha-90 p-4'>
-      <Card
-        title={isLogin ? "Bejelentkezés" : "Regisztráció"}
-        className='w-full md:w-30rem shadow-8 border-round-xl'>
+      <Card title={isLogin ? "Bejelentkezés" : "Regisztráció"} className='w-full md:w-30rem shadow-8 border-round-xl'>
         <div className='flex flex-column gap-4'>
           <div className='p-fluid'>
             <span className='p-float-label mb-5 mt-2'>
-              <InputText
-                id='email'
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className='p-inputtext-lg'
-                required
-              />
+              <InputText id='email' value={email} onChange={(e) => setEmail(e.target.value)} className='p-inputtext-lg' required />
               <label htmlFor='email'>Email</label>
             </span>
 
@@ -76,29 +68,11 @@ function AuthPage() {
             {!isLogin && <p className='my-2 text-300 text-sm'>Kisbetű, nagybetű, szám kell.</p>}
           </div>
 
-          {message && (
-            <Message
-              severity={message.includes("sikeres") ? "success" : "error"}
-              text={message}
-              className='w-full border-round-xl'
-            />
-          )}
+          {message && <Message severity={message.includes("sikeres") ? "success" : "error"} text={message} className='w-full border-round-xl' />}
 
-          <Button
-            label={isLogin ? "Bejelentkezés" : "Regisztráció"}
-            onClick={handleAuth}
-            size='large'
-            className='p-button-raised mt-2'
-          />
+          <Button label={isLogin ? "Bejelentkezés" : "Regisztráció"} onClick={handleAuth} size='large' className='p-button-raised mt-2' />
 
-          {isLogin && (
-            <Button
-              label={"Belépés emailes linkkel"}
-              onClick={() => loginWithOTP()}
-              severity='secondary'
-              size='large'
-            />
-          )}
+          {isLogin && <Button label={"Belépés emailes linkkel"} onClick={() => loginWithOTP()} severity='secondary' size='large' />}
 
           <div className='flex align-items-center gap-2'>
             <Divider className='flex-1' />
@@ -106,13 +80,7 @@ function AuthPage() {
             <Divider className='flex-1' />
           </div>
 
-          <Button
-            label={isLogin ? "Fiók létrehozása" : "Vissza a bejelentkezéshez"}
-            onClick={() => setIsLogin(!isLogin)}
-            severity='secondary'
-            text
-            size='large'
-          />
+          <Button label={isLogin ? "Fiók létrehozása" : "Vissza a bejelentkezéshez"} onClick={() => setIsLogin(!isLogin)} severity='secondary' text size='large' />
         </div>
       </Card>
     </div>
