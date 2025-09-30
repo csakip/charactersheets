@@ -12,13 +12,14 @@ import WoDuCharacterSheetPage from "./charSheets/WoDuCharacterSheetPage";
 import CharacterSheetList from "./components/CharacterSheetList";
 import InputDialog from "./components/InputDialog";
 import NewCharacterDialog from "./components/NewCharacterDialog";
-import { woduAttributes, Charsheet, Room, systems } from "./constants";
+import { woduAttributes, Charsheet, Room, systems, MothershipData } from "./constants";
 import { useStore } from "./store";
 import { deleteRoom, logout, supabase } from "./supabase";
-import { createCharacter, shortenName } from "./utils";
+import { createCharacter, getShortName, shortenName } from "./utils";
 import RoomNotesPage from "./charSheets/RoomNotesPage";
 import { MenuItem } from "primereact/menuitem";
 import MoShCharacterSheetPage from "./charSheets/MoShCharacterSheetPage";
+import { ECGMonitor } from "./components/EcgMonitor";
 
 function RoomPage() {
   const [charsheets, setCharsheets] = useState<Charsheet[]>([]);
@@ -35,11 +36,15 @@ function RoomPage() {
   const roomMenu = useRef(null);
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
+  const [showBiomonitor, setShowBiomonitor] = useLocalStorageState("wodu-show-biomonitor", {
+    defaultValue: true,
+  });
   const user: User = useStore((state) => state.user);
 
   const { roomId } = useParams();
   const navigate = useNavigate();
+
+  const system = systems.find((s) => s.value === room?.system);
 
   useEffect(() => {
     fetchRoom();
@@ -198,7 +203,6 @@ function RoomPage() {
   }
 
   const selectedCharacter = charsheets.find((c) => c.id === selectedCharsheetId);
-  const system = systems.find((s) => s.value === room?.system);
 
   if (!room) return <></>;
 
@@ -236,6 +240,22 @@ function RoomPage() {
         } as unknown as MenuItem,
       ],
     });
+  }
+
+  function getBeatInterval(c: Charsheet) {
+    const stress = (c.data as MothershipData).currentStress || 2;
+    return Math.max(50, Math.min(1000, Math.round(1000 - (stress - 2) * (950 / 18))));
+  }
+
+  function getBeatColor(c: Charsheet) {
+    const stress = (c.data as MothershipData).currentStress || 2;
+    if ((c.data as MothershipData).wounds === (c.data as MothershipData).currentWounds) return "#ff2222";
+    const color = stress <= 5 ? "#22ff22" : stress <= 9 ? "#ffff22" : stress <= 15 ? "#ff8800" : "#ff2222";
+    return color;
+  }
+
+  function getDead(c: Charsheet) {
+    return (c.data as MothershipData).wounds === (c.data as MothershipData).currentWounds;
   }
 
   return (
@@ -285,6 +305,9 @@ function RoomPage() {
                 setSelectedCharsheetId={setSelectedCharsheetId}
                 sidebarOpen={sidebarOpen}
               />
+              {system.value === "mosh" && (
+                <Button icon='pi pi-wave-pulse' className='p-button-text p-button-plain text-400 float-end' onClick={() => setShowBiomonitor(!showBiomonitor)}></Button>
+              )}
 
               <Button text className='p-0 align-self-start mt-auto' size='small' onClick={logout}>
                 Kijelentkezés
@@ -294,26 +317,43 @@ function RoomPage() {
         </div>
         <div className='flex-1'>
           <div className='w-full h-screen overflow-auto thin-scrollbar'>
+            {system.value === "mosh" && showBiomonitor && (
+              <div className='px-3 pt-3 flex align-items-center justify-content-center'>
+                <div className='text-400 mx-auto flex flex-row gap-1'>
+                  {charsheets
+                    .toSorted((a, b) => a.data.playerName.localeCompare(b.data.playerName))
+                    .map((c, idx) => (
+                      <div key={idx} className='border border-1 p-2 border-bluegray-700 flex flex-column justify-content-between relative'>
+                        <ECGMonitor beatInterval={getBeatInterval(c)} color={getBeatColor(c)} dead={getDead(c)} />
+                        <div className='absolute' style={{ bottom: 7 }}>
+                          {getShortName(c.data.name)}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+                <Button icon='pi pi-times' className='p-button-text p-button-plain text-400' onClick={() => setShowBiomonitor(false)}></Button>
+              </div>
+            )}
             {selectedCharacter ? (
               <>
                 {system.value === "wodu" && (
                   <WoDuCharacterSheetPage
                     loadedCharsheet={charsheets.find((c) => c.id === selectedCharsheetId)}
-                    editable={user.id === selectedCharacter.user_id}
+                    editable={user.id === selectedCharacter.user_id || room.user_id === user.id}
                     updateCharacterDisplay={updateCharacterDisplay}
                   />
                 )}
                 {system.value === "blades" && (
                   <BladesCharacterSheetPage
                     loadedCharsheet={charsheets.find((c) => c.id === selectedCharsheetId)}
-                    editable={user.id === selectedCharacter.user_id}
+                    editable={user.id === selectedCharacter.user_id || room.user_id === user.id}
                     updateCharacterDisplay={updateCharacterDisplay}
                   />
                 )}
                 {system.value === "starwars" && (
                   <SWCharacterSheetPage
                     loadedCharsheet={charsheets.find((c) => c.id === selectedCharsheetId)}
-                    editable={user.id === selectedCharacter.user_id}
+                    editable={user.id === selectedCharacter.user_id || room.user_id === user.id}
                     updateCharacterDisplay={updateCharacterDisplay}
                     roomSettings={room.settings}
                   />
@@ -321,7 +361,7 @@ function RoomPage() {
                 {system.value === "mosh" && (
                   <MoShCharacterSheetPage
                     loadedCharsheet={charsheets.find((c) => c.id === selectedCharsheetId)}
-                    editable={user.id === selectedCharacter.user_id}
+                    editable={user.id === selectedCharacter.user_id || room.user_id === user.id}
                     updateCharacterDisplay={updateCharacterDisplay}
                   />
                 )}

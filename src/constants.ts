@@ -435,7 +435,7 @@ export function emptyMothershipData(newPlayerName): MothershipData {
     health: 0,
     currentHealth: 0,
     wounds: 2,
-    currentWounds: 2,
+    currentWounds: 0,
     currentStress: 2,
     minimumStress: 2,
 

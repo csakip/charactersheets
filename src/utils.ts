@@ -109,3 +109,17 @@ export function asNumber(value: string): number {
     return null;
   }
 }
+
+// Gets the initial of the first names and the full last name
+export function getShortName(name: string) {
+  const parts = name.trim().split(" ");
+  if (parts.length === 1) return parts[0];
+  return (
+    parts
+      .slice(0, -1)
+      .map((p) => p.charAt(0).toUpperCase() + ".")
+      .join(" ") +
+    " " +
+    parts[parts.length - 1]
+  );
+}
