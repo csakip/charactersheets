@@ -82,6 +82,9 @@ function RoomPage() {
               if (newCharsheet.user_id === user.id && payload.eventType === "UPDATE") return;
 
               const newCharsheets = [...charsheetsRef.current.filter((p) => p.id !== newCharsheet.id), newCharsheet];
+              newCharsheets.forEach((c) => {
+                c.room_id = Number(roomId);
+              }); // Ensure room_id is set
               setCharsheets(newCharsheets);
             } else if (payload.eventType === "DELETE") {
               setCharsheets([...charsheetsRef.current.filter((p) => p.id !== payload.old.id)]);
@@ -121,7 +124,6 @@ function RoomPage() {
       .eq("room_id", roomId);
 
     const charsheets = data?.map((c) => ({ ...c.charsheets, room_id: c.room_id })) || [];
-
     if (data) {
       setCharsheets(charsheets as unknown as Charsheet[]);
     }

@@ -189,9 +189,7 @@ export default function MoShCharacterSheetPage({
           <div className='flex gap-2 mt-3 flex-column'>
             {/* Attributes */}
             <div className='flex flex-column w-full'>
-              <div className='w-full text-center font-bold mb-3'>
-                Tulajdonságok <span className='text-sm text-300'>(2D10+25)</span>
-              </div>
+              <div className='w-full text-center font-bold mb-3'>Tulajdonságok{improveMode && <span className='text-sm text-300 ml-1'>(2D10+25)</span>}</div>
               <div className='flex'>
                 <div className='flex flex-column align-items-center w-3 mb-3'>
                   <InputText
@@ -245,9 +243,7 @@ export default function MoShCharacterSheetPage({
 
             {/* Saves */}
             <div className='flex flex-column w-full'>
-              <div className='w-full text-center font-bold mb-3'>
-                Mentők <span className='text-sm text-300'>(2D10+10)</span>
-              </div>
+              <div className='w-full text-center font-bold mb-3'>Mentők{improveMode && <span className='text-sm text-300 ml-1'>(2D10+10)</span>}</div>
               <div className='flex justify-content-center'>
                 <div className='flex flex-column align-items-center w-3 mb-3'>
                   <InputText
@@ -326,8 +322,12 @@ export default function MoShCharacterSheetPage({
             <div className='flex flex-1 flex-column gap-1 justify-content-center align-items-center'>
               <span className='text-lg font-bold text-center'>
                 Életerő
-                <br />
-                <span className='text-sm text-300'>(1D10+10)</span>
+                {improveMode && (
+                  <>
+                    <br />
+                    <span className='text-sm text-300'>(1D10+10)</span>
+                  </>
+                )}
               </span>
               <div className='flex w-full border-1 border-bluegray-700 border-round border-3 justify-content-around border-round-3xl w-8rem dark-background'>
                 <InputText
@@ -495,8 +495,8 @@ export default function MoShCharacterSheetPage({
 
             <div className='flex justify-content-center flex-column gap-1 align-items-center'>
               <div>
-                <span className='text-lg font-bold'>Kredit </span>
-                <span className='text-sm text-300'>(2D10x10)</span>
+                <span className='text-lg font-bold'>Kredit</span>
+                {improveMode && <span className='text-sm text-300 ml-1'>(2D10x10)</span>}
               </div>
               <div className='flex w-full justify-content-center'>
                 <InputText

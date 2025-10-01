@@ -110,12 +110,7 @@ export default function CharacterSheetBottom({
         rejectLabel='Nem'
       />
 
-      <RoomDialog
-        visible={showRoomDialog}
-        onHide={() => setShowRoomDialog(false)}
-        system={charsheet.system}
-        onSave={addToRoom}
-      />
+      <RoomDialog visible={showRoomDialog} onHide={() => setShowRoomDialog(false)} system={charsheet.system} onSave={addToRoom} />
     </>
   );
 }
