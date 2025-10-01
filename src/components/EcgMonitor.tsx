@@ -23,7 +23,7 @@ export const ECGMonitor = forwardRef<ECGMonitorHandle, ECGMonitorProps>(({ width
     BANG: false,
   });
 
-  const INTERVAL = 20;
+  const INTERVAL = 40;
 
   useImperativeHandle(ref, () => ({
     triggerBeat: () => {
@@ -85,9 +85,15 @@ export const ECGMonitor = forwardRef<ECGMonitorHandle, ECGMonitorProps>(({ width
       if (data.heartDataIndex >= data.heartData.length) {
         data.heartDataIndex = 0;
       }
-      if (data.beatDataIndex >= 0 || data.BANG) {
-        fillBeatData();
+
+      // If BANG is true, immediately start a new beat (interrupting any in progress)
+      if (data.BANG) {
+        data.beatDataIndex = 0;
         data.BANG = false;
+      }
+
+      if (data.beatDataIndex >= 0) {
+        fillBeatData();
       } else {
         fillRandomData();
       }
@@ -108,7 +114,7 @@ export const ECGMonitor = forwardRef<ECGMonitorHandle, ECGMonitorProps>(({ width
       const baseY = height / 2;
       const length = data.heartData.length;
       const step = (width - 5) / length;
-      const yFactor = dead ? 0 : height * (0.2 + (1000 - beatInterval) / 2500);
+      const yFactor = dead ? 0 : height * (0.2 + (1000 - beatInterval) / 2000);
       let heartIndex = (data.heartDataIndex + 1) % length;
       context.strokeStyle = color;
       context.beginPath();
@@ -144,9 +150,10 @@ export const ECGMonitor = forwardRef<ECGMonitorHandle, ECGMonitorProps>(({ width
 
       // Start beat interval
       if (beatInterval > 0) {
+        dataRef.current.BANG = true;
         beatIntervalRef.current = window.setInterval(() => {
           dataRef.current.BANG = true;
-        }, beatInterval + Math.random() * 20);
+        }, beatInterval + Math.ceil(Math.random() * 30));
       }
     }
 

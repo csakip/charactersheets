@@ -244,7 +244,8 @@ function RoomPage() {
 
   function getBeatInterval(c: Charsheet) {
     const stress = (c.data as MothershipData).currentStress || 2;
-    return Math.max(50, Math.min(1000, Math.round(1000 - (stress - 2) * (950 / 18))));
+    const beat = Math.max(300, Math.min(1000, Math.round(1000 - (stress - 2) * (700 / 18))));
+    return beat;
   }
 
   function getBeatColor(c: Charsheet) {
