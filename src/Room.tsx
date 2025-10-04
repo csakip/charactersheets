@@ -318,8 +318,8 @@ function RoomPage() {
             </div>
           </div>
         </div>
-        <div className='flex-1'>
-          <div className='w-full h-screen overflow-auto thin-scrollbar'>
+        <div className='flex-1 flex'>
+          <div className='w-full h-screen flex flex-column overflow-auto thin-scrollbar'>
             {system.value === "mosh" && showBiomonitor && (
               <div className='px-3 pt-3 flex align-items-center justify-content-center'>
                 <div className='text-400 mx-auto flex flex-row gap-1'>
@@ -372,7 +372,7 @@ function RoomPage() {
             ) : selectedCharsheetId === -1 ? (
               <RoomNotesPage roomId={roomId} user={user} />
             ) : (
-              <div className='flex align-items-center justify-content-center h-full'>
+              <div className='flex align-items-center justify-content-center flex-1'>
                 <Button onClick={() => setShowNewCharacterDialog(true)}>Új karakter létrehozása</Button>
               </div>
             )}

@@ -27,7 +27,9 @@ input[type="number"] {
 }
 
 .charactersheet {
-  min-height: calc(100vh - 76px);
+  /* min-height: calc(100vh - 76px); */
+  flex: 1;
+  min-width: 1000px;
 }
 
 .charactersheet .p-dropdown-label.p-inputtext {
