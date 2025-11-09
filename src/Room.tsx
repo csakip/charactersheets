@@ -134,7 +134,17 @@ function RoomPage() {
     }
   };
 
-  const createCharacterWithName = async ({ playerName, rollChecked, system, type }: { playerName: string; rollChecked?: boolean; system?: string; type?: string }) => {
+  const createCharacterWithName = async ({
+    playerName,
+    rollChecked,
+    system,
+    type,
+  }: {
+    playerName: string;
+    rollChecked?: boolean;
+    system?: string;
+    type?: string;
+  }) => {
     if (playerName.trim()) {
       if (type === "character") {
         const id = await createCharacter(user.id, system, playerName.trim(), rollChecked, woduAttributes, roomId);
@@ -245,6 +255,11 @@ function RoomPage() {
   }
 
   function getBeatInterval(c: Charsheet) {
+    const data = c.data as MothershipData;
+    if (data.wounds === data.currentWounds) {
+      if (data.currentHealth > 0) return 4000;
+      return 0;
+    }
     const stress = (c.data as MothershipData).currentStress || 2;
     const beat = Math.max(300, Math.min(1000, Math.round(1000 - (stress - 2) * (700 / 18))));
     return beat;
@@ -296,7 +311,11 @@ function RoomPage() {
             </div>
             <div className='hidden-nowrap text-base text-400 mt-1 font-normal'>{sidebarOpen ? system.label : system.shortLabel}</div>
             {system.value === "wodu" && (
-              <a href='https://csokav.notion.site/World-of-Dungeons-1ca0f93292ad80db9f5dccfbfede8180' target='_blank' rel='noopener noreferrer' className='text-300 text-sm'>
+              <a
+                href='https://csokav.notion.site/World-of-Dungeons-1ca0f93292ad80db9f5dccfbfede8180'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='text-300 text-sm'>
                 Ismertető <i className='pi pi-external-link text-xs ml-1'></i>
               </a>
             )}
@@ -309,7 +328,10 @@ function RoomPage() {
                 sidebarOpen={sidebarOpen}
               />
               {system.value === "mosh" && (
-                <Button icon='pi pi-wave-pulse' className='p-button-text p-button-plain text-400 float-end' onClick={() => setShowBiomonitor(!showBiomonitor)}></Button>
+                <Button
+                  icon='pi pi-wave-pulse'
+                  className='p-button-text p-button-plain text-400 float-end'
+                  onClick={() => setShowBiomonitor(!showBiomonitor)}></Button>
               )}
 
               <Button text className='p-0 align-self-start mt-auto' size='small' onClick={logout}>
@@ -379,9 +401,21 @@ function RoomPage() {
           </div>
         </div>
       </div>
-      <NewCharacterDialog visible={showNewCharacterDialog} onHide={() => setShowNewCharacterDialog(false)} onSave={createCharacterWithName} system={system.value} />
+      <NewCharacterDialog
+        visible={showNewCharacterDialog}
+        onHide={() => setShowNewCharacterDialog(false)}
+        onSave={createCharacterWithName}
+        system={system.value}
+      />
 
-      <InputDialog visible={renameDialogOpen} onHide={() => setRenameDialogOpen(false)} onSave={renameRoom} title='Szoba átnevezése' content='Új név' defaultValue={room.name} />
+      <InputDialog
+        visible={renameDialogOpen}
+        onHide={() => setRenameDialogOpen(false)}
+        onSave={renameRoom}
+        title='Szoba átnevezése'
+        content='Új név'
+        defaultValue={room.name}
+      />
 
       <ConfirmDialog
         visible={showDeleteConfirm}
