@@ -189,7 +189,9 @@ export default function MoShCharacterSheetPage({
           <div className='flex gap-2 mt-3 flex-column'>
             {/* Attributes */}
             <div className='flex flex-column w-full'>
-              <div className='w-full text-center font-bold mb-3'>Tulajdonságok{improveMode && <span className='text-sm text-300 ml-1'>(2D10+25)</span>}</div>
+              <div className='w-full text-center font-bold mb-3'>
+                Tulajdonságok{improveMode && <span className='text-sm text-300 ml-1'>(2D10+25)</span>}
+              </div>
               <div className='flex'>
                 <div className='flex flex-column align-items-center w-3 mb-3'>
                   <InputText
@@ -537,7 +539,10 @@ export default function MoShCharacterSheetPage({
                 {mothershipSkills[colIdx]
                   .filter((s) => improveMode || charsheetData.skills.includes(s))
                   .map((skill, idx) => (
-                    <div key={idx} id={`skillnode_${colIdx}_${idx}`} className={`flex align-items-center gap-2 ${charsheetData.skills.includes(skill) ? "text-900" : "text-300"}`}>
+                    <div
+                      key={idx}
+                      id={`skillnode_${colIdx}_${idx}`}
+                      className={`flex align-items-center gap-2 ${charsheetData.skills.includes(skill) ? "text-900" : "text-300"}`}>
                       {skill !== "" ? (
                         <Checkbox
                           inputId={`skill_${skill.replaceAll(" ", "_")}`}
@@ -550,7 +555,10 @@ export default function MoShCharacterSheetPage({
                       ) : (
                         <span style={{ height: 22 }}></span>
                       )}
-                      <label htmlFor={`skill_${skill.replaceAll(" ", "_")}`} className={improveMode ? "cursor-pointer" : "ml-1 text-yellow-400"} title={skill}>
+                      <label
+                        htmlFor={`skill_${skill.replaceAll(" ", "_")}`}
+                        className={improveMode ? "cursor-pointer" : "ml-1 text-yellow-400"}
+                        title={skill}>
                         {skill}
                       </label>
                     </div>
@@ -591,7 +599,12 @@ export default function MoShCharacterSheetPage({
         </div>
       </div>
       {editable && (
-        <CharacterSheetBottom charsheet={charsheet} setCharsheet={setCharsheet}>
+        <CharacterSheetBottom
+          charsheet={charsheet}
+          setCharsheet={(c) => {
+            setIsDirty(true);
+            setCharsheet(c);
+          }}>
           <Button size='small' text onClick={() => setImproveMode(!improveMode)}>
             {improveMode ? "Váltás játék módba" : "Karakter fejlesztése"}
           </Button>

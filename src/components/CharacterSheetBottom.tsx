@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { addCharacterToRoom, characterExitRoom, deleteCharsheet } from "../supabase";
 import { Charsheet } from "../constants";
 import RoomDialog from "./RoomDialog";
+import TransferDialog from "./TransferDialog";
 
 export default function CharacterSheetBottom({
   charsheet,
@@ -20,6 +21,7 @@ export default function CharacterSheetBottom({
 }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showExitRoomConfirm, setShowExitRoomConfirm] = useState(false);
+  const [showTransferDialog, setShowTransferDialog] = useState(false);
   const [showRoomDialog, setShowRoomDialog] = useState(false);
 
   const navigate = useNavigate();
@@ -68,6 +70,11 @@ export default function CharacterSheetBottom({
     setShowRoomDialog(false);
   }
 
+  async function transferCharacterToUser(userId: string) {
+    setCharsheet({ ...charsheet, user_id: userId });
+    setShowTransferDialog(false);
+  }
+
   return (
     <>
       <div className='flex mb-3 mt-1 justify-content-end' style={style}>
@@ -82,6 +89,11 @@ export default function CharacterSheetBottom({
             Belépés egy szobába
           </Button>
         )}
+
+        <Button severity='warning' size='small' text onClick={() => setShowTransferDialog(true)}>
+          Karakter átadása
+        </Button>
+
         <Button severity='danger' size='small' text onClick={() => setShowDeleteConfirm(true)}>
           Karakter törlése
         </Button>
@@ -111,6 +123,7 @@ export default function CharacterSheetBottom({
       />
 
       <RoomDialog visible={showRoomDialog} onHide={() => setShowRoomDialog(false)} system={charsheet.system} onSave={addToRoom} />
+      <TransferDialog visible={showTransferDialog} onHide={() => setShowTransferDialog(false)} onSave={transferCharacterToUser} />
     </>
   );
 }
