@@ -102,9 +102,7 @@ export default function RoomNotesPage({ roomId, user }: { roomId: string; user: 
         style={{ maxWidth: "1000px", margin: "auto", backgroundColor: "#1f2937" }}>
         <h3 className='font-bold mt-0 mb-2'>
           Közös jegyzetek
-          {saving && (
-            <ProgressSpinner className='h-1rem w-2rem' strokeWidth='8' animationDuration='750' />
-          )}
+          {saving && <ProgressSpinner className='h-1rem w-2rem' strokeWidth='8' animationDuration='750' />}
         </h3>
 
         <div className='flex gap-2 mb-2'>
@@ -160,6 +158,7 @@ export default function RoomNotesPage({ roomId, user }: { roomId: string; user: 
           {/* Add more buttons as needed */}
         </div>
         <EditorContent
+          spellCheck={false}
           editor={editor}
           className='flex-1 flex text-yellow-400 thin-scrollbar p-inputtextarea p-inputtext p-component p-filled flex-column py-0'
         />

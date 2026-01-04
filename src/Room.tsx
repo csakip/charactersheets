@@ -363,8 +363,9 @@ function RoomPage() {
               <>
                 {system.value === "wodu" && (
                   <WoDuCharacterSheetPage
+                    key={selectedCharsheetId}
                     loadedCharsheet={charsheets.find((c) => c.id === selectedCharsheetId)}
-                    editable={user.id === selectedCharacter.user_id || room.user_id === user.id}
+                    isRoomOwner={room.user_id === user.id}
                     updateCharacterDisplay={updateCharacterDisplay}
                   />
                 )}

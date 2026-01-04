@@ -8,18 +8,26 @@ import { Fragment } from "react/jsx-runtime";
 import CharacterSheetBottom from "../components/CharacterSheetBottom";
 import { saveCharsheet } from "../supabase";
 import { woduAbilities, woduAttributes, Charsheet, woduSkills, WoduData } from "../constants";
+import { Button } from "primereact/button";
+import { User } from "@supabase/supabase-js";
+import { useStore } from "../store";
 
 export default function WoDuCharacterSheetPage({
   loadedCharsheet,
-  editable,
   updateCharacterDisplay,
+  isRoomOwner = false,
 }: {
   loadedCharsheet: Charsheet;
-  editable: boolean;
   updateCharacterDisplay: (charsheet: Charsheet) => void;
+  isRoomOwner: boolean;
 }) {
   const [charsheet, setCharsheet] = useState<Charsheet>(loadedCharsheet);
   const [isDirty, setIsDirty] = useState(false);
+
+  const user: User = useStore((state) => state.user);
+  const isCharacterOwner = loadedCharsheet.user_id === user.id;
+  const [editable, setEditable] = useState(isCharacterOwner);
+  console.log("editable", editable, "ischaracterowner", isCharacterOwner, "isroomowner", isRoomOwner);
 
   const charsheetData = charsheet.data as WoduData;
 
@@ -96,7 +104,8 @@ export default function WoDuCharacterSheetPage({
     const shield = type === "Pajzs" && checked ? 1 : type !== "Pajzs" ? prevShield : 0;
     const abilityArmor = charsheetData.abilities.includes("Kemény") ? 1 : 0;
 
-    const armor = type !== "Pajzs" && checked ? ["Nincs", "Könnyű", "Teljes"].indexOf(type) : ["Nincs", "Könnyű", "Teljes"].indexOf(charsheetData.armor);
+    const armor =
+      type !== "Pajzs" && checked ? ["Nincs", "Könnyű", "Teljes"].indexOf(type) : ["Nincs", "Könnyű", "Teljes"].indexOf(charsheetData.armor);
 
     if (type === "Pajzs") {
       updateData((prev) => ({
@@ -134,7 +143,9 @@ export default function WoDuCharacterSheetPage({
 
   return (
     <>
-      <div className='charactersheet wodu flex flex-column gap-4 p-4 mt-3 border-round-md' style={{ maxWidth: "1000px", margin: "auto", backgroundColor: "#1f2937" }}>
+      <div
+        className='charactersheet wodu flex flex-column gap-4 p-4 mt-3 border-round-md'
+        style={{ maxWidth: "1000px", margin: "auto", backgroundColor: editable && isRoomOwner && !isCharacterOwner ? "#6f0000" : "#1f2937" }}>
         {/* Top Fields */}
         <div className='flex gap-4'>
           <InputText
@@ -200,7 +211,9 @@ export default function WoDuCharacterSheetPage({
             <div className='w-full text-center font-bold mb-3'>Képzettségek</div>
             <div className='flex-1 border-1 border-round border-bluegray-700 p-3 justify-content-between flex flex-column'>
               {woduSkills.map((skill) => (
-                <div key={skill} className={`flex justify-content-between align-items-center ${charsheetData.skills.includes(skill) ? "text-900" : "text-200"}`}>
+                <div
+                  key={skill}
+                  className={`flex justify-content-between align-items-center ${charsheetData.skills.includes(skill) ? "text-900" : "text-200"}`}>
                   <span>{skill}</span>
                   <Checkbox checked={charsheetData.skills.includes(skill)} onChange={() => toggleSkill(skill)} />
                 </div>
@@ -215,7 +228,9 @@ export default function WoDuCharacterSheetPage({
                   <Fragment key={ab.name}>
                     <div
                       id={`abaility-div-${idx}`}
-                      className={`col-6 flex justify-content-between align-items-center p-1 ${charsheetData.abilities.includes(ab.name) ? "text-900" : "text-200"}`}>
+                      className={`col-6 flex justify-content-between align-items-center p-1 ${
+                        charsheetData.abilities.includes(ab.name) ? "text-900" : "text-200"
+                      }`}>
                       <span>{ab.name}</span>
                       <Checkbox checked={charsheetData.abilities.includes(ab.name)} onChange={() => toggleAbility(ab.name)} />
                     </div>
@@ -389,7 +404,15 @@ export default function WoDuCharacterSheetPage({
           </div>
         </div>
       </div>
-      {editable && <CharacterSheetBottom charsheet={charsheet} setCharsheet={setCharsheet} style={{ maxWidth: "1000px", margin: "auto" }} />}
+      {(isCharacterOwner || isRoomOwner) && (
+        <CharacterSheetBottom charsheet={charsheet} setCharsheet={setCharsheet} style={{ maxWidth: "1000px", margin: "auto" }}>
+          {isRoomOwner && !isCharacterOwner && (
+            <Button severity='danger' size='small' text onClick={() => setEditable(!editable)}>
+              {editable ? "Szerkesztés mód vége" : "Szerkesztés mód"}
+            </Button>
+          )}
+        </CharacterSheetBottom>
+      )}
     </>
   );
 }

@@ -131,7 +131,11 @@ function Rooms() {
   }, [selectedCharsheetId]);
 
   const fetchRooms = async () => {
-    const { data, error } = await supabase.from("rooms").select("*").or(`user_id.eq.${user.id},private.eq.false`).order("created_at", { ascending: true });
+    const { data, error } = await supabase
+      .from("rooms")
+      .select("*")
+      .or(`user_id.eq.${user.id},private.eq.false`)
+      .order("created_at", { ascending: true });
 
     if (error) {
       console.error("Error fetching rooms:", error);
@@ -175,7 +179,17 @@ function Rooms() {
     }
   };
 
-  const createCharacterWithName = async ({ playerName, rollChecked, system, type }: { playerName: string; rollChecked?: boolean; system?: string; type?: string }) => {
+  const createCharacterWithName = async ({
+    playerName,
+    rollChecked,
+    system,
+    type,
+  }: {
+    playerName: string;
+    rollChecked?: boolean;
+    system?: string;
+    type?: string;
+  }) => {
     if (playerName.trim() && type === "character") {
       const id = await createCharacter(user.id, system, playerName.trim(), rollChecked, woduAttributes, null);
       setSelectedCharsheetId(id);
@@ -257,10 +271,14 @@ function Rooms() {
         <div className='flex-1'>
           <div className='w-full h-screen overflow-auto thin-scrollbar'>
             {selectedCharsheet && selectedCharsheet.system === "wodu" && (
-              <WoDuCharacterSheetPage loadedCharsheet={selectedCharsheet} editable={selectedCharsheet.user_id === user.id} updateCharacterDisplay={updateCharacterDisplay} />
+              <WoDuCharacterSheetPage loadedCharsheet={selectedCharsheet} updateCharacterDisplay={updateCharacterDisplay} isRoomOwner={true} />
             )}
             {selectedCharsheet && selectedCharsheet.system === "blades" && (
-              <BladesCharacterSheetPage loadedCharsheet={selectedCharsheet} editable={selectedCharsheet.user_id === user.id} updateCharacterDisplay={updateCharacterDisplay} />
+              <BladesCharacterSheetPage
+                loadedCharsheet={selectedCharsheet}
+                editable={selectedCharsheet.user_id === user.id}
+                updateCharacterDisplay={updateCharacterDisplay}
+              />
             )}
             {selectedCharsheet && selectedCharsheet.system === "starwars" && (
               <SWCharacterSheetPage
@@ -271,7 +289,11 @@ function Rooms() {
               />
             )}
             {selectedCharsheet && selectedCharsheet.system === "mosh" && (
-              <MoShCharacterSheetPage loadedCharsheet={selectedCharsheet} editable={selectedCharsheet.user_id === user.id} updateCharacterDisplay={updateCharacterDisplay} />
+              <MoShCharacterSheetPage
+                loadedCharsheet={selectedCharsheet}
+                editable={selectedCharsheet.user_id === user.id}
+                updateCharacterDisplay={updateCharacterDisplay}
+              />
             )}
             {!selectedCharsheet && (
               <div className='flex flex-column gap-3 align-items-center justify-content-center h-full'>
@@ -311,7 +333,12 @@ function Rooms() {
           </div>
           <div className='flex flex-column gap-2'>
             <label htmlFor='roomName'>Szoba neve</label>
-            <InputText id='roomName' value={newRoomName} onChange={(e) => setNewRoomName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && createRoom()} />
+            <InputText
+              id='roomName'
+              value={newRoomName}
+              onChange={(e) => setNewRoomName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && createRoom()}
+            />
           </div>
           <div className='flex flex-column gap-2'>
             <div className='flex align-items-center'>

@@ -50,10 +50,7 @@ export const saveRoom = async (room) => {
 
 export const deleteRoom = async (roomId) => {
   try {
-    const { error: error1 } = await supabase
-      .from("rooms_charsheets")
-      .delete()
-      .eq("room_id", roomId);
+    const { error: error1 } = await supabase.from("rooms_charsheets").delete().eq("room_id", roomId);
     if (error1) {
       console.error("Error deleting rooms_charsheets entries:", error1);
     }
@@ -155,4 +152,28 @@ export async function addCharacterToRoom(roomId, charsheetId) {
     room_id: roomId,
     charsheet_id: charsheetId,
   });
+}
+
+export async function backupPublicSchema() {
+  const { data: tables, error: tablesError } = await supabase.rpc("pg_catalog.pg_tables").select("tablename").eq("schemaname", "public");
+  if (tablesError) throw tablesError;
+
+  const backup = {};
+  for (const { tablename } of tables) {
+    const { data, error } = await supabase.from(tablename).select("*");
+    if (error) throw error;
+    backup[tablename] = data;
+  }
+
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `backup_${Date.now()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+
+  console.log("Backup saved.");
 }
